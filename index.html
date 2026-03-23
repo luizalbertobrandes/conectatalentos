@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConectaTalentos SC - Gestão Nuvem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .tab-active { border-bottom: 4px solid #F97316; color: #F97316; font-weight: 800; }
+        .modal-blur { backdrop-filter: blur(12px); }
+        .loading-overlay { background: rgba(255,255,255,0.8); z-index: 1000; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="fixed inset-0 loading-overlay flex flex-col items-center justify-center font-black text-blue-900 uppercase tracking-widest text-xs">
+        <div class="w-12 h-12 border-4 border-blue-900 border-t-orange-500 rounded-full animate-spin mb-4"></div>
+        Sincronizando com a Nuvem...
+    </div>
+
+    <!-- Navbar -->
+    <nav class="bg-[#1E3A8A] text-white shadow-2xl sticky top-0 z-[100]">
+        <div class="max-w-7xl mx-auto px-6 flex justify-between items-center h-20">
+            <div class="flex items-center gap-4">
+                <div class="bg-orange-500 p-2 rounded-xl font-black text-xl shadow-lg">CT</div>
+                <div>
+                    <span class="font-black text-xl tracking-tight block uppercase">ConectaTalentos <span class="text-orange-400">SC</span></span>
+                    <span id="user-display" class="text-[10px] uppercase tracking-[0.1em] text-blue-300 font-bold">Iniciando sessão...</span>
+                </div>
+            </div>
+            <div class="flex space-x-8 text-sm font-bold uppercase tracking-wider">
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="py-7 tab-active">Dashboard</button>
+                <button onclick="switchTab('vagas')" id="btn-vagas" class="py-7 hover:text-orange-400 transition-all">Vagas</button>
+                <button onclick="switchTab('banco')" id="btn-banco" class="py-7 hover:text-orange-400 transition-all">Talentos</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6 lg:p-12">
+        
+        <!-- DASHBOARD -->
+        <div id="tab-dashboard" class="tab-content space-y-8">
+            <header>
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter">Painel em Tempo Real</h1>
+                <p class="text-slate-500 font-medium italic">Dados persistidos via Cloud Firestore.</p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 border-b-4 border-b-blue-500">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Talentos no Banco</p>
+                    <h3 class="text-5xl font-black text-slate-900 mt-2" id="stat-total">0</h3>
+                </div>
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 border-b-4 border-b-orange-500">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Vagas Abertas</p>
+                    <h3 class="text-5xl font-black text-slate-900 mt-2" id="stat-vagas">0</h3>
+                </div>
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 border-b-4 border-b-green-500">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Contratações</p>
+                    <h3 class="text-5xl font-black text-slate-900 mt-2" id="stat-contratos">0</h3>
+                </div>
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 border-b-4 border-b-purple-500">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">User ID</p>
+                    <h3 class="text-xs font-mono text-slate-400 mt-4 overflow-hidden text-ellipsis" id="stat-user-id">-</h3>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden">
+                <div class="p-8 border-b bg-slate-50/50 flex justify-between">
+                    <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest">Últimas Movimentações</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-white text-[10px] uppercase font-black text-slate-400 border-b">
+                            <tr><th class="p-6">Nome</th><th class="p-6">Cargo</th><th class="p-6">Tipo</th><th class="p-6 text-right">Data</th></tr>
+                        </thead>
+                        <tbody id="hist-contratacoes" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VAGAS -->
+        <div id="tab-vagas" class="tab-content hidden space-y-10">
+            <div class="flex justify-between items-center">
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter">Gestão de Vagas</h1>
+                <button onclick="openModal('modal-vaga')" class="bg-[#1E3A8A] text-white px-8 py-4 rounded-2xl font-black uppercase text-xs">Criar Vaga</button>
+            </div>
+            <div id="grid-vagas" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
+        </div>
+
+        <!-- BANCO DE TALENTOS -->
+        <div id="tab-banco" class="tab-content hidden space-y-8">
+            <div class="flex justify-between items-center">
+                <h1 class="text-4xl font-black text-slate-900 tracking-tighter">Banco de Talentos</h1>
+                <button onclick="openModal('modal-talento')" class="bg-orange-500 text-white px-8 py-4 rounded-2xl font-black uppercase text-xs">Cadastrar Talento</button>
+            </div>
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <div id="grid-banco" class="grid grid-cols-1 md:grid-cols-4 gap-6"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL VAGA -->
+    <div id="modal-vaga" class="fixed inset-0 bg-slate-900/70 hidden items-center justify-center p-4 z-[200] modal-blur">
+        <div class="bg-white w-full max-w-lg rounded-[2rem] p-10">
+            <h2 class="text-2xl font-black mb-6">Novo Desenho de Cargo</h2>
+            <form id="form-vaga" class="space-y-4">
+                <input type="text" id="v-titulo" placeholder="Título do Cargo" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold" required>
+                <select id="v-origem" class="w-full p-4 bg-slate-50 rounded-xl font-bold">
+                    <option value="interno">Recrutamento Interno</option>
+                    <option value="externo">Recrutamento Externo</option>
+                </select>
+                <input type="number" id="v-sal" placeholder="Salário R$" class="w-full p-4 bg-slate-50 rounded-xl font-bold" required>
+                <button type="submit" class="w-full bg-[#1E3A8A] text-white py-4 rounded-xl font-black uppercase tracking-widest">Publicar Vaga</button>
+                <button type="button" onclick="closeModal('modal-vaga')" class="w-full text-slate-400 font-bold text-xs uppercase">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL TALENTO -->
+    <div id="modal-talento" class="fixed inset-0 bg-slate-900/70 hidden items-center justify-center p-4 z-[200] modal-blur">
+        <div class="bg-white w-full max-w-lg rounded-[2rem] p-10">
+            <h2 class="text-2xl font-black mb-6">Novo Talento</h2>
+            <form id="form-talento" class="space-y-4">
+                <input type="text" id="t-nome" placeholder="Nome Completo" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold" required>
+                <input type="text" id="t-cargo" placeholder="Cargo Atual / Pretendido" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold" required>
+                <select id="t-tipo" class="w-full p-4 bg-slate-50 rounded-xl font-bold">
+                    <option value="externo">Candidato Externo</option>
+                    <option value="interno">Colaborador Interno</option>
+                </select>
+                <input type="text" id="t-skill" placeholder="Principal Competência (ex: Liderança)" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold" required>
+                <button type="submit" class="w-full bg-orange-500 text-white py-4 rounded-xl font-black uppercase tracking-widest">Salvar no Banco</button>
+                <button type="button" onclick="closeModal('modal-talento')" class="w-full text-slate-400 font-bold text-xs uppercase">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, addDoc, query, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Configuração Firebase
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'conecta-talentos-sc';
+
+        let currentUser = null;
+
+        // Iniciar Sessão
+        async function init() {
+            try {
+                await signInAnonymously(auth);
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        document.getElementById('user-display').innerText = `Sessão Ativa: ${user.uid.substring(0,8)}...`;
+                        document.getElementById('stat-user-id').innerText = user.uid;
+                        document.getElementById('loading').classList.add('hidden');
+                        startSync();
+                    }
+                });
+            } catch (error) {
+                console.error("Erro Auth:", error);
+            }
+        }
+
+        // Sincronização em Tempo Real
+        function startSync() {
+            // Escutar Vagas
+            const qVagas = collection(db, 'artifacts', appId, 'public', 'data', 'vagas');
+            onSnapshot(qVagas, (snap) => {
+                const vagas = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                renderVagas(vagas);
+                document.getElementById('stat-vagas').innerText = vagas.length;
+            }, (err) => console.error(err));
+
+            // Escutar Contratos
+            const qContratos = collection(db, 'artifacts', appId, 'public', 'data', 'contratos');
+            onSnapshot(qContratos, (snap) => {
+                const contratos = snap.docs.map(doc => doc.data());
+                renderHistorico(contratos);
+                document.getElementById('stat-contratos').innerText = contratos.length;
+            }, (err) => console.error(err));
+
+            // Escutar Talentos
+            const qTalentos = collection(db, 'artifacts', appId, 'public', 'data', 'talentos');
+            onSnapshot(qTalentos, (snap) => {
+                let talentos = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+                if(talentos.length === 0) seedTalentos(); 
+                renderBanco(talentos);
+                document.getElementById('stat-total').innerText = talentos.length;
+            });
+        }
+
+        // Funções de Escrita
+        window.saveVaga = async (vaga) => {
+            if (!currentUser) return;
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'vagas'), vaga);
+        };
+
+        window.saveTalento = async (talento) => {
+            if (!currentUser) return;
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'talentos'), talento);
+        };
+
+        window.contratar = async (vagaId, cand) => {
+            if (!currentUser) return;
+            const vRef = doc(db, 'artifacts', appId, 'public', 'data', 'vagas', vagaId);
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'contratos'), {
+                nome: cand.nome,
+                cargo: cand.cargoAtual,
+                tipo: cand.tipo,
+                data: new Date().toLocaleDateString('pt-BR'),
+                timestamp: Date.now()
+            });
+            await deleteDoc(vRef);
+        };
+
+        // Popular Banco Inicial se estiver vazio
+        async function seedTalentos() {
+            const base = [
+                { nome: "Ana Silva", tipo: "interno", cargoAtual: "Auxiliar Administrativo", skill: "Inteligência Emocional" },
+                { nome: "Marcos Oliveira", tipo: "interno", cargoAtual: "Operador de Logística", skill: "Resiliência" },
+                { nome: "Juliana Costa", tipo: "externo", cargoAtual: "Gerente de Projetos", skill: "Liderança" }
+            ];
+            for (let t of base) {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'talentos'), t);
+            }
+        }
+
+        // Renderização de UI
+        function renderVagas(vagas) {
+            const grid = document.getElementById('grid-vagas');
+            grid.innerHTML = vagas.map(v => `
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                    <span class="text-[9px] font-black uppercase px-2 py-1 bg-blue-50 text-blue-600 rounded-lg">${v.origem}</span>
+                    <h3 class="text-xl font-black mt-4">${v.titulo}</h3>
+                    <p class="font-bold text-emerald-600 text-sm mt-1">R$ ${v.sal}</p>
+                    <button onclick="contratar('${v.id}', {nome: 'Candidato Exemplo', cargoAtual: '${v.titulo}', tipo: '${v.origem}'})" class="w-full mt-6 bg-slate-900 text-white py-3 rounded-xl font-black text-[10px] uppercase">Simular Contratação</button>
+                </div>
+            `).join('');
+        }
+
+        function renderHistorico(contratos) {
+            const body = document.getElementById('hist-contratacoes');
+            body.innerHTML = contratos.sort((a,b) => b.timestamp - a.timestamp).map(c => `
+                <tr class="border-b">
+                    <td class="p-6 font-bold">${c.nome}</td>
+                    <td class="p-6">${c.cargo}</td>
+                    <td class="p-6 text-[10px] font-black">${c.tipo.toUpperCase()}</td>
+                    <td class="p-6 text-right text-slate-400">${c.data}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderBanco(talentos) {
+            const grid = document.getElementById('grid-banco');
+            grid.innerHTML = talentos.map(t => `
+                <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 transition-all hover:bg-white hover:shadow-lg">
+                    <p class="font-black text-slate-800">${t.nome}</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">${t.cargoAtual}</p>
+                    <div class="mt-4 text-[9px] bg-white inline-block px-2 py-1 rounded font-black text-orange-500 border border-orange-100">${t.skill}</div>
+                    <div class="mt-2 text-[8px] font-black uppercase text-slate-300 tracking-widest">${t.tipo}</div>
+                </div>
+            `).join('');
+        }
+
+        // Listeners dos Forms
+        document.getElementById('form-vaga').onsubmit = (e) => {
+            e.preventDefault();
+            const v = {
+                titulo: document.getElementById('v-titulo').value,
+                origem: document.getElementById('v-origem').value,
+                sal: document.getElementById('v-sal').value,
+                timestamp: Date.now()
+            };
+            window.saveVaga(v);
+            closeModal('modal-vaga');
+            e.target.reset();
+        };
+
+        document.getElementById('form-talento').onsubmit = (e) => {
+            e.preventDefault();
+            const t = {
+                nome: document.getElementById('t-nome').value,
+                cargoAtual: document.getElementById('t-cargo').value,
+                tipo: document.getElementById('t-tipo').value,
+                skill: document.getElementById('t-skill').value,
+                timestamp: Date.now()
+            };
+            window.saveTalento(t);
+            closeModal('modal-talento');
+            e.target.reset();
+        };
+
+        window.switchTab = (id) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('tab-active'));
+            document.getElementById('tab-' + id).classList.remove('hidden');
+            document.getElementById('btn-' + id).classList.add('tab-active');
+        };
+
+        window.openModal = (id) => document.getElementById(id).classList.replace('hidden', 'flex');
+        window.closeModal = (id) => document.getElementById(id).classList.replace('flex', 'hidden');
+
+        init();
+    </script>
+</body>
+</html>
