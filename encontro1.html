@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talento Pessoal - Inovação, Bem-Estar, Saúde e Tecnologia</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome para Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        senacBlue: '#004587',
+                        senacOrange: '#f29111',
+                        navyDark: '#0a2240',
+                        iceBlue: '#f4f7fc'
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-navyDark text-white sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-senacOrange text-white p-2 rounded-lg font-bold text-lg shadow-inner">
+                        TP
+                    </div>
+                    <div>
+                        <span class="font-extrabold tracking-tight text-lg block sm:inline">Talento Pessoal</span>
+                        <span class="text-xs text-gray-300 block sm:inline sm:ml-2">Inovação, Bem-Estar, Saúde e Tecnologia</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex space-x-6 text-sm font-medium">
+                    <a href="#visao-geral" class="hover:text-senacOrange transition-colors">Visão Geral</a>
+                    <a href="#unidades-curriculares" class="hover:text-senacOrange transition-colors">Unidades Curriculares</a>
+                    <a href="#uc7-foco" class="text-senacOrange hover:text-orange-400 transition-colors font-bold">★ UC7: Oficina Integradora</a>
+                    <a href="#ferramentas" class="hover:text-senacOrange transition-colors">Ferramentas de Aula</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Hero -->
+    <header class="bg-gradient-to-r from-navyDark via-senacBlue to-blue-900 text-white py-12 px-4 shadow-inner relative overflow-hidden">
+        <!-- Detalhes de Background -->
+        <div class="absolute top-0 right-0 w-96 h-96 bg-senacOrange opacity-10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+        <div class="absolute bottom-0 left-0 w-80 h-80 bg-blue-500 opacity-10 rounded-full blur-3xl -ml-20 -mb-20"></div>
+
+        <div class="max-w-6xl mx-auto relative z-10">
+            <div class="inline-flex items-center space-x-2 bg-blue-950/50 backdrop-blur border border-blue-800 px-3 py-1.5 rounded-full text-xs text-senacOrange font-semibold mb-4">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <span>Desenvolvimento Educacional e Social • Programa Instrumental</span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight">
+                Talento Pessoal: <span class="text-senacOrange">Inovação, Bem-Estar, Saúde e Tecnologia</span>
+            </h1>
+            <p class="mt-4 text-lg text-gray-200 max-w-3xl font-light">
+                Planejamento pedagógico e recursos práticos para guiar jovens de 13 a 17 anos no desenvolvimento do protagonismo, pensamento crítico e soluções transformadoras para o cotidiano.
+            </p>
+            <div class="mt-6 flex flex-wrap gap-4">
+                <div class="bg-white/10 backdrop-blur px-4 py-2.5 rounded-xl border border-white/10 flex items-center space-x-3">
+                    <i class="fa-solid fa-clock text-senacOrange text-xl"></i>
+                    <div>
+                        <span class="text-xs text-gray-300 block">Carga Horária</span>
+                        <span class="font-bold text-sm">200 Horas</span>
+                    </div>
+                </div>
+                <div class="bg-white/10 backdrop-blur px-4 py-2.5 rounded-xl border border-white/10 flex items-center space-x-3">
+                    <i class="fa-solid fa-user-group text-senacOrange text-xl"></i>
+                    <div>
+                        <span class="text-xs text-gray-300 block">Público Alvo</span>
+                        <span class="font-bold text-sm">13 a 17 anos (8º ano min.)</span>
+                    </div>
+                </div>
+                <div class="bg-white/10 backdrop-blur px-4 py-2.5 rounded-xl border border-white/10 flex items-center space-x-3">
+                    <i class="fa-solid fa-circle-check text-senacOrange text-xl"></i>
+                    <div>
+                        <span class="text-xs text-gray-300 block">Frequência Mínima</span>
+                        <span class="font-bold text-sm">75% para Conclusão</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+        <!-- VISÃO GERAL -->
+        <section id="visao-geral" class="mb-12">
+            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-navyDark flex items-center space-x-2">
+                                <span class="w-2 h-6 bg-senacOrange rounded-full"></span>
+                                <span>Justificativa e Objetivo do Curso</span>
+                            </h2>
+                            <p class="mt-3 text-gray-600 leading-relaxed text-sm md:text-base">
+                                Despertar no estudante o interesse pelo mundo do trabalho, levando em conta suas motivações e promovendo o protagonismo juvenil. Através de um currículo significativo que estabelece relações com a vida cotidiana, experiências e emoções do jovem, o curso busca ligar a sua identidade pessoal e social ao seu projeto de vida.
+                            </p>
+                        </div>
+                        <div class="bg-iceBlue p-5 rounded-xl border border-blue-100">
+                            <h3 class="font-bold text-senacBlue flex items-center space-x-2 text-sm md:text-base">
+                                <i class="fa-solid fa-bullseye"></i>
+                                <span>Objetivo Central</span>
+                            </h3>
+                            <p class="mt-2 text-xs md:text-sm text-gray-600 leading-relaxed">
+                                Estimular o pensamento criativo e inovador dos jovens por meio de experiências interdisciplinares em tecnologia, gastronomia e empreendedorismo, favorecendo o aprendizado prático e o desenvolvimento de soluções criativas para desafios do cotidiano.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                            <h3 class="font-bold text-navyDark text-sm uppercase tracking-wider mb-3">Requisitos de Acesso</h3>
+                            <ul class="space-y-2.5 text-xs md:text-sm text-gray-600">
+                                <li class="flex items-start space-x-2">
+                                    <i class="fa-solid fa-angle-right text-senacOrange mt-1"></i>
+                                    <span>Idade: 13 a 17 anos completos.</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <i class="fa-solid fa-angle-right text-senacOrange mt-1"></i>
+                                    <span>Escolaridade: Mínimo cursando o 8º ano do Ensino Fundamental.</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <i class="fa-solid fa-angle-right text-senacOrange mt-1"></i>
+                                    <span>Escolaridade EJA: Aprovação em Língua Portuguesa.</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <i class="fa-solid fa-angle-right text-senacOrange mt-1"></i>
+                                    <span>Sem necessidade de experiência prévia.</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                            <h3 class="font-bold text-navyDark text-sm uppercase tracking-wider mb-3">Critérios de Avaliação</h3>
+                            <div class="text-xs md:text-sm text-gray-600 space-y-2">
+                                <p><strong class="text-navyDark">Durante o Processo:</strong> Menções parciais (Atendido - A, Parcialmente Atendido - PA, Não Atendido - NA).</p>
+                                <p><strong class="text-navyDark">Ao Final da UC:</strong> Menção definitiva (Atendido - A, Não Atendido - NA).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EXPLORADOR DE UNIDADES CURRICULARES -->
+        <section id="unidades-curriculares" class="mb-12">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-navyDark flex items-center space-x-2">
+                    <span class="w-2 h-6 bg-senacBlue rounded-full"></span>
+                    <span>Estrutura das 7 Unidades Curriculares</span>
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">Clique nas abas abaixo para explorar os detalhes, conteúdos, atitudes e o produto de entrega de cada UC.</p>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="flex overflow-x-auto pb-2 gap-2 custom-scrollbar mask-gradient">
+                <button onclick="switchUC(1)" id="tab-uc1" class="uc-tab active px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all duration-200 bg-senacBlue text-white shadow-sm flex items-center space-x-2">
+                    <span class="bg-white/20 px-2 py-0.5 rounded text-xs">UC1</span>
+                    <span>Protagonismo</span>
+                </button>
+                <button onclick="switchUC(2)" id="tab-uc2" class="uc-tab px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all duration-200 bg-white hover:bg-gray-100 text-gray-600 flex items-center space-x-2">
+                    <span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs">UC2</span>
+                    <span>Robótica</span>
+                </button>
+                <button onclick="switchUC(3)" id="tab-uc3" class="uc-tab px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all duration-200 bg-white hover:bg-gray-100 text-gray-600 flex items-center space-x-2">
+                    <span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs">UC3</span>
+                    <span>Design Digital</span>
+                </button>
+                <button onclick="switchUC(4)" id="tab-uc4" class="uc-tab px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all duration-200 bg-white hover:bg-gray-100 text-gray-600 flex items-center space-x-2">
+                    <span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs">UC4</span>
+                    <span>Equilíbrio Digital</span>
+                </button>
+                <button onclick="switchUC(5)" id="tab-uc5" class="uc-tab px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all duration-200 bg-white hover:bg-gray-100 text-gray-600 flex items-center space-x-2">
+                    <span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs">UC5</span>
+                    <span>Primeiros Socorros</span>
+                </button>
+                <button onclick="switchUC(6)" id="tab-uc6" class="uc-tab px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all duration-200 bg-white hover:bg-gray-100 text-gray-600 flex items-center space-x-2">
+                    <span class="bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs">UC6</span>
+                    <span>Gastronomia</span>
+                </button>
+                <button onclick="switchUC(7)" id="tab-uc7" class="uc-tab px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all duration-200 bg-white hover:bg-gray-100 text-gray-600 flex items-center space-x-2 border-2 border-dashed border-senacOrange/40">
+                    <span class="bg-senacOrange text-white px-2 py-0.5 rounded text-xs font-black">UC7</span>
+                    <span class="text-navyDark">Oficina Integradora</span>
+                </button>
+            </div>
+
+            <!-- Content Container -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mt-4 relative min-h-[350px]">
+                
+                <!-- UC1 -->
+                <div id="content-uc1" class="uc-content space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-100 pb-4 gap-2">
+                        <div>
+                            <span class="text-xs font-bold text-senacBlue uppercase tracking-wider block">Unidade Curricular 1</span>
+                            <h3 class="text-xl md:text-2xl font-bold text-navyDark">Protagonismo e Competências para o Futuro</h3>
+                        </div>
+                        <div class="bg-blue-50 text-senacBlue px-3 py-1.5 rounded-lg text-sm font-extrabold flex items-center space-x-2">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>24 Horas</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 space-y-6">
+                            <div>
+                                <h4 class="font-bold text-navyDark text-sm uppercase tracking-wide flex items-center space-x-2">
+                                    <i class="fa-solid fa-flag text-senacOrange"></i>
+                                    <span>Indicador de Sucesso</span>
+                                </h4>
+                                <p class="mt-2 text-gray-600 text-sm leading-relaxed">
+                                    Reconhece e aplica competências socioemocionais e colaborativas para o trabalho em equipe e o desenvolvimento pessoal.
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                    <h5 class="font-bold text-navyDark text-xs uppercase mb-2 text-senacBlue">Conhecimentos</h5>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Habilidades socioemocionais</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Autogestão, empatia e colaboração</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Comunicação criativa e liderança</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Cultura digital e comportamento ético</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Competências do futuro e trabalho em rede</span></li>
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                    <h5 class="font-bold text-navyDark text-xs uppercase mb-2 text-senacBlue">Valores e Atitudes</h5>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Comprometimento com aprendizado contínuo</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Proatividade no desenvolvimento</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Senso crítico nos processos</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Respeito à diversidade social e cultural</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-5 rounded-xl border border-blue-100 flex flex-col justify-between">
+                            <div>
+                                <span class="bg-senacBlue text-white text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full mb-3 inline-block">Produto de Entrega</span>
+                                <h4 class="font-bold text-navyDark text-base">Mapa do Protagonismo Pessoal e Profissional</h4>
+                                <p class="mt-2 text-xs text-gray-600 leading-relaxed">
+                                    Um mapa visual e interativo onde o aluno representa suas competências socioemocionais, forças, objetivos futuros e um plano de ação simples com metas imediatas.
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-blue-200/50 text-xs text-senacBlue font-bold flex items-center space-x-2">
+                                <i class="fa-solid fa-desktop"></i>
+                                <span>Entregável: Canva, Miro ou Mural Físico</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UC2 -->
+                <div id="content-uc2" class="uc-content space-y-6 hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-100 pb-4 gap-2">
+                        <div>
+                            <span class="text-xs font-bold text-senacBlue uppercase tracking-wider block">Unidade Curricular 2</span>
+                            <h3 class="text-xl md:text-2xl font-bold text-navyDark">Introdução à Robótica e Programação Criativa</h3>
+                        </div>
+                        <div class="bg-blue-50 text-senacBlue px-3 py-1.5 rounded-lg text-sm font-extrabold flex items-center space-x-2">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>40 Horas</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 space-y-6">
+                            <div>
+                                <h4 class="font-bold text-navyDark text-sm uppercase tracking-wide flex items-center space-x-2">
+                                    <i class="fa-solid fa-flag text-senacOrange"></i>
+                                    <span>Indicador de Sucesso</span>
+                                </h4>
+                                <p class="mt-2 text-gray-600 text-sm leading-relaxed">
+                                    Aplica conceitos de lógica e tecnologia na criação de protótipos simples e soluções práticas para desafios reais.
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                    <h5 class="font-bold text-navyDark text-xs uppercase mb-2 text-senacBlue">Conhecimentos</h5>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Fundamentos de robótica e automação</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Programação baseada em blocos</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Montagem, conexões e testes de sensores</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Pensamento computacional e problemas</span></li>
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                    <h5 class="font-bold text-navyDark text-xs uppercase mb-2 text-senacBlue">Valores e Atitudes</h5>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Postura ativa e investigativa</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Proatividade na resolução técnica de falhas</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Organização na manipulação de dados</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Cooperação em times de desenvolvimento</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-5 rounded-xl border border-blue-100 flex flex-col justify-between">
+                            <div>
+                                <span class="bg-senacBlue text-white text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full mb-3 inline-block">Produto de Entrega</span>
+                                <h4 class="font-bold text-navyDark text-base">Tech Challenge: Soluções Inovadoras</h4>
+                                <p class="mt-2 text-xs text-gray-600 leading-relaxed">
+                                    Os estudantes criam e programam em grupo um protótipo inteligente (usando blocos) focado em desafios como acessibilidade ou sustentabilidade, mantendo um diário de bordo digital.
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-blue-200/50 text-xs text-senacBlue font-bold flex items-center space-x-2">
+                                <i class="fa-solid fa-microchip"></i>
+                                <span>Entregável: Protótipo Físico / Vídeo / Diário</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UC3 -->
+                <div id="content-uc3" class="uc-content space-y-6 hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-100 pb-4 gap-2">
+                        <div>
+                            <span class="text-xs font-bold text-senacBlue uppercase tracking-wider block">Unidade Curricular 3</span>
+                            <h3 class="text-xl md:text-2xl font-bold text-navyDark">Design Digital: Identidade, Storytelling e Ferramentas</h3>
+                        </div>
+                        <div class="bg-blue-50 text-senacBlue px-3 py-1.5 rounded-lg text-sm font-extrabold flex items-center space-x-2">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>32 Horas</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 space-y-6">
+                            <div>
+                                <h4 class="font-bold text-navyDark text-sm uppercase tracking-wide flex items-center space-x-2">
+                                    <i class="fa-solid fa-flag text-senacOrange"></i>
+                                    <span>Indicador de Sucesso</span>
+                                </h4>
+                                <p class="mt-2 text-gray-600 text-sm leading-relaxed">
+                                    Cria e comunica ideias visuais por meio de ferramentas de design digital e narrativas (storytelling) éticas e expressivas.
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                    <h5 class="font-bold text-navyDark text-xs uppercase mb-2 text-senacBlue">Conhecimentos</h5>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Estética visual, cores e tipografia</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Branding e formação de identidade</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Storytelling e narrativas digitais</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Canva, CapCut, Clipchamp (Edição)</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Direitos autorais e ética nas mídias</span></li>
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                    <h5 class="font-bold text-navyDark text-xs uppercase mb-2 text-senacBlue">Valores e Atitudes</h5>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Iniciativa para inovar visualmente</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Zelo estético e precisão</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Senso crítico em peças criativas</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Respeito absoluto aos direitos autorais</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-5 rounded-xl border border-blue-100 flex flex-col justify-between">
+                            <div>
+                                <span class="bg-senacBlue text-white text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full mb-3 inline-block">Produto de Entrega</span>
+                                <h4 class="font-bold text-navyDark text-base">Identidade em Rede / Conecta+</h4>
+                                <p class="mt-2 text-xs text-gray-600 leading-relaxed">
+                                    Desenvolvimento de um produto visual completo: logotipo, portfólio digital, vídeo promocional curto no CapCut ou canal fictício abordando temas educativos ou de impacto social.
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-blue-200/50 text-xs text-senacBlue font-bold flex items-center space-x-2">
+                                <i class="fa-solid fa-palette"></i>
+                                <span>Entregável: Link Web / PDF / QR Code</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UC4 -->
+                <div id="content-uc4" class="uc-content space-y-6 hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-100 pb-4 gap-2">
+                        <div>
+                            <span class="text-xs font-bold text-senacBlue uppercase tracking-wider block">Unidade Curricular 4</span>
+                            <h3 class="text-xl md:text-2xl font-bold text-navyDark">Equilíbrio Digital e Bem-Estar Juvenil</h3>
+                        </div>
+                        <div class="bg-blue-50 text-senacBlue px-3 py-1.5 rounded-lg text-sm font-extrabold flex items-center space-x-2">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>12 Horas</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 space-y-6">
+                            <div>
+                                <h4 class="font-bold text-navyDark text-sm uppercase tracking-wide flex items-center space-x-2">
+                                    <i class="fa-solid fa-flag text-senacOrange"></i>
+                                    <span>Indicador de Sucesso</span>
+                                </h4>
+                                <p class="mt-2 text-gray-600 text-sm leading-relaxed">
+                                    Compreende e aplica práticas de bem-estar digital, adotando rotinas equilibradas de uso da tecnologia e estratégias de autocuidado físico e emocional no cotidiano.
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                    <h5 class="font-bold text-navyDark text-xs uppercase mb-2 text-senacBlue">Conhecimentos</h5>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Vida digital saudável vs. excessos</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Autocuidado e equilíbrio mental</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Saúde física (postura, sono e tela)</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Etiqueta, respeito e convivência online</span></li>
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                    <h5 class="font-bold text-navyDark text-xs uppercase mb-2 text-senacBlue">Valores e Atitudes</h5>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Responsabilidade pessoal com limites</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Consciência e disciplina digital</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Empatia e rede de escuta no grupo</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Tomada de decisão baseada em saúde</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-5 rounded-xl border border-blue-100 flex flex-col justify-between">
+                            <div>
+                                <span class="bg-senacBlue text-white text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full mb-3 inline-block">Produto de Entrega</span>
+                                <h4 class="font-bold text-navyDark text-base">Meu Guia de Equilíbrio Digital</h4>
+                                <p class="mt-2 text-xs text-gray-600 leading-relaxed">
+                                    Um diário ou portfólio autoral no qual o estudante registra o diagnóstico do seu tempo de tela, define metas de relaxamento e constrói dicas práticas ilustradas.
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-blue-200/50 text-xs text-senacBlue font-bold flex items-center space-x-2">
+                                <i class="fa-solid fa-mobile-screen"></i>
+                                <span>Entregável: Portfólio Gráfico / Infográfico</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UC5 -->
+                <div id="content-uc5" class="uc-content space-y-6 hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-100 pb-4 gap-2">
+                        <div>
+                            <span class="text-xs font-bold text-senacBlue uppercase tracking-wider block">Unidade Curricular 5</span>
+                            <h3 class="text-xl md:text-2xl font-bold text-navyDark">Atitude de Cuidar: Noções de Primeiros Socorros</h3>
+                        </div>
+                        <div class="bg-blue-50 text-senacBlue px-3 py-1.5 rounded-lg text-sm font-extrabold flex items-center space-x-2">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>20 Horas</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 space-y-6">
+                            <div>
+                                <h4 class="font-bold text-navyDark text-sm uppercase tracking-wide flex items-center space-x-2">
+                                    <i class="fa-solid fa-flag text-senacOrange"></i>
+                                    <span>Indicador de Sucesso</span>
+                                </h4>
+                                <p class="mt-2 text-gray-600 text-sm leading-relaxed">
+                                    Identifica emergências comuns do cotidiano e aplica atitudes seguras de socorro imediato, reconhecendo os limites da sua faixa etária e acionando canais responsáveis.
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                    <h5 class="font-bold text-navyDark text-xs uppercase mb-2 text-senacBlue">Conhecimentos</h5>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Noções fundamentais e avaliação de cena</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Cortes, arranhões, quedas e feridas</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Queimaduras leves, desmaios e engasgos</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Ansiedade e crises emocionais na escola</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Contatos públicos de emergência (SAMU, Bombeiros)</span></li>
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                    <h5 class="font-bold text-navyDark text-xs uppercase mb-2 text-senacBlue">Valores e Atitudes</h5>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Calma, atenção e discernimento</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Zelo absoluto nas ações práticas</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Empatia profunda com o acidentado</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Respeito estrito aos limites da idade leiga</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-5 rounded-xl border border-blue-100 flex flex-col justify-between">
+                            <div>
+                                <span class="bg-senacBlue text-white text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full mb-3 inline-block">Produto de Entrega</span>
+                                <h4 class="font-bold text-navyDark text-base">Kit do Socorrista Consciente</h4>
+                                <p class="mt-2 text-xs text-gray-600 leading-relaxed">
+                                    Construção física ou digital de um kit educativo de primeiros socorros acompanhado de folheto explicativo com ilustrações sobre o protocolo de auxílio seguro.
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-blue-200/50 text-xs text-senacBlue font-bold flex items-center space-x-2">
+                                <i class="fa-solid fa-kit-medical"></i>
+                                <span>Entregável: Mini Kit físico / Guia Ilustrado</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UC6 -->
+                <div id="content-uc6" class="uc-content space-y-6 hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-100 pb-4 gap-2">
+                        <div>
+                            <span class="text-xs font-bold text-senacBlue uppercase tracking-wider block">Unidade Curricular 6</span>
+                            <h3 class="text-xl md:text-2xl font-bold text-navyDark">Gastronomia Sustentável e Criativa</h3>
+                        </div>
+                        <div class="bg-blue-50 text-senacBlue px-3 py-1.5 rounded-lg text-sm font-extrabold flex items-center space-x-2">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>32 Horas</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 space-y-6">
+                            <div>
+                                <h4 class="font-bold text-navyDark text-sm uppercase tracking-wide flex items-center space-x-2">
+                                    <i class="fa-solid fa-flag text-senacOrange"></i>
+                                    <span>Indicador de Sucesso</span>
+                                </h4>
+                                <p class="mt-2 text-gray-600 text-sm leading-relaxed">
+                                    Aplica práticas culinárias básicas e sustentáveis, valorizando hábitos saudáveis, o empreendedorismo criativo e o trabalho coletivo.
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                    <h5 class="font-bold text-navyDark text-xs uppercase mb-2 text-senacBlue">Conhecimentos</h5>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Alimentação equilibrada e saudável</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Aproveitamento integral dos alimentos</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Higiene, segurança e manipulação</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Negócios gastronômicos de baixo impacto</span></li>
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                    <h5 class="font-bold text-navyDark text-xs uppercase mb-2 text-senacBlue">Valores e Atitudes</h5>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Segurança e atenção aos utensílios</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Responsabilidade e higiene na bancada</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Cooperação mútua no preparo</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Valorização ecológica dos insumos</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-5 rounded-xl border border-blue-100 flex flex-col justify-between">
+                            <div>
+                                <span class="bg-senacBlue text-white text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full mb-3 inline-block">Produto de Entrega</span>
+                                <h4 class="font-bold text-navyDark text-base">Sabores da Memória (Receituário)</h4>
+                                <p class="mt-2 text-xs text-gray-600 leading-relaxed">
+                                    Um livro de receitas digital elaborado coletivamente pelas equipes de alunos. Inclui origens culturais, valores nutricionais e fotos/ilustrações autorais dos pratos saudáveis feitos em aula.
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-blue-200/50 text-xs text-senacBlue font-bold flex items-center space-x-2">
+                                <i class="fa-solid fa-utensils"></i>
+                                <span>Entregável: PDF Compartilhável / E-book</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UC7 -->
+                <div id="content-uc7" class="uc-content space-y-6 hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-100 pb-4 gap-2">
+                        <div>
+                            <span class="text-xs font-bold text-senacOrange uppercase tracking-wider block font-extrabold">Unidade Curricular 7 • Conclusão do Curso</span>
+                            <h3 class="text-xl md:text-2xl font-bold text-navyDark">Oficina Integradora: Ideias que Transformam</h3>
+                        </div>
+                        <div class="bg-orange-50 text-senacOrange px-3 py-1.5 rounded-lg text-sm font-extrabold flex items-center space-x-2">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>40 Horas</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 space-y-6">
+                            <div>
+                                <h4 class="font-bold text-navyDark text-sm uppercase tracking-wide flex items-center space-x-2">
+                                    <i class="fa-solid fa-flag text-senacOrange"></i>
+                                    <span>Indicador de Sucesso</span>
+                                </h4>
+                                <p class="mt-2 text-gray-600 text-sm leading-relaxed font-medium">
+                                    Integra os conhecimentos de todas as UCs em um projeto prático aplicando conceitos de inovação, empreendedorismo social, protagonismo e responsabilidade coletiva.
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                    <h5 class="font-bold text-navyDark text-xs uppercase mb-2 text-senacBlue">Conhecimentos Chave</h5>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Planejamento e fases de projetos sociais</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Técnicas de apresentação rápida (Pitch)</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Prototipagem ágil e de baixo custo</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-senacOrange"></i> <span>Responsabilidade social e impacto na juventude</span></li>
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                    <h5 class="font-bold text-navyDark text-xs uppercase mb-2 text-senacBlue">Atitudes Esperadas</h5>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Iniciativa comunitária e espírito inovador</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Cooperação empática no desenvolvimento</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Zelo ético e compromisso social</span></li>
+                                        <li class="flex items-center space-x-1.5"><i class="fa-solid fa-circle text-[6px] text-blue-500"></i> <span>Protagonismo em apresentações públicas</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-orange-50 p-5 rounded-xl border border-orange-200 flex flex-col justify-between">
+                            <div>
+                                <span class="bg-senacOrange text-white text-[10px] uppercase font-extrabold tracking-widest px-2.5 py-1 rounded-full mb-3 inline-block">PRODUTO FINAL DO CURSO</span>
+                                <h4 class="font-bold text-navyDark text-base">Projeto Coletivo "Ideias que Transformam"</h4>
+                                <p class="mt-2 text-xs text-gray-600 leading-relaxed">
+                                    Desenvolvimento de um plano de transformação comunitária (físico ou digital) com protótipo operacional e Pitch de impacto, expostos abertamente na Mostra Final.
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-orange-200/50 text-xs text-senacOrange font-bold flex items-center space-x-2">
+                                <i class="fa-solid fa-star"></i>
+                                <span>Apresentação + Protótipo Operacional</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- FOCO ESPECIAL NA UC7 -->
+        <section id="uc7-foco" class="mb-12 bg-navyDark text-white rounded-3xl p-6 md:p-10 shadow-xl relative overflow-hidden">
+            <!-- Background element -->
+            <div class="absolute -bottom-10 -right-10 w-64 h-64 bg-senacOrange opacity-10 rounded-full blur-2xl"></div>
+            
+            <div class="relative z-10 max-w-5xl mx-auto">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="bg-senacOrange text-white text-xs font-black uppercase px-3 py-1 rounded-full">
+                        Especial
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-white">
+                        O Planejamento de 40 Horas da UC7: Oficina Integradora
+                    </h2>
+                </div>
+                <p class="text-sm md:text-base text-gray-300 font-light mb-10 max-w-4xl">
+                    Uma trilha prática de aprendizagem baseada em <strong class="text-senacOrange">Design Thinking</strong> estruturada especialmente para jovens solucionarem problemas reais enquanto integram tecnologia, saúde e bem-estar.
+                </p>
+
+                <!-- 5 fases Timeline -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+                    <!-- Fase 1 -->
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors relative">
+                        <div class="absolute top-4 right-4 text-3xl font-black text-white/5">01</div>
+                        <div class="w-10 h-10 bg-blue-500/20 text-blue-400 rounded-xl flex items-center justify-center font-bold text-sm mb-4">
+                            8h
+                        </div>
+                        <h4 class="font-bold text-sm md:text-base text-white">Conexão &amp; Empatia</h4>
+                        <p class="text-xs text-gray-300 mt-2 leading-relaxed">
+                            Formação de equipes e dinâmica do "Mapa da Empatia" para listar e validar problemas da escola ou do bairro.
+                        </p>
+                        <div class="mt-4 pt-4 border-t border-white/5 text-[10px] text-gray-400 uppercase tracking-wider">
+                            Pesquisa Ativa
+                        </div>
+                    </div>
+
+                    <!-- Fase 2 -->
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors relative">
+                        <div class="absolute top-4 right-4 text-3xl font-black text-white/5">02</div>
+                        <div class="w-10 h-10 bg-purple-500/20 text-purple-400 rounded-xl flex items-center justify-center font-bold text-sm mb-4">
+                            8h
+                        </div>
+                        <h4 class="font-bold text-sm md:text-base text-white">Ideação &amp; Cocriação</h4>
+                        <p class="text-xs text-gray-300 mt-2 leading-relaxed">
+                            Sessão de brainstorming com a dinâmica "E se...?" e seleção por Matriz de Impacto vs. Viabilidade.
+                        </p>
+                        <div class="mt-4 pt-4 border-t border-white/5 text-[10px] text-gray-400 uppercase tracking-wider">
+                            Brainstorming
+                        </div>
+                    </div>
+
+                    <!-- Fase 3 -->
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors relative">
+                        <div class="absolute top-4 right-4 text-3xl font-black text-white/5">03</div>
+                        <div class="w-10 h-10 bg-senacOrange/20 text-senacOrange rounded-xl flex items-center justify-center font-bold text-sm mb-4">
+                            12h
+                        </div>
+                        <h4 class="font-bold text-sm md:text-base text-white">Prototipagem</h4>
+                        <p class="text-xs text-gray-300 mt-2 leading-relaxed">
+                            Criação de soluções físicas ou de alta fidelidade e realização de testes rápidos com coleta de feedback de pares.
+                        </p>
+                        <div class="mt-4 pt-4 border-t border-white/5 text-[10px] text-gray-400 uppercase tracking-wider">
+                            Mão na Massa
+                        </div>
+                    </div>
+
+                    <!-- Fase 4 -->
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors relative">
+                        <div class="absolute top-4 right-4 text-3xl font-black text-white/5">04</div>
+                        <div class="w-10 h-10 bg-yellow-500/20 text-yellow-400 rounded-xl flex items-center justify-center font-bold text-sm mb-4">
+                            8h
+                        </div>
+                        <h4 class="font-bold text-sm md:text-base text-white">Construção do Pitch</h4>
+                        <p class="text-xs text-gray-300 mt-2 leading-relaxed">
+                            Estruturação da oratória do projeto com foco no tempo (limite de 3 min) e preparo dos slides no Canva.
+                        </p>
+                        <div class="mt-4 pt-4 border-t border-white/5 text-[10px] text-gray-400 uppercase tracking-wider">
+                            Comunicação
+                        </div>
+                    </div>
+
+                    <!-- Fase 5 -->
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors relative">
+                        <div class="absolute top-4 right-4 text-3xl font-black text-white/5">05</div>
+                        <div class="w-10 h-10 bg-green-500/20 text-green-400 rounded-xl flex items-center justify-center font-bold text-sm mb-4">
+                            4h
+                        </div>
+                        <h4 class="font-bold text-sm md:text-base text-white">A Mostra Final</h4>
+                        <p class="text-xs text-gray-300 mt-2 leading-relaxed">
+                            Exposição dos protótipos e apresentação dos Pitches para convidados e familiares. Celebração do curso!
+                        </p>
+                        <div class="mt-4 pt-4 border-t border-white/5 text-[10px] text-gray-400 uppercase tracking-wider">
+                            Apresentação
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FERRAMENTAS PRÁTICAS DE AULA -->
+        <section id="ferramentas" class="mb-12">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-navyDark flex items-center space-x-2">
+                    <span class="w-2 h-6 bg-senacOrange rounded-full"></span>
+                    <span>Ferramentas Interativas para Uso em Sala de Aula</span>
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">Utilize estes recursos diretamente com seus alunos para inspirar ideias e treinar a apresentação de projetos da UC7.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- FERRAMENTA 1: GERADOR DE IDEIAS INTERDISCIPLINARES -->
+                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg md:text-xl font-bold text-navyDark flex items-center space-x-2 mb-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-senacOrange"></i>
+                            <span>Gerador de Projetos "Ideias que Transformam"</span>
+                        </h3>
+                        <p class="text-xs md:text-sm text-gray-500 mb-6 leading-relaxed">
+                            Selecione duas áreas do curso e gere sugestões dinâmicas de problemas reais que seus alunos podem tentar resolver em grupo utilizando a interdisciplinaridade.
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label class="block text-xs font-bold text-navyDark mb-1.5 uppercase">Eixo Tecnológico</label>
+                                <select id="select-eixo1" class="w-full bg-gray-50 border border-gray-200 text-xs rounded-lg p-2.5 focus:border-senacBlue focus:ring-1 focus:ring-senacBlue outline-none">
+                                    <option value="robotica">Robótica &amp; Lógica</option>
+                                    <option value="design">Design Digital &amp; Storytelling</option>
+                                    <option value="gastronomia">Gastronomia Sustentável</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-navyDark mb-1.5 uppercase">Eixo Social / Saúde</label>
+                                <select id="select-eixo2" class="w-full bg-gray-50 border border-gray-200 text-xs rounded-lg p-2.5 focus:border-senacBlue focus:ring-1 focus:ring-senacBlue outline-none">
+                                    <option value="equilibrio">Equilíbrio &amp; Bem-Estar</option>
+                                    <option value="socorros">Primeiros Socorros &amp; Cuidado</option>
+                                    <option value="comunidade">Impacto Social na Escola</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Caixa de Resultado -->
+                        <div id="resultado-ideia" class="bg-iceBlue p-5 rounded-xl border border-blue-100 space-y-3 min-h-[140px] flex flex-col justify-center">
+                            <p class="text-xs text-center text-gray-400 italic">Clique no botão abaixo para gerar uma ideia de desafio interdisciplinar...</p>
+                        </div>
+                    </div>
+
+                    <button onclick="gerarIdeiaDeProjeto()" class="mt-6 w-full bg-senacBlue hover:bg-navyDark text-white py-3 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-gears"></i>
+                        <span>Gerar Novo Desafio para Equipe</span>
+                    </button>
+                </div>
+
+                <!-- FERRAMENTA 2: CRONÔMETRO DE PITCH DE IMPACTO -->
+                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg md:text-xl font-bold text-navyDark flex items-center space-x-2 mb-2">
+                            <i class="fa-solid fa-stopwatch text-senacBlue"></i>
+                            <span>Treinador de Pitch de 3 Minutos</span>
+                        </h3>
+                        <p class="text-xs md:text-sm text-gray-500 mb-6 leading-relaxed">
+                            Projete este cronômetro na sala! O tempo total é dividido visualmente de acordo com as seções fundamentais de um bom Pitch.
+                        </p>
+
+                        <!-- Display do Timer -->
+                        <div class="text-center py-6 bg-gray-50 rounded-2xl border border-gray-200/50 mb-6">
+                            <span id="pitch-time" class="text-5xl font-black tracking-tight text-navyDark font-mono block">03:00</span>
+                            <span id="pitch-stage" class="text-xs font-bold uppercase tracking-wider text-senacOrange block mt-2">Aguardando Início</span>
+                        </div>
+
+                        <!-- Progress Bar Detalhada -->
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-[10px] font-bold text-gray-400 uppercase">
+                                <span>Gancho (30s)</span>
+                                <span>Problema (45s)</span>
+                                <span>Solução (60s)</span>
+                                <span>Impacto (45s)</span>
+                            </div>
+                            <div class="h-2 w-full bg-gray-200 rounded-full overflow-hidden flex">
+                                <div id="bar-gancho" class="h-full bg-blue-500 w-[16.6%] transition-all duration-300"></div>
+                                <div id="bar-problema" class="h-full bg-red-400 w-[25%] transition-all duration-300"></div>
+                                <div id="bar-solucao" class="h-full bg-purple-500 w-[33.3%] transition-all duration-300"></div>
+                                <div id="bar-impacto" class="h-full bg-green-500 w-[25%] transition-all duration-300"></div>
+                            </div>
+                        </div>
+
+                        <!-- Dicas Contextuais da Etapa -->
+                        <div id="stage-tip" class="p-3 bg-blue-50 border border-blue-100 rounded-lg text-xs text-navyDark leading-relaxed">
+                            <strong>Dica Geral:</strong> Um pitch eficaz para adolescentes deve ser dinâmico, focado na dor do público e demonstrar um protótipo operacional simples de entender!
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 mt-6">
+                        <button onclick="controlPitchTimer('start')" id="btn-play" class="flex-1 bg-senacOrange hover:bg-orange-500 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-play"></i>
+                            <span>Iniciar Treino</span>
+                        </button>
+                        <button onclick="controlPitchTimer('pause')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center">
+                            <i class="fa-solid fa-pause"></i>
+                        </button>
+                        <button onclick="controlPitchTimer('reset')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- RECURSOS E BIBLIOGRAFIA -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-lg font-bold text-navyDark mb-4 flex items-center space-x-2">
+                    <i class="fa-solid fa-book-open text-senacBlue"></i>
+                    <span>Referências Bibliográficas por UC</span>
+                </h3>
+                <div class="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar text-xs">
+                    <div>
+                        <strong class="text-navyDark block mb-1">UC1: Protagonismo &amp; Competências</strong>
+                        <p class="text-gray-600">BACICH, Lilian; MORAN, José Manuel. Metodologias ativas para uma educação inovadora. Porto Alegre: Penso, 2018.</p>
+                        <p class="text-gray-600 mt-1">GOLEMAN, Daniel. Inteligência emocional: a teoria revolucionária que redefine o que é ser inteligente. Rio de Janeiro: Objetiva, 2020.</p>
+                    </div>
+                    <div>
+                        <strong class="text-navyDark block mb-1">UC2: Robótica &amp; Lógica</strong>
+                        <p class="text-gray-600">RESNICK, Mitchel. Jardim de infância para a vida toda: aprendendo, criando e brincando com Scratch. Porto Alegre: Penso, 2020.</p>
+                    </div>
+                    <div>
+                        <strong class="text-navyDark block mb-1">UC3: Design Digital &amp; Storytelling</strong>
+                        <p class="text-gray-600">CANVA. Design School. Disponível em: https://www.canva.com/learn/design-school/.</p>
+                        <p class="text-gray-600 mt-1">LUPTON, Ellen. Pensar com tipos: guia para designers, escritores, editores e estudantes. São Paulo: Gustavo Gili, 2020.</p>
+                    </div>
+                    <div>
+                        <strong class="text-navyDark block mb-1">UC4: Equilíbrio Digital</strong>
+                        <p class="text-gray-600">BRAGA, Adriana. Cultura digital e comportamento juvenil. Porto Alegre: Sulina, 2020.</p>
+                    </div>
+                    <div>
+                        <strong class="text-navyDark block mb-1">UC5: Primeiros Socorros</strong>
+                        <p class="text-gray-600">SOCIEDADE BRASILEIRA DE PEDIATRIA. Guia de prevenção de acidentes e primeiros socorros em ambientes escolares. São Paulo: SBP, 2023.</p>
+                    </div>
+                    <div>
+                        <strong class="text-navyDark block mb-1">UC6: Gastronomia Sustentável</strong>
+                        <p class="text-gray-600">SANTIAGO, Raquel A. C.; CORADIN, Lidio (Ed.). Biodiversidade brasileira: sabores e aromas. Brasília: MMA, 2018.</p>
+                    </div>
+                    <div>
+                        <strong class="text-navyDark block mb-1">UC7: Oficina Integradora</strong>
+                        <p class="text-gray-600">BROWN, Tim. Design thinking: uma metodologia poderosa para decretar o fim das velhas ideias. Rio de Janeiro: Alta Books, 2020.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INFRAESTRUTURA -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-lg font-bold text-navyDark mb-4 flex items-center space-x-2">
+                    <i class="fa-solid fa-school text-senacOrange"></i>
+                    <span>Instalações &amp; Equipamentos</span>
+                </h3>
+                <div class="space-y-4 text-xs md:text-sm text-gray-600">
+                    <p class="leading-relaxed">
+                        Para o pleno andamento do curso, recomenda-se a mobilidade e flexibilidade dos espaços:
+                    </p>
+                    <ul class="space-y-2.5 text-xs">
+                        <li class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-green-500 mt-1"></i>
+                            <span><strong class="text-navyDark">Ambiente de Inovação:</strong> Sala de aula mobiliada com mesas móveis para trabalhos em grupo, projetor multimídia, computadores ou tablets de pesquisa e acesso de banda larga à internet.</span>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-green-500 mt-1"></i>
+                            <span><strong class="text-navyDark">Laboratórios Específicos:</strong> Kits de robótica educacional (como LEGO® Education ou Arduino), smartphones ou computadores com editores visuais e laboratório de gastronomia equipado para manipulação segura com EPIs infantis.</span>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <i class="fa-solid fa-check text-green-500 mt-1"></i>
+                            <span><strong class="text-navyDark">Acessibilidade:</strong> Instalações acessíveis que garantem a inclusão nos termos da Convenção dos Direitos das Pessoas com Deficiência.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navyDark text-white py-8 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
+            <p class="text-sm text-gray-400">
+                Curso Instrumental: Talento Pessoal: Inovação, Bem-Estar, Saúde e Tecnologia (200 horas)
+            </p>
+            <p class="text-xs text-gray-500">
+                Documentação Acadêmica vigente a partir de 01/06/2026 • Senac/SC
+            </p>
+        </div>
+    </footer>
+
+    <!-- Logica JavaScript para Interatividade -->
+    <script>
+        // Mapeamento de abas para as UCs
+        function switchUC(id) {
+            // Remove a classe ativa de todas as abas
+            document.querySelectorAll('.uc-tab').forEach(tab => {
+                tab.classList.remove('bg-senacBlue', 'text-white', 'shadow-sm', 'border-2', 'border-dashed', 'border-senacOrange/40');
+                tab.classList.add('bg-white', 'text-gray-600', 'hover:bg-gray-100');
+            });
+
+            // Esconde todo o conteúdo
+            document.querySelectorAll('.uc-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Adiciona classe ativa na aba clicada
+            const selectedTab = document.getElementById(`tab-uc${id}`);
+            selectedTab.classList.remove('bg-white', 'text-gray-600', 'hover:bg-gray-100');
+            
+            if (id === 7) {
+                selectedTab.classList.add('bg-senacOrange', 'text-white', 'shadow-sm');
+            } else {
+                selectedTab.classList.add('bg-senacBlue', 'text-white', 'shadow-sm');
+            }
+
+            // Exibe o conteúdo correspondente
+            document.getElementById(`content-uc${id}`).classList.remove('hidden');
+        }
+
+        // Dados para o Gerador de Ideias Interdisciplinares
+        const ideiasProjetos = {
+            "robotica-equilibrio": {
+                titulo: "Pulseira Anti-Distração 'Offline-Buddy'",
+                problema: "A perda de foco de adolescentes nos estudos devido a notificações constantes no smartphone.",
+                solucao: "Criar uma pulseira programada via bloco (com sensor de inclinação ou proximidade) que acende um LED verde ou emite vibrações divertidas quando o smartphone é deixado em outro cômodo durante os blocos de estudo."
+            },
+            "robotica-socorros": {
+                titulo: "Estação Alerta Primeiros Socorros",
+                problema: "A dificuldade de encontrar um kit de socorros rápido ou saber qual número ligar em pânico.",
+                solucao: "Montar um protótipo de painel inteligente de parede usando sensores de toque. Quando um botão de 'Cortes' ou 'Queimadura' é apertado, uma tela LCD acoplada indica o passo a passo seguro para o leigo e o número do Samu brilha na tela."
+            },
+            "robotica-comunidade": {
+                titulo: "Lixeira com Score de Reciclagem",
+                problema: "O alto desperdício de lixo reciclável misturado nos intervalos de aula da escola.",
+                solucao: "Protótipo de uma tampa de lixeira que detecta a abertura por proximidade (servo motor) e adiciona um ponto em um painel digital a cada vez que é aberta, criando uma gincana saudável entre as turmas."
+            },
+            "design-equilibrio": {
+                titulo: "Canal Digital 'Conecta & Respira'",
+                problema: "Os altos níveis de ansiedade e pressão nas redes sociais sofridos por jovens de 13 a 17 anos.",
+                solucao: "Desenvolver uma identidade visual e um mini portal interativo no Canva ou roteirizar vídeos curtos no CapCut dando dicas visuais rápidas criadas pelos alunos de detox digital e mindfulness juvenil."
+            },
+            "design-socorros": {
+                titulo: "Web-App ou QR Code Informativo 'Não Se Desespere!'",
+                problema: "A desinformação dos adolescentes ao lidarem com crises de ansiedade de colegas de turma.",
+                solucao: "Criação de um folheto e design de QR Code focado em saúde mental escolar. Quando lido, direciona a uma narrativa visual simples e envolvente (storytelling) ensinando técnicas de respiração diafragmática rápida."
+            },
+            "design-comunidade": {
+                titulo: "Portfólio / Campanha 'Vozes da Escola'",
+                problema: "A falta de integração e acolhimento das minorias ou novos estudantes na comunidade escolar.",
+                solucao: "Uma campanha de narrativa transmídia unindo fotos e pequenos podcasts de depoimentos rápidos de alunos contando suas origens e talentos, expostos num mural digital comunitário com QR codes."
+            },
+            "gastronomia-equilibrio": {
+                titulo: "Food-Truck Digital de Snacks Calmantes",
+                problema: "A má alimentação dos estudantes baseada em salgadinhos artificiais e ultraprocessados em períodos de prova.",
+                solucao: "Elaboração de um cardápio e identidade de um food-truck focado em lanches ricos em triptofano, magnésio e calmantes naturais (chás, castanhas e cookies funcionais com aproveitamento integral)."
+            },
+            "gastronomia-socorros": {
+                titulo: "Guia Ilustrado de Intolerâncias e Segurança na Cozinha",
+                problema: "Acidentes ou reações alérgicas severas no ambiente pedagógico e refeitórios escolares.",
+                solucao: "Uma ação de mapeamento de alergias escolares. Os alunos planejam uma cartilha de sinalização de perigos para a cozinha (comunicação visual) e desenham pratos livres de glúten e lactose que possam servir de alternativas seguras."
+            },
+            "gastronomia-comunidade": {
+                titulo: "Gincana de Combate ao Desperdício da Merenda",
+                problema: "O alto descarte de cascas de frutas e sobras viáveis de vegetais na cantina.",
+                solucao: "Um projeto social de compostagem pedagógica escolar unido com uma oficina de receitas de 'Bolo de Casca de Banana' e doces sustentáveis para toda a comunidade estudantil, visando o desperdício zero."
+            }
+        };
+
+        function gerarIdeiaDeProjeto() {
+            const eixo1 = document.getElementById('select-eixo1').value;
+            const eixo2 = document.getElementById('select-eixo2').value;
+            const chave = `${eixo1}-${eixo2}`;
+            const resultadoBox = document.getElementById('resultado-ideia');
+
+            const projeto = ideiasProjetos[chave];
+
+            if (projeto) {
+                resultadoBox.innerHTML = `
+                    <div class="animate-fadeIn">
+                        <span class="text-[10px] font-bold text-senacOrange uppercase tracking-wider block mb-1">Dica de Projeto Interdisciplinar</span>
+                        <h4 class="font-extrabold text-navyDark text-sm sm:text-base mb-2">${projeto.titulo}</h4>
+                        <p class="text-xs text-gray-600 mb-2"><strong>Desafio Proposto:</strong> ${projeto.problema}</p>
+                        <p class="text-xs text-gray-700 bg-white p-3 rounded-lg border border-gray-200/50"><strong>Ideia de Protótipo:</strong> ${projeto.solucao}</p>
+                    </div>
+                `;
+            } else {
+                resultadoBox.innerHTML = `
+                    <p class="text-xs text-center text-gray-400 italic">Desafio em desenvolvimento! Tente outra combinação interdisciplinar.</p>
+                `;
+            }
+        }
+
+        // LÓGICA DO CRONÔMETRO DE PITCH DE 3 MINUTOS
+        let timer = null;
+        let timeRemaining = 180; // 3 minutos em segundos
+        let timerRunning = false;
+
+        const stages = [
+            { name: "Etapa 1: Gancho & Impacto Inicial", duration: 30, colorClass: "text-blue-500", tip: "Abra a apresentação com uma estatística chocante, história rápida ou pergunta que faça o público se importar com o problema de cara!" },
+            { name: "Etapa 2: Definição do Problema", duration: 45, colorClass: "text-red-500", tip: "Mostre de forma sincera qual é a dor ou problema real validado na sua pesquisa. Diga quem sofre com ele." },
+            { name: "Etapa 3: A Solução e Protótipo", duration: 60, colorClass: "text-purple-500", tip: "Apresente o seu protótipo! Mostre como funciona a lógica de robótica, o design ou a gastronomia e como ele resolve o problema na prática." },
+            { name: "Etapa 4: Impacto Social & Conclusão", duration: 45, colorClass: "text-green-500", tip: "Conclua demonstrando o benefício para a comunidade. Peça ajuda para o projeto ganhar vida ou faça uma chamada para ação marcante!" }
+        ];
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('pitch-time').innerText = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Determinar em qual fase estamos com base nos 180s iniciais decrescentes
+            const elapsed = 180 - timeRemaining;
+            let cumulativeTime = 0;
+            let currentStage = stages[stages.length - 1]; // Fallback para a última etapa
+
+            for (let i = 0; i < stages.length; i++) {
+                cumulativeTime += stages[i].duration;
+                if (elapsed <= cumulativeTime) {
+                    currentStage = stages[i];
+                    break;
+                }
+            }
+
+            if (timeRemaining <= 0) {
+                document.getElementById('pitch-stage').innerText = "Tempo Esgotado! Palmas!";
+                document.getElementById('pitch-stage').className = "text-xs font-bold uppercase tracking-wider text-green-500 block mt-2";
+                document.getElementById('stage-tip').innerHTML = "<strong>Fim do Pitch!</strong> Excelente treino. Lembre-se que o limite rigoroso de tempo ajuda a fixar apenas as partes de maior relevância.";
+                controlPitchTimer('pause');
+                return;
+            }
+
+            document.getElementById('pitch-stage').innerText = currentStage.name;
+            document.getElementById('pitch-stage').className = `text-xs font-bold uppercase tracking-wider ${currentStage.colorClass} block mt-2`;
+            document.getElementById('stage-tip').innerHTML = `<strong>Dica Atual:</strong> ${currentStage.tip}`;
+        }
+
+        function controlPitchTimer(action) {
+            if (action === 'start') {
+                if (timerRunning) return;
+                timerRunning = true;
+                document.getElementById('btn-play').innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i><span>Treinando...</span>';
+                timer = setInterval(() => {
+                    if (timeRemaining > 0) {
+                        timeRemaining--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timer);
+                    }
+                }, 1000);
+            } else if (action === 'pause') {
+                clearInterval(timer);
+                timerRunning = false;
+                document.getElementById('btn-play').innerHTML = '<i class="fa-solid fa-play"></i><span>Retomar Treino</span>';
+            } else if (action === 'reset') {
+                clearInterval(timer);
+                timerRunning = false;
+                timeRemaining = 180;
+                document.getElementById('btn-play').innerHTML = '<i class="fa-solid fa-play"></i><span>Iniciar Treino</span>';
+                document.getElementById('pitch-time').innerText = "03:00";
+                document.getElementById('pitch-stage').innerText = "Aguardando Início";
+                document.getElementById('pitch-stage').className = "text-xs font-bold uppercase tracking-wider text-senacOrange block mt-2";
+                document.getElementById('stage-tip').innerHTML = "<strong>Dica Geral:</strong> Um pitch eficaz para adolescentes deve ser dinâmico, focado na dor do público e demonstrar um protótipo operacional simples de entender!";
+            }
+        }
+    </script>
+</body>
+</html>

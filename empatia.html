@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa da Empatia - Oficina Integradora UC7</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome para Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        senacBlue: '#004587',
+                        senacOrange: '#f29111',
+                        navyDark: '#0a2240',
+                        iceBlue: '#f4f7fc'
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .sticky-note {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease-in-out;
+        }
+        .sticky-note:hover {
+            transform: scale(1.05) rotate(1deg);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(241, 241, 241, 0.5);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-gray-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-navyDark text-white sticky top-0 z-40 shadow-md no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-senacOrange text-white p-2 rounded-lg font-bold text-lg shadow-inner">
+                        UC7
+                    </div>
+                    <div>
+                        <span class="font-extrabold tracking-tight text-lg block sm:inline">Oficina Integradora</span>
+                        <span class="text-xs text-gray-300 block sm:inline sm:ml-2">Mapa da Empatia &amp; Pitch Creator</span>
+                    </div>
+                </div>
+                <div class="flex space-x-4">
+                    <button onclick="window.print()" class="bg-white/10 hover:bg-white/20 px-3.5 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-print"></i>
+                        <span class="hidden sm:inline">Imprimir / Salvar</span>
+                    </button>
+                    <button onclick="resetBoard()" class="bg-red-500/80 hover:bg-red-600 px-3.5 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span class="hidden sm:inline">Limpar Mapa</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header / Info Bar (Hide on Print) -->
+    <header class="bg-white border-b border-gray-200 py-4 px-4 sm:px-6 lg:px-8 no-print shadow-sm">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h1 class="text-xl font-bold text-navyDark flex items-center space-x-2">
+                    <span class="w-2.5 h-5 bg-senacOrange rounded-full"></span>
+                    <span>Criador de Empatia Coletiva</span>
+                </h1>
+                <p class="text-xs text-gray-500 mt-1">Conecte seus desafios e insights do curso de Talentos e prepare um pitch impecável de 3 minutos para a sua banca final.</p>
+            </div>
+            <!-- Quick Info Badge -->
+            <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 flex items-center space-x-3 self-start md:self-auto">
+                <i class="fa-solid fa-circle-info text-senacBlue text-lg"></i>
+                <span class="text-xs text-navyDark leading-relaxed">
+                    <strong>Como usar:</strong> Selecione um modelo de Persona ou crie um do zero. Adicione insights em cada quadrante usando o botão <span class="bg-gray-200 px-1 py-0.5 rounded text-[10px] font-bold">+</span> e veja o roteiro de Pitch ser gerado na aba inferior!
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full flex flex-col gap-6">
+        
+        <!-- Persona Section & Setup (No Print) -->
+        <section class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 no-print">
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- Select Template -->
+                <div class="flex-1">
+                    <label class="block text-xs font-bold text-navyDark uppercase tracking-wider mb-2">Modelos Rápidos (Alinhados às UCs do Curso)</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+                        <button onclick="loadPersonaTemplate('pedro')" class="p-3 border-2 border-transparent bg-slate-50 hover:bg-slate-100 rounded-xl transition text-left focus:border-senacBlue relative overflow-hidden group">
+                            <span class="absolute right-2 top-2 text-slate-200 group-hover:text-slate-300 text-lg transition-transform group-hover:scale-110"><i class="fa-solid fa-mobile-screen"></i></span>
+                            <span class="font-extrabold text-navyDark text-xs block">Pedro, 14 anos</span>
+                            <span class="text-[10px] text-gray-500 block mt-1">Foco: Equilíbrio Digital [UC4]</span>
+                        </button>
+                        <button onclick="loadPersonaTemplate('clara')" class="p-3 border-2 border-transparent bg-slate-50 hover:bg-slate-100 rounded-xl transition text-left focus:border-senacBlue relative overflow-hidden group">
+                            <span class="absolute right-2 top-2 text-slate-200 group-hover:text-slate-300 text-lg transition-transform group-hover:scale-110"><i class="fa-solid fa-microchip"></i></span>
+                            <span class="font-extrabold text-navyDark text-xs block">Clara, 15 anos</span>
+                            <span class="text-[10px] text-gray-500 block mt-1">Foco: Programação/Robótica [UC2]</span>
+                        </button>
+                        <button onclick="loadPersonaTemplate('bruno')" class="p-3 border-2 border-transparent bg-slate-50 hover:bg-slate-100 rounded-xl transition text-left focus:border-senacBlue relative overflow-hidden group">
+                            <span class="absolute right-2 top-2 text-slate-200 group-hover:text-slate-300 text-lg transition-transform group-hover:scale-110"><i class="fa-solid fa-utensils"></i></span>
+                            <span class="font-extrabold text-navyDark text-xs block">Bruno, 13 anos</span>
+                            <span class="text-[10px] text-gray-500 block mt-1">Foco: Gastronomia Culinária [UC6]</span>
+                        </button>
+                        <button onclick="loadPersonaTemplate('julia')" class="p-3 border-2 border-transparent bg-slate-50 hover:bg-slate-100 rounded-xl transition text-left focus:border-senacBlue relative overflow-hidden group">
+                            <span class="absolute right-2 top-2 text-slate-200 group-hover:text-slate-300 text-lg transition-transform group-hover:scale-110"><i class="fa-solid fa-kit-medical"></i></span>
+                            <span class="font-extrabold text-navyDark text-xs block">Julia, 16 anos</span>
+                            <span class="text-[10px] text-gray-500 block mt-1">Foco: Primeiros Socorros [UC5]</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Custom Persona Fields -->
+                <div class="flex-1 lg:max-w-md border-t lg:border-t-0 lg:border-l border-slate-200 pt-4 lg:pt-0 lg:pl-6 flex flex-col justify-between">
+                    <div>
+                        <span class="block text-xs font-bold text-navyDark uppercase tracking-wider mb-2">Dados da Persona Atual</span>
+                        <div class="grid grid-cols-3 gap-3 mb-3">
+                            <div class="col-span-2">
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Nome</label>
+                                <input type="text" id="persona-name" oninput="updatePersona()" value="Estudante Curioso" class="w-full bg-slate-50 border border-gray-200 rounded-lg p-2 text-xs focus:border-senacBlue outline-none font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Idade</label>
+                                <input type="number" id="persona-age" oninput="updatePersona()" value="15" min="13" max="17" class="w-full bg-slate-50 border border-gray-200 rounded-lg p-2 text-xs focus:border-senacBlue outline-none font-bold">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Grande Desafio da Persona</label>
+                            <input type="text" id="persona-challenge" oninput="updatePersona()" value="Achar soluções tecnológicas para melhorar a convivência e bem-estar na escola." class="w-full bg-slate-50 border border-gray-200 rounded-lg p-2 text-xs focus:border-senacBlue outline-none">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Print Header (Only visible on print) -->
+        <div class="hidden print:block border-b-2 border-navyDark pb-4 mb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-black text-navyDark">MAPA DA EMPATIA - OFICINA INTEGRADORA UC7</h1>
+                    <p class="text-xs text-gray-500">Curso: Talento Pessoal - Inovação, Bem-Estar, Saúde e Tecnologia (200h)</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs text-navyDark block font-bold">Senac / SC</span>
+                    <span class="text-[10px] text-gray-400 block">Documentação Pedagógica</span>
+                </div>
+            </div>
+            <!-- Persona Print Info -->
+            <div class="mt-4 bg-slate-50 border border-gray-200 p-4 rounded-xl flex items-center justify-between gap-4">
+                <div>
+                    <span class="text-[10px] font-bold text-senacOrange uppercase tracking-wider block">Persona Estudada</span>
+                    <span id="print-persona-meta" class="font-bold text-sm text-navyDark">Pedro (15 anos)</span>
+                </div>
+                <div class="flex-1 text-right max-w-lg">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Desafio Central</span>
+                    <p id="print-persona-challenge" class="text-xs text-gray-600 font-medium">Equilibrar o foco nos estudos sem se distrair com notificações de jogos e mídias.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- THE EMPATHY MAP BOARD -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            
+            <!-- SECTION 1: O que pensa e sente? -->
+            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col min-h-[220px] shadow-sm">
+                <div class="bg-blue-50 border-b border-gray-200/60 p-3.5 flex justify-between items-center">
+                    <h3 class="font-bold text-navyDark text-xs sm:text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-brain text-blue-500"></i>
+                        <span>1. O que pensa e sente?</span>
+                    </h3>
+                    <button onclick="openNoteModal('think-feel')" class="no-print bg-blue-500 hover:bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shadow transition">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
+                </div>
+                <div id="sector-think-feel" class="p-4 flex-1 flex flex-wrap gap-2.5 content-start custom-scrollbar overflow-y-auto max-h-[300px]">
+                    <!-- Sticky notes will load dynamically -->
+                </div>
+            </div>
+
+            <!-- SECTION 2: O que vê? -->
+            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col min-h-[220px] shadow-sm">
+                <div class="bg-teal-50 border-b border-gray-200/60 p-3.5 flex justify-between items-center">
+                    <h3 class="font-bold text-navyDark text-xs sm:text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-eye text-teal-600"></i>
+                        <span>2. O que vê?</span>
+                    </h3>
+                    <button onclick="openNoteModal('see')" class="no-print bg-teal-600 hover:bg-teal-700 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shadow transition">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
+                </div>
+                <div id="sector-see" class="p-4 flex-1 flex flex-wrap gap-2.5 content-start custom-scrollbar overflow-y-auto max-h-[300px]"></div>
+            </div>
+
+            <!-- SECTION 3: O que ouve? -->
+            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col min-h-[220px] shadow-sm">
+                <div class="bg-purple-50 border-b border-gray-200/60 p-3.5 flex justify-between items-center">
+                    <h3 class="font-bold text-navyDark text-xs sm:text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-ear-listening text-purple-500"></i>
+                        <span>3. O que ouve?</span>
+                    </h3>
+                    <button onclick="openNoteModal('hear')" class="no-print bg-purple-500 hover:bg-purple-600 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shadow transition">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
+                </div>
+                <div id="sector-hear" class="p-4 flex-1 flex flex-wrap gap-2.5 content-start custom-scrollbar overflow-y-auto max-h-[300px]"></div>
+            </div>
+
+            <!-- SECTION 4: O que fala e faz? -->
+            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col min-h-[220px] shadow-sm">
+                <div class="bg-amber-50 border-b border-gray-200/60 p-3.5 flex justify-between items-center">
+                    <h3 class="font-bold text-navyDark text-xs sm:text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-comments text-amber-500"></i>
+                        <span>4. O que fala e faz?</span>
+                    </h3>
+                    <button onclick="openNoteModal('say-do')" class="no-print bg-amber-500 hover:bg-amber-600 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shadow transition">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
+                </div>
+                <div id="sector-say-do" class="p-4 flex-1 flex flex-wrap gap-2.5 content-start custom-scrollbar overflow-y-auto max-h-[300px]"></div>
+            </div>
+
+            <!-- SECTION 5: Dores / Desafios -->
+            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col min-h-[220px] shadow-sm">
+                <div class="bg-rose-50 border-b border-gray-200/60 p-3.5 flex justify-between items-center">
+                    <h3 class="font-bold text-navyDark text-xs sm:text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-circle-exclamation text-rose-500"></i>
+                        <span>5. Dores &amp; Frustrações</span>
+                    </h3>
+                    <button onclick="openNoteModal('pains')" class="no-print bg-rose-500 hover:bg-rose-600 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shadow transition">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
+                </div>
+                <div id="sector-pains" class="p-4 flex-1 flex flex-wrap gap-2.5 content-start custom-scrollbar overflow-y-auto max-h-[300px]"></div>
+            </div>
+
+            <!-- SECTION 6: Necessidades / Ganhos -->
+            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col min-h-[220px] shadow-sm">
+                <div class="bg-emerald-50 border-b border-gray-200/60 p-3.5 flex justify-between items-center">
+                    <h3 class="font-bold text-navyDark text-xs sm:text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                        <span>6. Necessidades &amp; Desejos</span>
+                    </h3>
+                    <button onclick="openNoteModal('needs')" class="no-print bg-emerald-500 hover:bg-emerald-600 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shadow transition">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
+                </div>
+                <div id="sector-needs" class="p-4 flex-1 flex flex-wrap gap-2.5 content-start custom-scrollbar overflow-y-auto max-h-[300px]"></div>
+            </div>
+
+        </div>
+
+        <!-- AUTOMATIC PROBLEM DECLARATION & PITCH CREATOR -->
+        <section class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mt-2">
+            <!-- Header Tab Selector -->
+            <div class="bg-navyDark text-white p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <h3 class="font-bold text-sm sm:text-base flex items-center space-x-2">
+                        <i class="fa-solid fa-bullseye text-senacOrange"></i>
+                        <span>Entregável UC7: Definição do Problema e Pitch</span>
+                    </h3>
+                    <p class="text-[10px] text-gray-300 mt-0.5">Com base nos dados preenchidos no Mapa da Empatia, geramos as fases essenciais da sua apresentação!</p>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto no-print">
+                    <button onclick="switchTab('tab-problem')" id="btn-tab-problem" class="active-tab flex-1 sm:flex-initial bg-white/20 text-white hover:bg-white/35 px-4 py-1.5 rounded-lg text-xs font-bold transition">
+                        Declaração do Problema
+                    </button>
+                    <button onclick="switchTab('tab-pitch')" id="btn-tab-pitch" class="flex-1 sm:flex-initial bg-white/10 text-white/80 hover:bg-white/20 px-4 py-1.5 rounded-lg text-xs font-bold transition">
+                        Esboço de Pitch (3 Min)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="p-6">
+                <!-- Section Problem Declaration -->
+                <div id="content-tab-problem" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col justify-between">
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">1. Usuário / Persona</span>
+                                <span id="out-persona" class="font-bold text-sm text-navyDark block mt-1">Estudante Curioso</span>
+                                <p class="text-[11px] text-gray-500 mt-2">O protagonista afetado pela questão.</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col justify-between">
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">2. Dor Prioritária</span>
+                                <span id="out-pain" class="font-bold text-sm text-rose-600 block mt-1">Nenhuma dor mapeada</span>
+                                <p class="text-[11px] text-gray-500 mt-2">Mapeie dores para alimentar automaticamente.</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col justify-between">
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">3. Necessidade Principal</span>
+                                <span id="out-need" class="font-bold text-sm text-emerald-600 block mt-1">Nenhuma necessidade mapeada</span>
+                                <p class="text-[11px] text-gray-500 mt-2">Mapeie necessidades para alimentar.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-iceBlue p-5 rounded-xl border border-blue-100 mt-4">
+                        <span class="text-[10px] font-bold text-senacBlue uppercase tracking-widest block mb-2">Estrutura de Oportunidade (O "Como Nós Podemos...")</span>
+                        <p id="out-challenge-sentence" class="text-xs sm:text-sm text-navyDark leading-relaxed font-semibold">
+                            Como nós podemos ajudar <strong class="text-senacOrange">[Persona]</strong> a superar <strong class="text-rose-600">[Dor]</strong> para que ele consiga <strong class="text-emerald-600">[Necessidade]</strong>?
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Section Pitch script -->
+                <div id="content-tab-pitch" class="space-y-4 hidden">
+                    <div class="border-l-4 border-senacOrange pl-4 py-1">
+                        <h4 class="font-bold text-xs text-navyDark uppercase tracking-wider">Esboço Estrutural do Pitch</h4>
+                        <p class="text-[11px] text-gray-400">Roteiro dividido conforme o cronômetro oficial de 3 minutos praticado em sala!</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <!-- Gancho -->
+                        <div class="bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                            <span class="text-[10px] font-black text-blue-500 uppercase tracking-wider block mb-1">01. O Gancho (30s)</span>
+                            <p class="text-[11px] text-gray-600 leading-relaxed italic">
+                                "Olá a todos! Vocês sabiam que o <strong class="persona-name-text">Pedro</strong> e muitos jovens da nossa idade têm se sentido angustiados? Imagine a cena: tentar estudar enquanto..."
+                            </p>
+                        </div>
+                        <!-- Problema -->
+                        <div class="bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                            <span class="text-[10px] font-black text-rose-500 uppercase tracking-wider block mb-1">02. O Problema (45s)</span>
+                            <p class="text-[11px] text-gray-600 leading-relaxed italic">
+                                "Ao mapearmos o dia a dia do nosso usuário, percebemos que a maior barreira é que <strong class="dor-text">ele se frustra facilmente com os desafios</strong>. Ele escuta críticas, sente cansaço e..."
+                            </p>
+                        </div>
+                        <!-- Solução -->
+                        <div class="bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                            <span class="text-[10px] font-black text-purple-500 uppercase tracking-wider block mb-1">03. A Solução (60s)</span>
+                            <p class="text-[11px] text-gray-600 leading-relaxed italic">
+                                "Para mudar isso, nossa equipe desenvolveu um protótipo que integra os conhecimentos do curso. É um sistema prático focado em resolver <strong class="dor-text">esta dor</strong> através de..."
+                            </p>
+                        </div>
+                        <!-- Impacto -->
+                        <div class="bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                            <span class="text-[10px] font-black text-emerald-500 uppercase tracking-wider block mb-1">04. O Impacto (45s)</span>
+                            <p class="text-[11px] text-gray-600 leading-relaxed italic">
+                                "Com isso, garantimos que ele alcance seu objetivo de <strong class="necessidade-text">evoluir no dia a dia</strong>. Juntos, promovemos a inovação e o bem-estar para o futuro. Muito obrigado!"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- INPUT MODAL (No Print) -->
+    <div id="note-modal" class="fixed inset-0 bg-navyDark/60 backdrop-blur-sm z-50 flex items-center justify-center hidden no-print">
+        <div class="bg-white rounded-2xl max-w-sm w-full mx-4 p-5 shadow-2xl border border-gray-100 animate-fadeIn">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="font-bold text-navyDark text-sm sm:text-base flex items-center space-x-2">
+                    <i class="fa-solid fa-pen-nib text-senacOrange"></i>
+                    <span>Escrever Novo Insight</span>
+                </h4>
+                <button onclick="closeNoteModal()" class="text-gray-400 hover:text-navyDark"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <input type="hidden" id="modal-sector">
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Texto do Post-it</label>
+                    <textarea id="modal-text" rows="3" placeholder="Digite o que a sua Persona pensa, vê, ouve ou sente sobre o problema..." class="w-full bg-slate-50 border border-gray-200 rounded-lg p-2.5 text-xs focus:border-senacBlue focus:ring-1 focus:ring-senacBlue outline-none resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Cor do Post-it</label>
+                    <div class="flex gap-2">
+                        <button onclick="selectColor('bg-yellow-100 border-yellow-200')" class="color-btn w-6 h-6 rounded-full bg-yellow-100 border border-yellow-300 ring-2 ring-senacBlue"></button>
+                        <button onclick="selectColor('bg-sky-100 border-sky-200')" class="color-btn w-6 h-6 rounded-full bg-sky-100 border border-sky-200"></button>
+                        <button onclick="selectColor('bg-pink-100 border-pink-200')" class="color-btn w-6 h-6 rounded-full bg-pink-100 border border-pink-200"></button>
+                        <button onclick="selectColor('bg-emerald-100 border-emerald-200')" class="color-btn w-6 h-6 rounded-full bg-emerald-100 border border-emerald-200"></button>
+                    </div>
+                    <input type="hidden" id="modal-color" value="bg-yellow-100 border-yellow-200">
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button onclick="closeNoteModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-gray-600 py-2.5 rounded-xl text-xs font-bold transition">
+                        Cancelar
+                    </button>
+                    <button onclick="saveNote()" class="flex-1 bg-senacBlue hover:bg-navyDark text-white py-2.5 rounded-xl text-xs font-bold transition">
+                        Adicionar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOCK NOTIFICATION TOAST -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-navyDark text-white border-l-4 border-senacOrange py-3 px-4 rounded-xl shadow-lg flex items-center space-x-2 text-xs font-bold translate-y-20 opacity-0 transition-all duration-300 z-50 no-print">
+        <i class="fa-solid fa-circle-check text-senacOrange"></i>
+        <span id="toast-message">Alteração concluída!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-navyDark text-white py-5 border-t border-gray-800 text-center no-print mt-10">
+        <p class="text-xs text-gray-400">
+            Curso Instrumental: Talento Pessoal • Metodologia Integrada UC7 Senac/SC
+        </p>
+    </footer>
+
+    <!-- Logica do Sistema -->
+    <script>
+        // Dados de Notas por Quadrante
+        let notesData = {
+            "think-feel": [],
+            "see": [],
+            "hear": [],
+            "say-do": [],
+            "pains": [],
+            "needs": []
+        };
+
+        // Modelos pré-carregados de UCs
+        const templates = {
+            pedro: {
+                name: "Pedro Silveira",
+                age: 14,
+                challenge: "Equilibrar o foco nos estudos sem se distrair com notificações de jogos e mídias.",
+                notes: {
+                    "think-feel": [
+                        { text: "Sente ansiedade quando fica longe do celular", color: "bg-yellow-100 border-yellow-200" },
+                        { text: "Acha que estudar com tela aberta facilita procrastinar", color: "bg-yellow-100 border-yellow-200" }
+                    ],
+                    "see": [
+                        { text: "Amigos postando conquistas e games o tempo todo", color: "bg-sky-100 border-sky-200" },
+                        { text: "Notificações pipocando na tela do computador", color: "bg-sky-100 border-sky-200" }
+                    ],
+                    "hear": [
+                        { text: "Pais reclamando do excesso de telas", color: "bg-pink-100 border-pink-200" },
+                        { text: "Professores pedindo foco total na sala de aula", color: "bg-pink-100 border-pink-200" }
+                    ],
+                    "say-do": [
+                        { text: "Diz que só entra nas redes por 5 minutinhos", color: "bg-emerald-100 border-emerald-200" },
+                        { text: "Deixa o smartphone ao lado do caderno toda hora", color: "bg-emerald-100 border-emerald-200" }
+                    ],
+                    "pains": [
+                        { text: "Falta de foco absoluto e procrastinação constante", color: "bg-pink-100 border-pink-200" },
+                        { text: "Queda no desempenho escolar no final das UCs", color: "bg-pink-100 border-pink-200" }
+                    ],
+                    "needs": [
+                        { text: "Encontrar formas de focar nos estudos sem distrações", color: "bg-emerald-100 border-emerald-200" },
+                        { text: "Criar uma rotina de detox digital saudável em família", color: "bg-emerald-100 border-emerald-200" }
+                    ]
+                }
+            },
+            clara: {
+                name: "Clara Mendes",
+                age: 15,
+                challenge: "Encontrar motivação e parceiros para começar a criar projetos de robótica.",
+                notes: {
+                    "think-feel": [
+                        { text: "Acha programação difícil demais no início", color: "bg-yellow-100 border-yellow-200" },
+                        { text: "Sente medo de errar a conexão dos sensores Arduino", color: "bg-yellow-100 border-yellow-200" }
+                    ],
+                    "see": [
+                        { text: "Poucas meninas liderando projetos tecnológicos na escola", color: "bg-sky-100 border-sky-200" },
+                        { text: "Vídeos no TikTok de protótipos de robôs divertidos", color: "bg-sky-100 border-sky-200" }
+                    ],
+                    "hear": [
+                        { text: "Colegas dizendo que programar é chato ou técnico", color: "bg-pink-100 border-pink-200" },
+                        { text: "Docente estimulando a criatividade por blocos", color: "bg-pink-100 border-pink-200" }
+                    ],
+                    "say-do": [
+                        { text: "Faz buscas por tutoriais fáceis no YouTube", color: "bg-emerald-100 border-emerald-200" },
+                        { text: "Desiste quando o código em blocos dá erro desconhecido", color: "bg-emerald-100 border-emerald-200" }
+                    ],
+                    "pains": [
+                        { text: "Falta de apoio para tirar as ideias do papel no início", color: "bg-pink-100 border-pink-200" },
+                        { text: "Falta de protótipos visuais fáceis de montar sozinha", color: "bg-pink-100 border-pink-200" }
+                    ],
+                    "needs": [
+                        { text: "Aprender lógica de programação de forma lúdica", color: "bg-emerald-100 border-emerald-200" },
+                        { text: "Encontrar uma equipe disposta a montar um projeto social", color: "bg-emerald-100 border-emerald-200" }
+                    ]
+                }
+            },
+            bruno: {
+                name: "Bruno Ramos",
+                age: 13,
+                challenge: "Reduzir o consumo de alimentos ultraprocessados na hora do intervalo escolar.",
+                notes: {
+                    "think-feel": [
+                        { text: "Acha que comida natural não tem gosto", color: "bg-yellow-100 border-yellow-200" },
+                        { text: "Sente preguiça de preparar seus próprios lanches saudáveis", color: "bg-yellow-100 border-yellow-200" }
+                    ],
+                    "see": [
+                        { text: "Cantina da escola com salgadinhos fritos em destaque", color: "bg-sky-100 border-sky-200" },
+                        { text: "Embalagens coloridas de sucos industrializados", color: "bg-sky-100 border-sky-200" }
+                    ],
+                    "hear": [
+                        { text: "Nutricionista alertando sobre açúcares na merenda", color: "bg-pink-100 border-pink-200" },
+                        { text: "Colegas rindo de quem leva frutas na mochila", color: "bg-pink-100 border-pink-200" }
+                    ],
+                    "say-do": [
+                        { text: "Compra salgados fritos quase todos os dias na cantina", color: "bg-emerald-100 border-emerald-200" },
+                        { text: "Diz que não tem tempo de arrumar a lancheira saudável", color: "bg-emerald-100 border-emerald-200" }
+                    ],
+                    "pains": [
+                        { text: "Sensação constante de cansaço após a merenda", color: "bg-pink-100 border-pink-200" },
+                        { text: "Falta de opções fáceis e gostosas de preparar", color: "bg-pink-100 border-pink-200" }
+                    ],
+                    "needs": [
+                        { text: "Aprender lanches saborosos com cascas e frutos", color: "bg-emerald-100 border-emerald-200" },
+                        { text: "Criar um cardápio compartilhado divertido com os amigos", color: "bg-emerald-100 border-emerald-200" }
+                    ]
+                }
+            },
+            julia: {
+                name: "Julia Costa",
+                age: 16,
+                challenge: "Saber apoiar de forma correta e rápida colegas de sala em crises de ansiedade na escola.",
+                notes: {
+                    "think-feel": [
+                        { text: "Sente-se culpada por não saber o que fazer em sustos", color: "bg-yellow-100 border-yellow-200" },
+                        { text: "Teme piorar a situação ao tentar abraçar ou intervir", color: "bg-yellow-100 border-yellow-200" }
+                    ],
+                    "see": [
+                        { text: "Amigos chorando nos cantos do refeitório em provas", color: "bg-sky-100 border-sky-200" },
+                        { text: "Professores sobrecarregados tentando conter a situação", color: "bg-sky-100 border-sky-200" }
+                    ],
+                    "hear": [
+                        { text: "Boatos e comentários maldosos sobre saúde mental", color: "bg-pink-100 border-pink-200" },
+                        { text: "Gritos e pressões excessivas no ambiente de gincana", color: "bg-pink-100 border-pink-200" }
+                    ],
+                    "say-do": [
+                        { text: "Tenta acalmar com palavras, mas sem protocolo", color: "bg-emerald-100 border-emerald-200" },
+                        { text: "Pergunta se o colega quer respirar fundo", color: "bg-emerald-100 border-emerald-200" }
+                    ],
+                    "pains": [
+                        { text: "Medo de agir de forma errada em situações tensas", color: "bg-pink-100 border-pink-200" },
+                        { text: "Falta de um kit simples e rápido de passos em sala", color: "bg-pink-100 border-pink-200" }
+                    ],
+                    "needs": [
+                        { text: "Aprender técnicas respiratórias validadas em primeiros socorros", color: "bg-emerald-100 border-emerald-200" },
+                        { text: "Conhecer os telefones e contatos de socorro responsáveis", color: "bg-emerald-100 border-emerald-200" }
+                    ]
+                }
+            }
+        };
+
+        // Inicialização
+        window.onload = function() {
+            loadPersonaTemplate('pedro');
+        };
+
+        // Alternar abas do Gerador de Projetos/Pitch
+        function switchTab(tabId) {
+            document.getElementById('content-tab-problem').classList.add('hidden');
+            document.getElementById('content-tab-pitch').classList.add('hidden');
+            
+            document.getElementById('btn-tab-problem').className = "flex-1 sm:flex-initial bg-white/10 text-white/80 hover:bg-white/20 px-4 py-1.5 rounded-lg text-xs font-bold transition";
+            document.getElementById('btn-tab-pitch').className = "flex-1 sm:flex-initial bg-white/10 text-white/80 hover:bg-white/20 px-4 py-1.5 rounded-lg text-xs font-bold transition";
+
+            if (tabId === 'tab-problem') {
+                document.getElementById('content-tab-problem').classList.remove('hidden');
+                document.getElementById('btn-tab-problem').className = "flex-1 sm:flex-initial bg-white/20 text-white hover:bg-white/35 px-4 py-1.5 rounded-lg text-xs font-bold transition";
+            } else {
+                document.getElementById('content-tab-pitch').classList.remove('hidden');
+                document.getElementById('btn-tab-pitch').className = "flex-1 sm:flex-initial bg-white/20 text-white hover:bg-white/35 px-4 py-1.5 rounded-lg text-xs font-bold transition";
+            }
+        }
+
+        // Carregar Modelo de Persona e notas correspondentes
+        function loadPersonaTemplate(key) {
+            const temp = templates[key];
+            if (!temp) return;
+
+            document.getElementById('persona-name').value = temp.name;
+            document.getElementById('persona-age').value = temp.age;
+            document.getElementById('persona-challenge').value = temp.challenge;
+
+            notesData = JSON.parse(JSON.stringify(temp.notes)); // Deep copy
+            
+            renderBoard();
+            showToast(`Modelo de ${temp.name} carregado com sucesso!`);
+        }
+
+        // Atualizar dados da persona conforme digitação
+        function updatePersona() {
+            renderBoard();
+        }
+
+        // Modal de Post-its
+        function openNoteModal(sector) {
+            document.getElementById('modal-sector').value = sector;
+            document.getElementById('modal-text').value = '';
+            document.getElementById('note-modal').classList.remove('hidden');
+            document.getElementById('modal-text').focus();
+        }
+
+        function closeNoteModal() {
+            document.getElementById('note-modal').classList.add('hidden');
+        }
+
+        function selectColor(colorClass) {
+            document.getElementById('modal-color').value = colorClass;
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-senacBlue');
+            });
+            event.target.classList.add('ring-2', 'ring-senacBlue');
+        }
+
+        function saveNote() {
+            const sector = document.getElementById('modal-sector').value;
+            const text = document.getElementById('modal-text').value.trim();
+            const color = document.getElementById('modal-color').value;
+
+            if (!text) return;
+
+            notesData[sector].push({ text, color });
+            closeNoteModal();
+            renderBoard();
+            showToast("Insight adicionado com sucesso!");
+        }
+
+        function deleteNote(sector, index) {
+            notesData[sector].splice(index, 1);
+            renderBoard();
+            showToast("Insight removido do mapa.");
+        }
+
+        // Resetar o mapa completo
+        function resetBoard() {
+            notesData = {
+                "think-feel": [],
+                "see": [],
+                "hear": [],
+                "say-do": [],
+                "pains": [],
+                "needs": []
+            };
+            document.getElementById('persona-name').value = "Estudante Curioso";
+            document.getElementById('persona-age').value = "15";
+            document.getElementById('persona-challenge').value = "Achar soluções tecnológicas para melhorar a convivência e bem-estar na escola.";
+            renderBoard();
+            showToast("O Mapa da Empatia foi reiniciado.");
+        }
+
+        // Renderizar todos os post-its no quadro
+        function renderBoard() {
+            const name = document.getElementById('persona-name').value || "Estudante Curioso";
+            const age = document.getElementById('persona-age').value || "15";
+            const challenge = document.getElementById('persona-challenge').value || "";
+
+            // Atualizar visões para impressão
+            document.getElementById('print-persona-meta').innerText = `${name} (${age} anos)`;
+            document.getElementById('print-persona-challenge').innerText = challenge;
+
+            // Renderizar Post-its
+            for (let sector in notesData) {
+                const container = document.getElementById(`sector-${sector}`);
+                container.innerHTML = '';
+
+                if (notesData[sector].length === 0) {
+                    container.innerHTML = `<span class="text-[11px] text-gray-400 italic py-4 block w-full text-center">Nenhum insight adicionado...</span>`;
+                } else {
+                    notesData[sector].forEach((note, index) => {
+                        const noteDiv = document.createElement('div');
+                        noteDiv.className = `sticky-note ${note.color} border p-3 rounded-lg text-xs relative max-w-[170px] w-full break-words flex flex-col justify-between min-h-[90px]`;
+                        noteDiv.innerHTML = `
+                            <p class="text-[11px] text-navyDark font-medium leading-relaxed">${note.text}</p>
+                            <button onclick="deleteNote('${sector}', ${index})" class="no-print self-end text-rose-500 hover:text-rose-700 text-[10px] mt-2 transition-colors">
+                                <i class="fa-solid fa-trash"></i> Excluir
+                            </button>
+                        `;
+                        container.appendChild(noteDiv);
+                    });
+                }
+            }
+
+            // Atualizar o Output do Problema & Pitch
+            const primePain = notesData['pains'].length > 0 ? notesData['pains'][0].text : "Nenhuma dor prioritária encontrada";
+            const primeNeed = notesData['needs'].length > 0 ? notesData['needs'][0].text : "Nenhuma necessidade mapeada";
+
+            document.getElementById('out-persona').innerText = `${name} (${age} anos)`;
+            document.getElementById('out-pain').innerText = primePain;
+            document.getElementById('out-need').innerText = primeNeed;
+
+            // Atualizar frase "Como nós podemos..."
+            document.getElementById('out-challenge-sentence').innerHTML = `
+                Como nós podemos ajudar a(o) <strong class="text-senacOrange">${name}</strong> a superar a frustração de <strong class="text-rose-600">"${primePain}"</strong> para que ela(e) consiga atingir a meta de <strong class="text-emerald-600">"${primeNeed}"</strong>?
+            `;
+
+            // Atualizar scripts dinâmicos de Pitch
+            document.querySelectorAll('.persona-name-text').forEach(el => el.innerText = name);
+            document.querySelectorAll('.dor-text').forEach(el => el.innerText = primePain);
+            document.querySelectorAll('.necessidade-text').forEach(el => el.innerText = primeNeed);
+        }
+
+        // Sistema de Feedback Visual (Toast)
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            toast.className = "fixed bottom-6 right-6 bg-navyDark text-white border-l-4 border-senacOrange py-3 px-4 rounded-xl shadow-lg flex items-center space-x-2 text-xs font-bold transform translate-y-0 opacity-100 transition-all duration-300 z-50 no-print";
+            
+            setTimeout(() => {
+                toast.className = "fixed bottom-6 right-6 bg-navyDark text-white border-l-4 border-senacOrange py-3 px-4 rounded-xl shadow-lg flex items-center space-x-2 text-xs font-bold transform translate-y-20 opacity-0 transition-all duration-300 z-50 no-print";
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
