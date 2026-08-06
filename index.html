@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Culinária Sustentável & Trabalho em Equipe</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        amberbrand: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fafaf9;
+            color: #1c1917;
+        }
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Outfit', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(229, 231, 235, 0.8);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #16a34a;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Navigation -->
+    <header class="sticky top-0 z-50 glass-card border-b border-stone-200/80 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-700 to-brand-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                    <i class="fa-solid fa-seedling text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-brand-600">Programa Formativo</span>
+                    <h1 class="text-lg font-bold font-heading text-stone-900 leading-none">Culinária Sustentável</h1>
+                </div>
+            </div>
+
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex items-center gap-1 lg:gap-2">
+                <a href="#indicador" class="px-3 py-2 rounded-lg text-sm font-medium text-stone-600 hover:text-brand-700 hover:bg-brand-50 transition-colors">Indicador</a>
+                <a href="#alimentacao" class="px-3 py-2 rounded-lg text-sm font-medium text-stone-600 hover:text-brand-700 hover:bg-brand-50 transition-colors">Alimentação</a>
+                <a href="#sustentabilidade" class="px-3 py-2 rounded-lg text-sm font-medium text-stone-600 hover:text-brand-700 hover:bg-brand-50 transition-colors">Aproveitamento</a>
+                <a href="#tecnicas" class="px-3 py-2 rounded-lg text-sm font-medium text-stone-600 hover:text-brand-700 hover:bg-brand-50 transition-colors">Técnicas</a>
+                <a href="#empreendedorismo" class="px-3 py-2 rounded-lg text-sm font-medium text-stone-600 hover:text-brand-700 hover:bg-brand-50 transition-colors">Empreendedorismo</a>
+                <a href="#dinamica" class="px-3 py-2 rounded-lg text-sm font-medium text-stone-600 hover:text-brand-700 hover:bg-brand-50 transition-colors">Desafio</a>
+            </nav>
+
+            <div class="flex items-center gap-2">
+                <button onclick="window.print()" class="hidden sm:inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 text-stone-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                    <i class="fa-solid fa-print"></i> Imprimir
+                </button>
+                <a href="#dinamica" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md shadow-brand-600/20 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-users"></i> Atividade Prática
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero / Competence Overview -->
+    <section id="indicador" class="relative overflow-hidden bg-gradient-to-b from-brand-900 via-stone-900 to-stone-900 text-white pt-16 pb-24">
+        <!-- Decorative Grid Pattern -->
+        <div class="absolute inset-0 bg-[radial-gradient(#22c55e_1px,transparent_1px)] [background-size:24px_24px] opacity-10"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-300 text-xs font-semibold uppercase tracking-wider mb-6">
+                <i class="fa-solid fa-award"></i> Indicador de Competência
+            </div>
+
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-8">
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-white leading-tight mb-6">
+                        "Aplica práticas culinárias básicas e sustentáveis, valorizando hábitos saudáveis e o trabalho em equipe."
+                    </h2>
+                    <p class="text-stone-300 text-lg sm:text-xl font-normal leading-relaxed max-w-3xl">
+                        Uma formação integrada projetada para desenvolver competências técnicas, consciência socioambiental e espírito colaborativo no ambiente gastronômico.
+                    </p>
+                </div>
+
+                <div class="lg:col-span-4">
+                    <div class="bg-stone-800/80 border border-stone-700/80 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
+                        <h3 class="text-sm uppercase tracking-wider text-stone-400 font-bold mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-brand-400"></i> Pilares Formativos
+                        </h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-center gap-3 text-stone-200 text-sm">
+                                <span class="w-7 h-7 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-xs">1</span>
+                                <span>Alimentação Saudável e Consciente</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-stone-200 text-sm">
+                                <span class="w-7 h-7 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-xs">2</span>
+                                <span>Aproveitamento Integral dos Alimentos</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-stone-200 text-sm">
+                                <span class="w-7 h-7 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-xs">3</span>
+                                <span>Técnicas Simples, Segurança e Higiene</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-stone-200 text-sm">
+                                <span class="w-7 h-7 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-xs">4</span>
+                                <span>Empreendedorismo e Ecologia</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Explorer & Search Bar -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20 mb-16">
+        <div class="bg-white rounded-3xl p-4 sm:p-6 shadow-xl border border-stone-200/80 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="relative w-full md:w-96">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-stone-400"></i>
+                <input type="text" id="searchInput" placeholder="Pesquisar tópico, conceito ou receita..." class="w-full pl-11 pr-4 py-3 bg-stone-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
+            </div>
+            <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
+                <span class="text-xs font-bold uppercase text-stone-400 whitespace-nowrap mr-2">Filtro rápido:</span>
+                <button onclick="filterContent('all')" class="filter-btn bg-brand-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all">Todos</button>
+                <button onclick="filterContent('nutricao')" class="filter-btn bg-stone-100 hover:bg-stone-200 text-stone-700 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all">Nutrição</button>
+                <button onclick="filterContent('sustentabilidade')" class="filter-btn bg-stone-100 hover:bg-stone-200 text-stone-700 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all">Sustentabilidade</button>
+                <button onclick="filterContent('tecnica')" class="filter-btn bg-stone-100 hover:bg-stone-200 text-stone-700 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all">Técnicas</button>
+                <button onclick="filterContent('gestao')" class="filter-btn bg-stone-100 hover:bg-stone-200 text-stone-700 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all">Empreendedorismo</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20 pb-24">
+
+        <!-- CONHECIMENTO 1: Alimentação Saudável -->
+        <section id="alimentacao" class="content-card scroll-mt-28" data-category="nutricao">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xl shadow-inner">
+                    <i class="fa-solid fa-apple-whole"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Conhecimento 1</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold font-heading text-stone-900">Noções Básicas de Alimentação Saudável</h2>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8 mb-10">
+                <!-- Concept Card -->
+                <div class="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-10 h-10 rounded-xl bg-stone-100 text-emerald-600 flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-scale-balanced text-lg"></i>
+                    </div>
+                    <h3 class="text-lg font-bold font-heading text-stone-900 mb-2">Conceito de Alimentação Saudável</h3>
+                    <p class="text-stone-600 text-sm leading-relaxed mb-4">
+                        Baseia-se no equilíbrio nutricional, na variedade de cores e sabores e na moderação. Priorize alimentos <strong>in natura</strong> ou <strong>minimamente processados</strong>, reduzindo o consumo de ultraprocessados (diretriz do Guia Alimentar para a População Brasileira).
+                    </p>
+                    <div class="bg-emerald-50 rounded-2xl p-3 border border-emerald-100 text-xs text-emerald-800">
+                        <i class="fa-solid fa-book-bookmark text-emerald-600 mr-1"></i> <strong>Dica Guia Alimentar:</strong> "Faça de alimentos in natura a base da sua alimentação."
+                    </div>
+                </div>
+
+                <!-- Food Groups Card -->
+                <div class="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm hover:shadow-md transition-shadow lg:col-span-2">
+                    <h3 class="text-lg font-bold font-heading text-stone-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-shapes text-emerald-600"></i> Grupos Alimentares e Suas Funções
+                    </h3>
+                    
+                    <div class="grid sm:grid-cols-3 gap-4">
+                        <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200/60">
+                            <span class="inline-block px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold mb-2">Construtores</span>
+                            <h4 class="font-bold text-stone-800 text-sm mb-1">Proteínas</h4>
+                            <p class="text-xs text-stone-600 mb-2">Manutenção e construção de tecidos musculares e órgãos.</p>
+                            <span class="text-[11px] text-stone-500 font-medium">Ex: Leguminosas, ovos, carnes, peixes.</span>
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200/60">
+                            <span class="inline-block px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold mb-2">Energéticos</span>
+                            <h4 class="font-bold text-stone-800 text-sm mb-1">Carboidratos</h4>
+                            <p class="text-xs text-stone-600 mb-2">Combustível fundamental para o cérebro e atividades físicas.</p>
+                            <span class="text-[11px] text-stone-500 font-medium">Ex: Tubérculos, arroz, cereais integrais.</span>
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200/60">
+                            <span class="inline-block px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold mb-2">Reguladores</span>
+                            <h4 class="font-bold text-stone-800 text-sm mb-1">Vitaminas & Minerais</h4>
+                            <p class="text-xs text-stone-600 mb-2">Regulam a imunidade, digestão e bom funcionamento celular.</p>
+                            <span class="text-[11px] text-stone-500 font-medium">Ex: Frutas, legumes, verduras.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Plate Visualizer Widget -->
+            <div class="bg-gradient-to-r from-emerald-900 to-stone-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div class="md:w-1/2">
+                        <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase tracking-wider">Ferramenta Interativa</span>
+                        <h3 class="text-2xl font-bold font-heading mt-2 mb-3">A Regra do Prato Equilibrado</h3>
+                        <p class="text-stone-300 text-sm leading-relaxed mb-6">
+                            Monte visualmente a proporção ideal de refeição recomendada por nutricionistas para garantir diversidade e saciedade adequada.
+                        </p>
+                        
+                        <div class="space-y-3">
+                            <button onclick="highlightPlate('regulators')" class="w-full text-left p-3 rounded-2xl bg-stone-800/80 hover:bg-emerald-800/50 border border-stone-700 transition-all flex items-center justify-between group">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+                                    <span class="text-sm font-semibold text-stone-200">50% Legumes e Verduras (Reguladores)</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-xs text-stone-400 group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+
+                            <button onclick="highlightPlate('carbs')" class="w-full text-left p-3 rounded-2xl bg-stone-800/80 hover:bg-emerald-800/50 border border-stone-700 transition-all flex items-center justify-between group">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+                                    <span class="text-sm font-semibold text-stone-200">25% Carboidratos Integrais (Energéticos)</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-xs text-stone-400 group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+
+                            <button onclick="highlightPlate('proteins')" class="w-full text-left p-3 rounded-2xl bg-stone-800/80 hover:bg-emerald-800/50 border border-stone-700 transition-all flex items-center justify-between group">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                                    <span class="text-sm font-semibold text-stone-200">25% Proteínas Limpas (Construtores)</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-xs text-stone-400 group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Plate Diagram -->
+                    <div class="md:w-1/2 flex flex-col items-center">
+                        <div class="relative w-64 h-64 sm:w-72 sm:h-72 rounded-full border-8 border-stone-100/30 bg-stone-800 shadow-2xl p-2 flex items-center justify-center overflow-hidden">
+                            <!-- SVG Interactive Plate Diagram -->
+                            <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90">
+                                <!-- 50% Green -->
+                                <path id="slice-regulators" d="M 50 50 L 50 0 A 50 50 0 0 1 50 100 Z" fill="#22c55e" class="opacity-90 hover:opacity-100 transition-opacity cursor-pointer"></path>
+                                <!-- 25% Amber -->
+                                <path id="slice-carbs" d="M 50 50 L 50 100 A 50 50 0 0 1 0 50 Z" fill="#f59e0b" class="opacity-90 hover:opacity-100 transition-opacity cursor-pointer"></path>
+                                <!-- 25% Red -->
+                                <path id="slice-proteins" d="M 50 50 L 0 50 A 50 50 0 0 1 50 0 Z" fill="#ef4444" class="opacity-90 hover:opacity-100 transition-opacity cursor-pointer"></path>
+                                <circle cx="50" cy="50" r="8" fill="#1c1917"></circle>
+                            </svg>
+                        </div>
+                        <p id="plate-info-text" class="text-xs text-emerald-300 mt-4 text-center font-medium bg-emerald-950/60 px-4 py-2 rounded-xl border border-emerald-800">
+                            Clique nas seções para ver o papel de cada grupo no organismo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONHECIMENTO 2: Sustentabilidade e Aproveitamento Integral -->
+        <section id="sustentabilidade" class="content-card scroll-mt-28" data-category="sustentabilidade">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-12 h-12 rounded-2xl bg-lime-100 text-lime-700 flex items-center justify-center font-bold text-xl shadow-inner">
+                    <i class="fa-solid fa-recycle"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-lime-600">Conhecimento 2</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold font-heading text-stone-900">Sustentabilidade e Aproveitamento Integral dos Alimentos (AIA)</h2>
+                </div>
+            </div>
+
+            <!-- Subheader Banner -->
+            <div class="bg-lime-50 rounded-3xl p-6 border border-lime-200 mb-8 flex flex-col sm:flex-row items-center gap-6">
+                <div class="w-16 h-16 rounded-2xl bg-lime-500 text-white flex items-center justify-center text-2xl shrink-0 shadow-lg shadow-lime-500/20">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-stone-900 mb-1">O Conceito de Aproveitamento Integral</h3>
+                    <p class="text-stone-700 text-sm leading-relaxed">
+                        Reduzir drasticamente o desperdício reutilizando partes habitualmente descartadas, como <strong>cascas, talos, folhas e sementes</strong>. Essas partes frequentemente abrigam maior concentração de fibras, minerais e antioxidantes do que a própria polpa!
+                    </p>
+                </div>
+            </div>
+
+            <!-- AIA Interactive Recipes Cards -->
+            <div class="mb-10">
+                <h3 class="text-xl font-bold font-heading text-stone-900 mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-utensils text-lime-600"></i> Receitas Práticas de Aproveitamento Integral
+                </h3>
+
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Recipe 1 -->
+                    <div class="bg-white rounded-3xl p-5 border border-stone-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-cookie"></i>
+                            </div>
+                            <span class="text-[10px] uppercase font-bold text-stone-400">Doce & Sobremesa</span>
+                            <h4 class="font-bold text-stone-900 text-base mb-2">Bolo de Casca de Banana</h4>
+                            <p class="text-xs text-stone-600 leading-relaxed mb-4">
+                                Utiliza cascas bem higienizadas e batidas. Rico em potássio e fibras, reduz o açúcar adicionado graças ao doçor natural.
+                            </p>
+                        </div>
+                        <button onclick="openRecipeModal('banana')" class="w-full py-2 bg-stone-100 hover:bg-brand-600 hover:text-white text-stone-700 rounded-xl text-xs font-semibold transition-colors">Ver Modo de Preparo</button>
+                    </div>
+
+                    <!-- Recipe 2 -->
+                    <div class="bg-white rounded-3xl p-5 border border-stone-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-bowl-food"></i>
+                            </div>
+                            <span class="text-[10px] uppercase font-bold text-stone-400">Acompanhamento</span>
+                            <h4 class="font-bold text-stone-900 text-base mb-2">Refogado de Talos</h4>
+                            <p class="text-xs text-stone-600 leading-relaxed mb-4">
+                                Talos de couve, espinafre e brócolis salteados no azeite com alho e cebola. Textura crocante e alta concentração de cálcio.
+                            </p>
+                        </div>
+                        <button onclick="openRecipeModal('talos')" class="w-full py-2 bg-stone-100 hover:bg-brand-600 hover:text-white text-stone-700 rounded-xl text-xs font-semibold transition-colors">Ver Modo de Preparo</button>
+                    </div>
+
+                    <!-- Recipe 3 -->
+                    <div class="bg-white rounded-3xl p-5 border border-stone-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-pepper-hot"></i>
+                            </div>
+                            <span class="text-[10px] uppercase font-bold text-stone-400">Petisco Saudável</span>
+                            <h4 class="font-bold text-stone-900 text-base mb-2">Aperitivo de Sementes</h4>
+                            <p class="text-xs text-stone-600 leading-relaxed mb-4">
+                                Sementes de abóbora ou melão temperadas com páprica, sal e assadas até ficarem crocantes. Excelente fonte de magnésio.
+                            </p>
+                        </div>
+                        <button onclick="openRecipeModal('sementes')" class="w-full py-2 bg-stone-100 hover:bg-brand-600 hover:text-white text-stone-700 rounded-xl text-xs font-semibold transition-colors">Ver Modo de Preparo</button>
+                    </div>
+
+                    <!-- Recipe 4 -->
+                    <div class="bg-white rounded-3xl p-5 border border-stone-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-mug-hot"></i>
+                            </div>
+                            <span class="text-[10px] uppercase font-bold text-stone-400">Base Culinária</span>
+                            <h4 class="font-bold text-stone-900 text-base mb-2">Caldo de Aparas</h4>
+                            <p class="text-xs text-stone-600 leading-relaxed mb-4">
+                                Aparas limpas de cenoura, chuchu, cebola e ervas fervidas lentamente. Substitui caldos industrializados de forma caseira.
+                            </p>
+                        </div>
+                        <button onclick="openRecipeModal('caldo')" class="w-full py-2 bg-stone-100 hover:bg-brand-600 hover:text-white text-stone-700 rounded-xl text-xs font-semibold transition-colors">Ver Modo de Preparo</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Waste Management & FIFO Storage Grid -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- FIFO Method -->
+                <div class="bg-stone-900 text-white rounded-3xl p-6 relative overflow-hidden">
+                    <div class="text-lime-400 text-xs font-bold uppercase tracking-widest mb-2">Gestão de Estoque</div>
+                    <h4 class="text-xl font-bold font-heading mb-3">Método FIFO (PVPS)</h4>
+                    <p class="text-stone-300 text-xs leading-relaxed mb-4">
+                        <strong>First In, First Out</strong> (Primeiro que Entra, Primeiro que Sai). Posicione os itens comprados recentemente atrás e os mais antigos à frente na geladeira e despensa.
+                    </p>
+                    <div class="p-3 bg-stone-800 rounded-2xl text-xs text-stone-400 border border-stone-700">
+                        <i class="fa-solid fa-box-open text-lime-400 mr-1"></i> Evita alimentos vencidos esquecidos no fundo do armário.
+                    </div>
+                </div>
+
+                <!-- Composting -->
+                <div class="bg-stone-900 text-white rounded-3xl p-6 relative overflow-hidden">
+                    <div class="text-lime-400 text-xs font-bold uppercase tracking-widest mb-2">Resíduos Orgânicos</div>
+                    <h4 class="text-xl font-bold font-heading mb-3">Compostagem Caseira</h4>
+                    <p class="text-stone-300 text-xs leading-relaxed mb-4">
+                        Transformação do lixo orgânico inevitável em adubo fértil para hortas comunitárias e domésticas, fechando o ciclo natural de nutrientes.
+                    </p>
+                    <div class="p-3 bg-stone-800 rounded-2xl text-xs text-stone-400 border border-stone-700">
+                        <i class="fa-solid fa-earth-americas text-lime-400 mr-1"></i> Reduz drasticamente o volume de resíduos em aterros.
+                    </div>
+                </div>
+
+                <!-- Planning Purchases -->
+                <div class="bg-stone-900 text-white rounded-3xl p-6 relative overflow-hidden">
+                    <div class="text-lime-400 text-xs font-bold uppercase tracking-widest mb-2">Consumo Consciente</div>
+                    <h4 class="text-xl font-bold font-heading mb-3">Planejamento de Compras</h4>
+                    <p class="text-stone-300 text-xs leading-relaxed mb-4">
+                        Elabore cardápios semanais antes de ir à feira ou supermercado. Comprar apenas a quantidade exata evita deterioração prematura de insumos.
+                    </p>
+                    <div class="p-3 bg-stone-800 rounded-2xl text-xs text-stone-400 border border-stone-700">
+                        <i class="fa-solid fa-cart-shopping text-lime-400 mr-1"></i> Economia financeira aliada à responsabilidade ecológica.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONHECIMENTO 3: Técnicas Simples de Preparo e Higiene -->
+        <section id="tecnicas" class="content-card scroll-mt-28" data-category="tecnica">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center font-bold text-xl shadow-inner">
+                    <i class="fa-solid fa-pump-soap"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-cyan-600">Conhecimento 3</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold font-heading text-stone-900">Técnicas Simples de Preparo, Higiene e Segurança</h2>
+                </div>
+            </div>
+
+            <!-- Hygiene & Safety Steps Timeline -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-sm mb-10">
+                <h3 class="text-xl font-bold font-heading text-stone-900 mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-cyan-600"></i> Protocolo de Segurança e Higiene Alimentar
+                </h3>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="p-5 rounded-2xl bg-cyan-50/50 border border-cyan-100 relative">
+                        <span class="w-8 h-8 rounded-full bg-cyan-600 text-white font-bold text-xs flex items-center justify-center mb-3">01</span>
+                        <h4 class="font-bold text-stone-900 text-base mb-2">Higienização Pessoal & Utensílios</h4>
+                        <p class="text-xs text-stone-600 leading-relaxed">
+                            Lavar mãos até os punhos com sabão neutro antes do manuseio. Sanitizar bancadas e utensílios com álcool 70% ou água sanitária diluída.
+                        </p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-cyan-50/50 border border-cyan-100 relative">
+                        <span class="w-8 h-8 rounded-full bg-cyan-600 text-white font-bold text-xs flex items-center justify-center mb-3">02</span>
+                        <h4 class="font-bold text-stone-900 text-base mb-2">Sanitização de Hortifrúti</h4>
+                        <p class="text-xs text-stone-600 leading-relaxed">
+                            Lavar em água corrente para remover sujidades. Imergir vegetais consumidos crus em solução clorada (1 colher de sopa de água sanitária para 1L de água) por 15min.
+                        </p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-cyan-50/50 border border-cyan-100 relative">
+                        <span class="w-8 h-8 rounded-full bg-cyan-600 text-white font-bold text-xs flex items-center justify-center mb-3">03</span>
+                        <h4 class="font-bold text-stone-900 text-base mb-2">Prevenção de Contaminação Cruzada</h4>
+                        <p class="text-xs text-stone-600 leading-relaxed">
+                            Utilizar tábuas e facas distintas para carnes cruas e vegetais prontos. Nunca misturar alimentos cozidos com insumos cru sem sanitização.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mise en Place & Cooking Techniques -->
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Mise en Place Card -->
+                <div class="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-list-ol"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold font-heading text-stone-900">Mise en Place (Tudo no Lugar)</h3>
+                            <span class="text-xs text-stone-500">Organização prévia e eficiência</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-stone-600 leading-relaxed mb-4">
+                        A prática do <em>Mise en Place</em> consiste em higienizar, picar, medir e separar todos os ingredientes e utensílios antes de acender o fogo. Benefícios:
+                    </p>
+                    <ul class="space-y-2 text-xs text-stone-700">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-purple-600"></i> Evita que alimentos queimem enquanto outros são cortados.</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-purple-600"></i> Garante maior segurança no manuseio de facas sem pressa.</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-purple-600"></i> Otimiza o tempo de trabalho em equipe na cozinha.</li>
+                    </ul>
+                </div>
+
+                <!-- Cooking Methods Card -->
+                <div class="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-fire-burner"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold font-heading text-stone-900">Métodos Básicos de Cocção</h3>
+                            <span class="text-xs text-stone-500">Preservando sabor e nutrientes</span>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="p-3 rounded-xl bg-stone-50 text-xs">
+                            <strong class="text-stone-900">Cozimento a Vapor:</strong> Preserva a maioria das vitaminas hidrossolúveis (C e complexo B) e a cor vívida dos vegetais.
+                        </div>
+                        <div class="p-3 rounded-xl bg-stone-50 text-xs">
+                            <strong class="text-stone-900">Refogado Rápido (Sauté):</strong> Cocção em fogo alto com pouca gordura, mantendo a crocância e frescor.
+                        </div>
+                        <div class="p-3 rounded-xl bg-stone-50 text-xs">
+                            <strong class="text-stone-900">Assados Eficientes:</strong> Utilização do forno aproveitando várias assadeiras simultâneas para economia de energia/gás.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONHECIMENTO 4: Empreendedorismo e Responsabilidade Ambiental -->
+        <section id="empreendedorismo" class="content-card scroll-mt-28" data-category="gestao">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xl shadow-inner">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-600">Conhecimento 4</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold font-heading text-stone-900">Empreendedorismo e Responsabilidade Ambiental</h2>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                <!-- Eco Entrepreneurship -->
+                <div class="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-sm">
+                    <h3 class="text-xl font-bold font-heading text-stone-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb text-amber-500"></i> Visão Empreendedora Culinária
+                    </h3>
+                    <p class="text-stone-600 text-sm leading-relaxed mb-6">
+                        O aproveitamento sustentável é também uma grande oportunidade de negócios e geração de renda. Ingredientes de baixo custo ou sobras recicláveis ganham alto valor agregado quando transformados em produtos artesanais de qualidade.
+                    </p>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 font-bold text-xs mt-1">
+                                <i class="fa-solid fa-jar"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-stone-800 text-sm">Geleias e Conservas Artesanais</h4>
+                                <p class="text-xs text-stone-600">Aproveitamento de frutas maduras da estação para geleias e cascas/talos para antepastos em potes de vidro higienizados.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 font-bold text-xs mt-1">
+                                <i class="fa-solid fa-calculator"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-stone-800 text-sm">Ficha Técnica e Precificação</h4>
+                                <p class="text-xs text-stone-600">Mapeamento rigoroso dos insumos (comprados e reaproveitados) para definir margem de lucro justa e evitar perdas invisíveis.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Environmental Impact -->
+                <div class="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-sm">
+                    <h3 class="text-xl font-bold font-heading text-stone-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-earth-americas text-emerald-600"></i> Impacto Ambiental da Alimentação
+                    </h3>
+                    <p class="text-stone-600 text-sm leading-relaxed mb-6">
+                        Cada escolha na cozinha reflete na pegada ecológica do planeta. Adoção de hábitos conscientes diminui a emissão de gases do efeito estufa e economiza água.
+                    </p>
+
+                    <div class="space-y-3">
+                        <div class="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80 flex items-center justify-between text-xs">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-droplet text-blue-500 text-base"></i>
+                                <span class="font-medium text-stone-800">Redução de Pegada Hídrica</span>
+                            </div>
+                            <span class="text-stone-500 font-semibold">Valorize hortaliças locais</span>
+                        </div>
+
+                        <div class="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80 flex items-center justify-between text-xs">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-truck-ramp-box text-amber-600 text-base"></i>
+                                <span class="font-medium text-stone-800">Consumo Sazonal e Local</span>
+                            </div>
+                            <span class="text-stone-500 font-semibold">Menos frete = Menos CO₂</span>
+                        </div>
+
+                        <div class="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80 flex items-center justify-between text-xs">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-box text-emerald-600 text-base"></i>
+                                <span class="font-medium text-stone-800">Zero Plástico Único</span>
+                            </div>
+                            <span class="text-stone-500 font-semibold">Panos de cera e vidros</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DINÂMICA PRÁTICA INTEGRADORA -->
+        <section id="dinamica" class="bg-gradient-to-br from-brand-900 via-stone-900 to-stone-950 rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden">
+            <!-- Decorative circle -->
+            <div class="absolute -right-10 -bottom-10 w-80 h-80 rounded-full bg-brand-500/10 blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/20 text-brand-300 text-xs font-bold uppercase tracking-wider mb-4 border border-brand-500/30">
+                    <i class="fa-solid fa-users"></i> Atividade Integradora em Equipe
+                </div>
+
+                <h2 class="text-3xl sm:text-4xl font-extrabold font-heading text-white mb-4">
+                    Desafio da Caixa Misteriosa Sustentável
+                </h2>
+                <p class="text-stone-300 text-base max-w-3xl leading-relaxed mb-8">
+                    Uma vivência prática em grupo desenvolvida para exercitar simultaneamente a criação culinária, o aproveitamento de 100% dos insumos e a organização colaborativa em equipe.
+                </p>
+
+                <!-- Workflow Steps -->
+                <div class="grid md:grid-cols-4 gap-6 mb-10">
+                    <div class="bg-stone-800/80 p-5 rounded-2xl border border-stone-700/80">
+                        <span class="w-8 h-8 rounded-xl bg-brand-500 text-white font-bold text-xs flex items-center justify-center mb-3">Passo 1</span>
+                        <h4 class="font-bold text-white text-sm mb-1">Divisão dos Grupos</h4>
+                        <p class="text-xs text-stone-300">Formação de equipes pequenas com papéis definidos (líder de higiene, cozinheiro principal, gestor de resíduos).</p>
+                    </div>
+
+                    <div class="bg-stone-800/80 p-5 rounded-2xl border border-stone-700/80">
+                        <span class="w-8 h-8 rounded-xl bg-brand-500 text-white font-bold text-xs flex items-center justify-center mb-3">Passo 2</span>
+                        <h4 class="font-bold text-white text-sm mb-1">A Caixa Misteriosa</h4>
+                        <p class="text-xs text-stone-300">Entrega de caixas com vegetais da estação, folhas, talos, cascas e temperos variados.</p>
+                    </div>
+
+                    <div class="bg-stone-800/80 p-5 rounded-2xl border border-stone-700/80">
+                        <span class="w-8 h-8 rounded-xl bg-brand-500 text-white font-bold text-xs flex items-center justify-center mb-3">Passo 3</span>
+                        <h4 class="font-bold text-white text-sm mb-1">Planejamento Coletivo</h4>
+                        <p class="text-xs text-stone-300">10 minutos para a equipe discutir a receita funcional, dividir funções e organizar o <em>Mise en Place</em>.</p>
+                    </div>
+
+                    <div class="bg-stone-800/80 p-5 rounded-2xl border border-stone-700/80">
+                        <span class="w-8 h-8 rounded-xl bg-brand-500 text-white font-bold text-xs flex items-center justify-center mb-3">Passo 4</span>
+                        <h4 class="font-bold text-white text-sm mb-1">Execução & Apresentação</h4>
+                        <p class="text-xs text-stone-300">Preparo do prato, higienização total da bancada e degustação justificando o valor nutricional e ecológico.</p>
+                    </div>
+                </div>
+
+                <!-- Interactive Checklist & Team Assessment Tool -->
+                <div class="bg-stone-800/90 rounded-2xl p-6 border border-stone-700">
+                    <h3 class="text-lg font-bold font-heading text-white mb-4 flex items-center justify-between">
+                        <span><i class="fa-solid fa-clipboard-check text-brand-400 mr-2"></i> Rubrica de Avaliação de Desempenho da Equipe</span>
+                        <span id="scoreBadge" class="text-xs bg-brand-500/20 text-brand-300 border border-brand-500/40 px-3 py-1 rounded-full font-bold">Progresso: 0 / 4</span>
+                    </h3>
+
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <label class="flex items-start gap-3 p-3 rounded-xl bg-stone-900/60 border border-stone-700/60 cursor-pointer hover:bg-stone-900 transition-colors">
+                            <input type="checkbox" onchange="updateRubric()" class="rubric-check mt-1 w-4 h-4 rounded text-brand-500 focus:ring-brand-400 accent-brand-500">
+                            <div>
+                                <span class="text-sm font-semibold text-stone-200 block">Trabalho em Equipe e Divisão de Tarefas</span>
+                                <span class="text-xs text-stone-400">Todos os membros participaram ativamente com respeito e colaboração mútua.</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-xl bg-stone-900/60 border border-stone-700/60 cursor-pointer hover:bg-stone-900 transition-colors">
+                            <input type="checkbox" onchange="updateRubric()" class="rubric-check mt-1 w-4 h-4 rounded text-brand-500 focus:ring-brand-400 accent-brand-500">
+                            <div>
+                                <span class="text-sm font-semibold text-stone-200 block">Aproveitamento Integral (AIA)</span>
+                                <span class="text-xs text-stone-400">Geração mínima ou nula de resíduos descartados na lata do lixo comum.</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-xl bg-stone-900/60 border border-stone-700/60 cursor-pointer hover:bg-stone-900 transition-colors">
+                            <input type="checkbox" onchange="updateRubric()" class="rubric-check mt-1 w-4 h-4 rounded text-brand-500 focus:ring-brand-400 accent-brand-500">
+                            <div>
+                                <span class="text-sm font-semibold text-stone-200 block">Boas Práticas de Higiene e Segurança</span>
+                                <span class="text-xs text-stone-400">Manuseio seguro de instrumentos de corte, mãos limpas e bancada higienizada.</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-xl bg-stone-900/60 border border-stone-700/60 cursor-pointer hover:bg-stone-900 transition-colors">
+                            <input type="checkbox" onchange="updateRubric()" class="rubric-check mt-1 w-4 h-4 rounded text-brand-500 focus:ring-brand-400 accent-brand-500">
+                            <div>
+                                <span class="text-sm font-semibold text-stone-200 block">Equilíbrio Nutricional e Sabor</span>
+                                <span class="text-xs text-stone-400">Prato harmonioso, bem temperado com ervas naturais e nutricionalmente rico.</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Recipe Modal -->
+    <div id="recipeModal" class="fixed inset-0 bg-stone-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative border border-stone-200">
+            <button onclick="closeRecipeModal()" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-stone-100 text-stone-500 hover:bg-stone-200 flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <span id="modalCategory" class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full">Receita AIA</span>
+            <h3 id="modalTitle" class="text-2xl font-bold font-heading text-stone-900 mt-2 mb-4">Título da Receita</h3>
+            
+            <div class="space-y-4 text-xs text-stone-700 leading-relaxed custom-scrollbar max-h-80 overflow-y-auto pr-2">
+                <div>
+                    <h4 class="font-bold text-stone-900 text-sm mb-1 text-brand-700"><i class="fa-solid fa-basket-shopping mr-1"></i> Ingredientes:</h4>
+                    <ul id="modalIngredients" class="list-disc list-inside space-y-1 text-stone-600">
+                        <!-- Dynamic list -->
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-stone-900 text-sm mb-1 text-brand-700"><i class="fa-solid fa-list-check mr-1"></i> Modo de Preparo:</h4>
+                    <p id="modalSteps" class="text-stone-600 space-y-2">
+                        <!-- Dynamic text -->
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-stone-100 flex justify-end">
+                <button onclick="closeRecipeModal()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl text-xs transition-colors">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-stone-900 text-stone-400 py-12 border-t border-stone-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-seedling"></i>
+                </div>
+                <div>
+                    <span class="text-white font-bold font-heading text-base block">Culinária Sustentável</span>
+                    <span class="text-xs text-stone-500">Desenvolvimento de Competências Formativas</span>
+                </div>
+            </div>
+
+            <p class="text-xs text-stone-500">
+                &copy; Conteúdo preparado com foco em Alimentação Saudável, Sustentabilidade e Trabalho Colaborativo.
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Recipe Data Database
+        const recipeData = {
+            banana: {
+                title: "Bolo de Casca de Banana",
+                category: "Aproveitamento Integral - Doce",
+                ingredients: [
+                    "4 cascas de banana lavadas e picadas",
+                    "2 ovos inteiros",
+                    "2 colheres de sopa de manteiga ou óleo vegetal",
+                    "2 xícaras de farinha de trigo (ou aveia)",
+                    "1 xícara de açúcar mascavo",
+                    "1 colher de sopa de fermento em pó"
+                ],
+                steps: "Bata as cascas de banana no liquidificador com os ovos e a manteiga até obter um creme homogêneo. Em uma tigela, misture a farinha e o açúcar mascavo. Junte o líquido batter e mexa bem. Por fim, adicione o fermento delicadamente. Despeje em forma untada e asse em forno pré-aquecido a 180°C por aproximadamente 35 minutos."
+            },
+            talos: {
+                title: "Refogado de Talos e Folhas",
+                category: "Aproveitamento Integral - Salgado",
+                ingredients: [
+                    "2 xícaras de talos higienizados (couve, brócolis, espinafre)",
+                    "2 dentes de alho picados",
+                    "1/2 cebola picadinha",
+                    "1 colher de sopa de azeite de oliva",
+                    "Sal, pimenta-do-reino e cheiro-verde a gosto"
+                ],
+                steps: "Corte os talos em pedaços finos e pequenos para facilitar o cozimento. Em uma frigideira, aqueça o azeite e doure a cebola e o alho. Adicione os talos e refogue em fogo médio por cerca de 7 a 10 minutos até ficarem macios e crocantes. Tempere com sal e pimenta e sirva bem quente."
+            },
+            sementes: {
+                title: "Aperitivo Crocante de Sementes de Abóbora",
+                category: "Aproveitamento Integral - Petisco",
+                ingredients: [
+                    "1 xícara de sementes frescas de abóbora lavadas e secas",
+                    "1 colher de chá de azeite",
+                    "1 pitada de sal, páprica defumada e orégano"
+                ],
+                steps: "Lave bem as sementes para retirar a polpa da abóbora e seque-as totalmente com um pano limpo. Em uma tigela, envolva as sementes no azeite e nos temperos. Espalhe em uma assadeira e leve ao forno a 180°C por 15 a 20 minutos, mexendo na metade do tempo até dourar."
+            },
+            caldo: {
+                title: "Caldo Nutritivo de Aparas de Vegetais",
+                category: "Aproveitamento Integral - Base Culinária",
+                ingredients: [
+                    "3 xícaras de aparas limpas (cascas de cenoura, chuchu, pontas de cebola e salsão)",
+                    "1,5 litro de água fria",
+                    "Folhas de louro e pimenta em grão a gosto"
+                ],
+                steps: "Guarde as aparas limpas no congelador durante a semana. Em uma panela funda, junte as aparas congeladas, a água e os temperos secos. Deixe ferver em fogo brando por 40 minutos. Coe o líquido, desprezando o bagaço (que pode ir para a compostagem) e utilize o caldo como base nutritiva para sopas e risotos."
+            }
+        };
+
+        // Recipe Modal Controls
+        function openRecipeModal(key) {
+            const data = recipeData[key];
+            if (!data) return;
+
+            document.getElementById('modalTitle').textContent = data.title;
+            document.getElementById('modalCategory').textContent = data.category;
+            
+            const listEl = document.getElementById('modalIngredients');
+            listEl.innerHTML = '';
+            data.ingredients.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                listEl.appendChild(li);
+            });
+
+            document.getElementById('modalSteps').textContent = data.steps;
+            document.getElementById('recipeModal').classList.remove('hidden');
+        }
+
+        function closeRecipeModal() {
+            document.getElementById('recipeModal').classList.add('hidden');
+        }
+
+        // Plate Highlight Interaction
+        function highlightPlate(part) {
+            const infoText = document.getElementById('plate-info-text');
+            const sliceReg = document.getElementById('slice-regulators');
+            const sliceCarb = document.getElementById('slice-carbs');
+            const sliceProt = document.getElementById('slice-proteins');
+
+            // Reset opacities
+            sliceReg.style.opacity = '0.5';
+            sliceCarb.style.opacity = '0.5';
+            sliceProt.style.opacity = '0.5';
+
+            if (part === 'regulators') {
+                sliceReg.style.opacity = '1';
+                infoText.textContent = "Verduras e Legumes (50%): Ricos em fibras, água, vitaminas A, C e minerais cruciais para o equilíbrio biológico.";
+            } else if (part === 'carbs') {
+                sliceCarb.style.opacity = '1';
+                infoText.textContent = "Carboidratos Integrais (25%): Fornecem energia sustentada sem picos bruscos de glicemia (Arroz integral, batata-doce, mandioca).";
+            } else if (part === 'proteins') {
+                sliceProt.style.opacity = '1';
+                infoText.textContent = "Proteínas (25%): Essenciais para a estrutura celular, imunidade e força muscular (Leguminosas, ovos, peixes e carnes magras).";
+            }
+        }
+
+        // Search Filter
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.content-card');
+
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(term)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Category Filter buttons
+        function filterContent(category) {
+            const cards = document.querySelectorAll('.content-card');
+            const buttons = document.querySelectorAll('.filter-btn');
+
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white');
+                btn.classList.add('bg-stone-100', 'text-stone-700');
+            });
+            event.target.classList.remove('bg-stone-100', 'text-stone-700');
+            event.target.classList.add('bg-brand-600', 'text-white');
+
+            cards.forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Team Rubric Progress Counter
+        function updateRubric() {
+            const checkboxes = document.querySelectorAll('.rubric-check');
+            let count = 0;
+            checkboxes.forEach(cb => {
+                if (cb.checked) count++;
+            });
+            document.getElementById('scoreBadge').textContent = `Progresso: ${count} / ${checkboxes.length}`;
+        }
+    </script>
+</body>
+</html>
