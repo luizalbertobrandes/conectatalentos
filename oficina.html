@@ -194,73 +194,48 @@
                     <div>
                         <span class="bg-amber-500 text-black text-xs font-bold px-3 py-1 rounded-full uppercase">Design Thinking</span>
                         <h2 class="text-2xl sm:text-3xl font-extrabold mt-2">Mapeamento da Persona Regional</h2>
-                        <p class="text-slate-400 text-sm mt-1">Crie a persona do produtor local ou do consumidor para entender dores e necessidades.</p>
+                        <p class="text-slate-400 text-sm mt-1">Escolha um avatar em emoji e descreva o produtor ou consumidor local para entender suas dores e necessidades.</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <!-- Left Column: Customizer Avatar -->
-                    <div class="lg:col-span-5 glass-card rounded-3xl p-6 shadow-sm flex flex-col items-center justify-start space-y-6">
-                        <h3 class="font-extrabold text-slate-800 text-lg w-full text-center border-b pb-3">Criador de Avatar</h3>
+                    <!-- Left Column: Emoji Avatar Picker -->
+                    <div class="lg:col-span-5 glass-card rounded-3xl p-6 shadow-sm flex flex-col items-center justify-start space-y-5">
+                        <h3 class="font-extrabold text-slate-800 text-lg w-full text-center border-b pb-3">Seletor de Avatar (Emoji)</h3>
                         
                         <!-- Avatar Display Box -->
-                        <div class="relative w-48 h-48 bg-amber-100/60 rounded-full flex items-center justify-center border-4 border-amber-500/30 shadow-inner overflow-hidden p-4">
-                            <svg id="avatarSvg" viewBox="0 0 100 100" class="w-full h-full">
-                                <!-- Skin/Head Base -->
-                                <circle id="svgSkin" cx="50" cy="50" r="35" fill="#fcd34d" />
-                                
-                                <!-- Eyes -->
-                                <circle cx="38" cy="45" r="4" fill="#1e293b" />
-                                <circle cx="62" cy="45" r="4" fill="#1e293b" />
-                                
-                                <!-- Mouth Expression -->
-                                <path id="svgMouth" d="M 38 60 Q 50 72 62 60" stroke="#1e293b" stroke-width="3" fill="none" stroke-linecap="round" />
-                                
-                                <!-- Hair -->
-                                <path id="svgHair" d="M 15 45 Q 50 10 85 45 Q 50 30 15 45 Z" fill="#451a03" />
-
-                                <!-- Accessories / Details -->
-                                <g id="svgExtra"></g>
-                            </svg>
+                        <div class="w-40 h-40 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full flex items-center justify-center border-4 border-amber-500/30 shadow-inner relative">
+                            <span id="avatarEmojiDisplay" class="text-7xl select-none transition-transform duration-200 hover:scale-110">👨‍🌾</span>
+                            <span id="badgePersonaType" class="absolute -bottom-2 bg-amber-600 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow">Agricultor</span>
                         </div>
 
-                        <!-- Avatar Customization Controls -->
-                        <div class="w-full space-y-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 mb-1">Gênero / Estilo</label>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <button type="button" onclick="setAvatarParam('gender', 'M')" class="btn-gender px-3 py-2 text-xs font-bold rounded-lg border border-slate-300 hover:bg-slate-100">Masculino</button>
-                                    <button type="button" onclick="setAvatarParam('gender', 'F')" class="btn-gender px-3 py-2 text-xs font-bold rounded-lg border border-slate-300 hover:bg-slate-100">Feminino</button>
-                                </div>
+                        <!-- Emoji Selection Tabs / Grid -->
+                        <div class="w-full space-y-3">
+                            <label class="block text-xs font-bold text-slate-600">Escolha o Perfil da Persona:</label>
+                            
+                            <!-- Preset Categories -->
+                            <div class="grid grid-cols-4 gap-2 text-center text-2xl">
+                                <button type="button" onclick="selectEmoji('👨‍🌾', 'Agricultor')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">👨‍🌾</button>
+                                <button type="button" onclick="selectEmoji('👩‍🌾', 'Agricultora')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">👩‍🌾</button>
+                                <button type="button" onclick="selectEmoji('👨‍🍳', 'Chef / Cozinheiro')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">👨‍🍳</button>
+                                <button type="button" onclick="selectEmoji('👩‍🍳', 'Chef / Cozinheira')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">👩‍🍳</button>
+                                <button type="button" onclick="selectEmoji('👵', 'Dona / Artesã')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">👵</button>
+                                <button type="button" onclick="selectEmoji('👴', 'Seu / Produtor')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">👴</button>
+                                <button type="button" onclick="selectEmoji('🧑‍💼', 'Empreendedor')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">🧑‍💼</button>
+                                <button type="button" onclick="selectEmoji('🛍️', 'Consumidor')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">🛍️</button>
                             </div>
 
+                            <!-- More Variations -->
                             <div>
-                                <label class="block text-xs font-bold text-slate-600 mb-1">Tom de Pele</label>
-                                <div class="flex space-x-2 justify-between">
-                                    <button type="button" onclick="setAvatarParam('skin', '#fde047')" class="w-8 h-8 rounded-full border-2 border-slate-300" style="background:#fde047"></button>
-                                    <button type="button" onclick="setAvatarParam('skin', '#fcd34d')" class="w-8 h-8 rounded-full border-2 border-slate-300" style="background:#fcd34d"></button>
-                                    <button type="button" onclick="setAvatarParam('skin', '#d97706')" class="w-8 h-8 rounded-full border-2 border-slate-300" style="background:#d97706"></button>
-                                    <button type="button" onclick="setAvatarParam('skin', '#78350f')" class="w-8 h-8 rounded-full border-2 border-slate-300" style="background:#78350f"></button>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Outras Expressões & Pessoas:</label>
+                                <div class="grid grid-cols-6 gap-1 text-xl text-center">
+                                    <button type="button" onclick="selectEmoji('🙂', 'Simpático')" class="p-1.5 rounded-lg border hover:bg-slate-100">🙂</button>
+                                    <button type="button" onclick="selectEmoji('🤔', 'Reflexivo')" class="p-1.5 rounded-lg border hover:bg-slate-100">🤔</button>
+                                    <button type="button" onclick="selectEmoji('🧐', 'Analisador')" class="p-1.5 rounded-lg border hover:bg-slate-100">🧐</button>
+                                    <button type="button" onclick="selectEmoji('😃', 'Entusiasta')" class="p-1.5 rounded-lg border hover:bg-slate-100">😃</button>
+                                    <button type="button" onclick="selectEmoji('👩‍🏭', 'Produtora')" class="p-1.5 rounded-lg border hover:bg-slate-100">👩‍🏭</button>
+                                    <button type="button" onclick="selectEmoji('🤝', 'Parceiro')" class="p-1.5 rounded-lg border hover:bg-slate-100">🤝</button>
                                 </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 mb-1">Cor do Cabelo</label>
-                                <div class="flex space-x-2 justify-between">
-                                    <button type="button" onclick="setAvatarParam('hairColor', '#1e293b')" class="w-8 h-8 rounded-full border-2 border-slate-300" style="background:#1e293b"></button>
-                                    <button type="button" onclick="setAvatarParam('hairColor', '#451a03')" class="w-8 h-8 rounded-full border-2 border-slate-300" style="background:#451a03"></button>
-                                    <button type="button" onclick="setAvatarParam('hairColor', '#b45309')" class="w-8 h-8 rounded-full border-2 border-slate-300" style="background:#b45309"></button>
-                                    <button type="button" onclick="setAvatarParam('hairColor', '#eab308')" class="w-8 h-8 rounded-full border-2 border-slate-300" style="background:#eab308"></button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 mb-1">Expressão Facial</label>
-                                <select onchange="setAvatarParam('expression', this.value)" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold outline-none">
-                                    <option value="happy">Sorridente / Otimista</option>
-                                    <option value="neutral">Neutro / Pensativo</option>
-                                    <option value="worried">Preocupado / Desafiado</option>
-                                </select>
                             </div>
                         </div>
                     </div>
@@ -556,13 +531,9 @@
         // State storage key
         const STORAGE_KEY = 'sabores_locais_db';
 
-        // Avatar Parameters
-        let avatarState = {
-            gender: 'M',
-            skin: '#fcd34d',
-            hairColor: '#451a03',
-            expression: 'happy'
-        };
+        // Selected Emoji State
+        let selectedEmoji = '👨‍🌾';
+        let selectedEmojiLabel = 'Agricultor';
 
         // Initialize application state
         let appData = {
@@ -573,7 +544,6 @@
 
         window.onload = function() {
             loadFromStorage();
-            renderAvatar();
             updateGroupBadge();
         };
 
@@ -614,35 +584,13 @@
             }
         }
 
-        // --- AVATAR GENERATOR LOGIC ---
-        function setAvatarParam(key, val) {
-            avatarState[key] = val;
-            renderAvatar();
-        }
-
-        function renderAvatar() {
-            const skin = document.getElementById('svgSkin');
-            const hair = document.getElementById('svgHair');
-            const mouth = document.getElementById('svgMouth');
-
-            skin.setAttribute('fill', avatarState.skin);
-            hair.setAttribute('fill', avatarState.hairColor);
-
-            // Hair shape based on gender
-            if (avatarState.gender === 'F') {
-                hair.setAttribute('d', 'M 10 50 Q 50 -10 90 50 Q 95 85 85 90 Q 50 35 15 90 Q 5 85 10 50 Z');
-            } else {
-                hair.setAttribute('d', 'M 15 45 Q 50 10 85 45 Q 50 30 15 45 Z');
-            }
-
-            // Expression logic for mouth
-            if (avatarState.expression === 'happy') {
-                mouth.setAttribute('d', 'M 38 60 Q 50 72 62 60');
-            } else if (avatarState.expression === 'neutral') {
-                mouth.setAttribute('d', 'M 38 62 L 62 62');
-            } else if (avatarState.expression === 'worried') {
-                mouth.setAttribute('d', 'M 38 65 Q 50 53 62 65');
-            }
+        // --- EMOJI AVATAR SELECTOR LOGIC ---
+        function selectEmoji(emoji, label) {
+            selectedEmoji = emoji;
+            selectedEmojiLabel = label;
+            
+            document.getElementById('avatarEmojiDisplay').innerText = emoji;
+            document.getElementById('badgePersonaType').innerText = label;
         }
 
         // --- FORM SAVING LOGIC ---
@@ -687,7 +635,8 @@
             }
 
             team.persona = {
-                avatar: { ...avatarState },
+                emoji: selectedEmoji,
+                tipoEmoji: selectedEmojiLabel,
                 nome: document.getElementById('personaName').value,
                 ocupacao: document.getElementById('personaOccupation').value,
                 caracteristicas: document.getElementById('personaTraits').value,
@@ -750,14 +699,14 @@
             };
 
             saveToStorage();
-            showToast('Etapa 3 e Pitch salvos!');
+            showToast('Etapa 3 salva com sucesso!');
         }
 
-        // --- GOOGLE SHEETS INTEGRATION ---
+        // Send data to Google Sheets via Webhook
         function sendToGoogleSheets() {
             const team = getActiveTeamObj();
-            if (!team || !team.equipe) {
-                showToast('Preencha ao menos o cadastro da Equipe.', 'error');
+            if (!team) {
+                showToast('Cadastre uma equipe antes de enviar os dados!', 'error');
                 return;
             }
 
