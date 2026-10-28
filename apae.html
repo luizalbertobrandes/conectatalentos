@@ -3,780 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Caminho no Trabalho - Descobrindo Talentos</title>
-    <!-- Tailwind CSS para design responsivo e moderno -->
+    <title>Cronograma - Workshop SENAC & APAE</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome para ícones grandes e claros -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts - Fredoka (Fonte arredondada e super legível) -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Fredoka', cursive, sans-serif;
-            background-color: #F3F4F6;
-            touch-action: manipulation;
+            font-family: 'Inter', sans-serif;
         }
-
-        /* Estilo para botões grandes e amigáveis */
-        .btn-card {
-            transition: all 0.2s ease-in-out;
-            cursor: pointer;
-        }
-
-        .btn-card:hover, .btn-card:focus {
-            transform: scale(1.04);
-        }
-
-        .btn-card:active {
-            transform: scale(0.98);
-        }
-
-        /* Destaque para seleções */
-        .card-selected {
-            border: 6px solid #10B981 !important;
-            background-color: #ECFDF5 !important;
-        }
-
-        /* Animação suave para troca de telas */
-        .fade-in {
-            animation: fadeIn 0.4s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Botão de voz que se destaca */
-        .btn-audio {
-            background-color: #F59E0B;
-            color: white;
-            border-radius: 9999px;
-            padding: 8px 16px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-audio:hover {
-            background-color: #D97706;
+        /* Custom accessibility outline focus */
+        a:focus, button:focus {
+            outline: 4px solid #F59E0B !important;
+            outline-offset: 4px;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col text-gray-800 bg-amber-50">
+<body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col justify-between">
 
-    <!-- Cabeçalho Acessível -->
-    <header class="bg-indigo-600 text-white p-4 shadow-lg sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="bg-yellow-400 text-indigo-900 p-3 rounded-full text-2xl font-bold">
-                    <i class="fa-solid fa-briefcase"></i>
+    <!-- Cabeçalho Principal -->
+    <header class="bg-blue-900 text-white shadow-xl border-b-8 border-amber-500">
+        <div class="max-w-6xl mx-auto px-6 py-8 text-center sm:text-left">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <!-- Badges de Parceria -->
+                <div class="flex items-center gap-3 bg-blue-950 px-5 py-3 rounded-2xl border-2 border-blue-700">
+                    <i class="fa-solid fa-handshake text-amber-400 text-3xl"></i>
+                    <span class="text-xl font-extrabold uppercase tracking-wide text-amber-300">SENAC & APAE Canoinhas</span>
                 </div>
-                <div>
-                    <h1 class="text-2xl sm:text-3xl font-bold">Meu Futuro Trabalho</h1>
-                    <p class="text-indigo-200 text-sm sm:text-base">Encontro 1: Descobrindo o que eu gosto!</p>
+                <!-- Badge PROEP -->
+                <div class="bg-amber-500 text-slate-950 font-black px-5 py-2.5 rounded-2xl text-lg flex items-center gap-2 shadow-md">
+                    <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                    <span>Programa PROEP</span>
                 </div>
             </div>
-            
-            <!-- Controle de Som / Narração -->
-            <button onclick="toggleAudioHelp()" id="audioToggleBtn" class="bg-indigo-700 hover:bg-indigo-800 text-white px-3 py-2 rounded-xl flex items-center gap-2 border-2 border-indigo-400">
-                <i class="fa-solid fa-volume-high text-xl"></i>
-                <span class="hidden sm:inline font-semibold">Voz</span>
-            </button>
+
+            <!-- Título Principal -->
+            <h1 class="text-3xl sm:text-5xl font-black text-white leading-tight mb-4">
+                WORKSHOP: CONECTANDO TALENTOS AO MUNDO DO TRABALHO
+            </h1>
+            <p class="text-xl sm:text-2xl text-blue-100 font-medium max-w-4xl">
+                Uma jornada prática, acessível e participativa para descobrir habilidades e criar novos caminhos profissionais.
+            </p>
+
+            <!-- Resumo Informativo com Textos Grandes -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 pt-6 border-t border-blue-800 text-lg">
+                <div class="bg-blue-800/80 p-4 rounded-xl flex items-center gap-4 border border-blue-700">
+                    <i class="fa-solid fa-clock text-amber-400 text-4xl"></i>
+                    <div>
+                        <div class="text-amber-300 font-bold text-sm uppercase">Carga Horária</div>
+                        <div class="text-2xl font-black text-white">14 Horas</div>
+                        <div class="text-sm text-blue-200">18h30 às 21h25</div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-800/80 p-4 rounded-xl flex items-center gap-4 border border-blue-700">
+                    <i class="fa-solid fa-users text-amber-400 text-4xl"></i>
+                    <div>
+                        <div class="text-amber-300 font-bold text-sm uppercase">Público Alvo</div>
+                        <div class="text-2xl font-black text-white">14 Participantes</div>
+                        <div class="text-sm text-blue-200">Alunos do PROEP</div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-800/80 p-4 rounded-xl flex items-center gap-4 border border-blue-700">
+                    <i class="fa-solid fa-location-dot text-amber-400 text-4xl"></i>
+                    <div>
+                        <div class="text-amber-300 font-bold text-sm uppercase">Modalidade</div>
+                        <div class="text-2xl font-black text-white">Presencial</div>
+                        <div class="text-sm text-blue-200">Senac Canoinhas</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- Conteúdo Principal -->
-    <main class="flex-grow max-w-4xl w-full mx-auto p-4 sm:p-6 flex flex-col justify-center">
-
-        <!-- ETAPA 1: Boas-vindas e Introdução -->
-        <section id="step1" class="fade-in bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-indigo-200 text-center">
-            <div class="mb-6">
-                <span class="text-6xl sm:text-7xl">👋</span>
-            </div>
-            <h2 class="text-3xl sm:text-4xl font-bold text-indigo-900 mb-4">Olá! Vamos descobrir juntos o que você gosta de fazer?</h2>
-            
-            <p class="text-xl sm:text-2xl text-gray-700 mb-8 leading-relaxed">
-                Neste aplicativo, você vai conhecer vários trabalhos, lugares e ferramentas. No final, vamos ver o que combina mais com você!
+    <!-- Conteúdo Principal / Cronograma -->
+    <main class="max-w-6xl mx-auto px-4 py-10 w-full flex-grow">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-950 inline-flex items-center gap-3">
+                <i class="fa-solid fa-calendar-days text-amber-500"></i>
+                Cronograma dos Encontros
+            </h2>
+            <p class="text-xl text-slate-700 mt-2 font-semibold">
+                Clique nos botões grandes para acessar os detalhes de cada encontro:
             </p>
+        </div>
 
-            <button onclick="speakText('Olá! Vamos descobrir juntos o que você gosta de fazer? Clique no botão verde para começar!'); goToStep(2)" class="btn-card bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-2xl sm:text-3xl py-5 px-8 rounded-2xl shadow-lg w-full sm:w-auto inline-flex items-center justify-center gap-4">
-                <span>COMEÇAR AGORA</span>
-                <i class="fa-solid fa-circle-arrow-right text-3xl"></i>
-            </button>
-        </section>
+        <!-- Lista de Cards do Cronograma -->
+        <div class="space-y-8">
 
-        <!-- ETAPA 2: Escolha de Ambientes e Gostos -->
-        <section id="step2" class="hidden fade-in bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-indigo-200">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl sm:text-3xl font-bold text-indigo-900 flex items-center gap-3">
-                    <span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-xl">1 de 3</span>
-                    Onde você prefere trabalhar?
-                </h2>
-                <button onclick="speakText('Escolha onde você acha mais legal trabalhar. Ao ar livre na natureza, dentro de um lugar fechado e tranquilo, ou ajudando pessoas.')" class="btn-audio">
-                    <i class="fa-solid fa-volume-high"></i> Ouver
-                </button>
-            </div>
-
-            <p class="text-lg text-gray-600 mb-6">Clique na imagem do lugar que você mais gosta:</p>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <!-- Opção 1 -->
-                <div onclick="selectOption('ambiente', 'natureza', this)" class="btn-card bg-green-50 border-4 border-green-300 rounded-3xl p-6 text-center flex flex-col items-center">
-                    <i class="fa-solid fa-tree text-6xl text-green-600 mb-4"></i>
-                    <h3 class="text-2xl font-bold text-green-900 mb-2">Ao Ar Livre</h3>
-                    <p class="text-gray-700 text-lg">Com plantas, animais, parques ou na rua.</p>
+            <!-- Encontro 1 -->
+            <article class="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-4 border-blue-200 hover:border-blue-500 transition-all">
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-6 w-full lg:w-auto">
+                        <div class="bg-blue-900 text-amber-400 p-6 rounded-2xl shrink-0 flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 shadow-inner">
+                            <i class="fa-solid fa-compass text-4xl sm:text-5xl"></i>
+                        </div>
+                        <div>
+                            <span class="inline-block bg-blue-100 text-blue-900 font-black px-4 py-1 rounded-full text-lg mb-2">
+                                ENCONTRO 1
+                            </span>
+                            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+                                Descobrindo Interesses, Talentos e Possibilidades
+                            </h3>
+                            <p class="text-lg text-slate-600 mt-2">
+                                Aproximação com o mundo do trabalho, exploração de profissões e ferramentas digitais.
+                            </p>
+                        </div>
+                    </div>
+                    <a href="apae1.html" class="w-full lg:w-auto bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-extrabold text-2xl py-5 px-8 rounded-2xl text-center shadow-lg hover:shadow-xl flex items-center justify-center gap-4 transition-all shrink-0 border-b-4 border-blue-950">
+                        <span>Acessar Encontro 1</span>
+                        <i class="fa-solid fa-circle-arrow-right text-amber-400 text-3xl"></i>
+                    </a>
                 </div>
+            </article>
 
-                <!-- Opção 2 -->
-                <div onclick="selectOption('ambiente', 'fechado', this)" class="btn-card bg-blue-50 border-4 border-blue-300 rounded-3xl p-6 text-center flex flex-col items-center">
-                    <i class="fa-solid fa-building text-6xl text-blue-600 mb-4"></i>
-                    <h3 class="text-2xl font-bold text-blue-900 mb-2">Em Lojas ou Escritórios</h3>
-                    <p class="text-gray-700 text-lg">Em lugares cobertos, no computador ou arrumando coisas.</p>
+            <!-- Encontro 2 -->
+            <article class="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-4 border-blue-200 hover:border-blue-500 transition-all">
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-6 w-full lg:w-auto">
+                        <div class="bg-blue-900 text-amber-400 p-6 rounded-2xl shrink-0 flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 shadow-inner">
+                            <i class="fa-solid fa-briefcase text-4xl sm:text-5xl"></i>
+                        </div>
+                        <div>
+                            <span class="inline-block bg-blue-100 text-blue-900 font-black px-4 py-1 rounded-full text-lg mb-2">
+                                ENCONTRO 2
+                            </span>
+                            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+                                Experimentando Possibilidades Profissionais
+                            </h3>
+                            <p class="text-lg text-slate-600 mt-2">
+                                Missões práticas em estações simuladas: atendimento, comércio, alimentos, organização e tecnologia.
+                            </p>
+                        </div>
+                    </div>
+                    <a href="apae2.html" class="w-full lg:w-auto bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-extrabold text-2xl py-5 px-8 rounded-2xl text-center shadow-lg hover:shadow-xl flex items-center justify-center gap-4 transition-all shrink-0 border-b-4 border-blue-950">
+                        <span>Acessar Encontro 2</span>
+                        <i class="fa-solid fa-circle-arrow-right text-amber-400 text-3xl"></i>
+                    </a>
                 </div>
+            </article>
 
-                <!-- Opção 3 -->
-                <div onclick="selectOption('ambiente', 'pessoas', this)" class="btn-card bg-purple-50 border-4 border-purple-300 rounded-3xl p-6 text-center flex flex-col items-center">
-                    <i class="fa-solid fa-users text-6xl text-purple-600 mb-4"></i>
-                    <h3 class="text-2xl font-bold text-purple-900 mb-2">Perto de Pessoas</h3>
-                    <p class="text-gray-700 text-lg">Conversando, ajudando e atendendo os outros.</p>
+            <!-- Encontro 3 -->
+            <article class="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-4 border-blue-200 hover:border-blue-500 transition-all">
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-6 w-full lg:w-auto">
+                        <div class="bg-blue-900 text-amber-400 p-6 rounded-2xl shrink-0 flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 shadow-inner">
+                            <i class="fa-solid fa-comments text-4xl sm:text-5xl"></i>
+                        </div>
+                        <div>
+                            <span class="inline-block bg-blue-100 text-blue-900 font-black px-4 py-1 rounded-full text-lg mb-2">
+                                ENCONTRO 3
+                            </span>
+                            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+                                Vivenciando Situações do Cotidiano Profissional
+                            </h3>
+                            <p class="text-lg text-slate-600 mt-2">
+                                Simulações de comunicação, trabalho em equipe, organização e resolução de desafios práticos.
+                            </p>
+                        </div>
+                    </div>
+                    <a href="apae3.html" class="w-full lg:w-auto bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-extrabold text-2xl py-5 px-8 rounded-2xl text-center shadow-lg hover:shadow-xl flex items-center justify-center gap-4 transition-all shrink-0 border-b-4 border-blue-950">
+                        <span>Acessar Encontro 3</span>
+                        <i class="fa-solid fa-circle-arrow-right text-amber-400 text-3xl"></i>
+                    </a>
                 </div>
-            </div>
+            </article>
 
-            <div class="mt-8 flex justify-end">
-                <button id="btnNext2" onclick="goToStep(3)" disabled class="opacity-50 cursor-not-allowed bg-emerald-500 text-white font-bold text-xl py-4 px-8 rounded-2xl shadow-lg flex items-center gap-3">
-                    <span>Avançar</span>
-                    <i class="fa-solid fa-arrow-right"></i>
-                </button>
-            </div>
-        </section>
-
-        <!-- ETAPA 3: Ferramentas e Estilo de Ação -->
-        <section id="step3" class="hidden fade-in bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-indigo-200">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl sm:text-3xl font-bold text-indigo-900 flex items-center gap-3">
-                    <span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-xl">2 de 3</span>
-                    O que você gosta de usar no dia a dia?
-                </h2>
-                <button onclick="speakText('Escolha o que você prefere usar: Ferramentas e objetos manuais, Computador e celular, ou Comida e panelas.')" class="btn-audio">
-                    <i class="fa-solid fa-volume-high"></i> Ouvir
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <!-- Opção 1 -->
-                <div onclick="selectOption('ferramenta', 'maos', this)" class="btn-card bg-amber-50 border-4 border-amber-300 rounded-3xl p-6 text-center flex flex-col items-center">
-                    <i class="fa-solid fa-screwdriver-wrench text-6xl text-amber-600 mb-4"></i>
-                    <h3 class="text-2xl font-bold text-amber-900 mb-2">Ferramentas e Mãos</h3>
-                    <p class="text-gray-700 text-lg">Montar, consertar, limpar ou carregar coisas.</p>
+            <!-- Encontro 4 -->
+            <article class="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-4 border-blue-200 hover:border-blue-500 transition-all">
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-6 w-full lg:w-auto">
+                        <div class="bg-blue-900 text-amber-400 p-6 rounded-2xl shrink-0 flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 shadow-inner">
+                            <i class="fa-solid fa-route text-4xl sm:text-5xl"></i>
+                        </div>
+                        <div>
+                            <span class="inline-block bg-blue-100 text-blue-900 font-black px-4 py-1 rounded-full text-lg mb-2">
+                                ENCONTRO 4
+                            </span>
+                            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+                                Construindo Caminhos para o Mundo do Trabalho
+                            </h3>
+                            <p class="text-lg text-slate-600 mt-2">
+                                Retomada das experiências, partilha de preferências e planejamento dos próximos passos de preparação.
+                            </p>
+                        </div>
+                    </div>
+                    <a href="apae4.html" class="w-full lg:w-auto bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-extrabold text-2xl py-5 px-8 rounded-2xl text-center shadow-lg hover:shadow-xl flex items-center justify-center gap-4 transition-all shrink-0 border-b-4 border-blue-950">
+                        <span>Acessar Encontro 4</span>
+                        <i class="fa-solid fa-circle-arrow-right text-amber-400 text-3xl"></i>
+                    </a>
                 </div>
+            </article>
 
-                <!-- Opção 2 -->
-                <div onclick="selectOption('ferramenta', 'tecnologia', this)" class="btn-card bg-cyan-50 border-4 border-cyan-300 rounded-3xl p-6 text-center flex flex-col items-center">
-                    <i class="fa-solid fa-laptop text-6xl text-cyan-600 mb-4"></i>
-                    <h3 class="text-2xl font-bold text-cyan-900 mb-2">Computador e Telas</h3>
-                    <p class="text-gray-700 text-lg">Digitar, ver fotos, organizar arquivos ou redes sociais.</p>
+            <!-- Encontro 5 -->
+            <article class="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-4 border-amber-300 hover:border-amber-500 transition-all bg-amber-50/40">
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-6 w-full lg:w-auto">
+                        <div class="bg-amber-500 text-slate-950 p-6 rounded-2xl shrink-0 flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 shadow-inner">
+                            <i class="fa-solid fa-trophy text-4xl sm:text-5xl"></i>
+                        </div>
+                        <div>
+                            <span class="inline-block bg-amber-200 text-slate-950 font-black px-4 py-1 rounded-full text-lg mb-2">
+                                ENCONTRO 5
+                            </span>
+                            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+                                Encerramento e Apresentação dos Caminhos
+                            </h3>
+                            <p class="text-lg text-slate-700 mt-2 font-medium">
+                                Integração final, entrega das sínteses de percursos formativos e celebração das conquistas.
+                            </p>
+                        </div>
+                    </div>
+                    <a href="apae5.html" class="w-full lg:w-auto bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-slate-950 font-black text-2xl py-5 px-8 rounded-2xl text-center shadow-lg hover:shadow-xl flex items-center justify-center gap-4 transition-all shrink-0 border-b-4 border-amber-800">
+                        <span>Acessar Encontro 5</span>
+                        <i class="fa-solid fa-star text-slate-950 text-3xl"></i>
+                    </a>
                 </div>
+            </article>
 
-                <!-- Opção 3 -->
-                <div onclick="selectOption('ferramenta', 'cozinha', this)" class="btn-card bg-orange-50 border-4 border-orange-300 rounded-3xl p-6 text-center flex flex-col items-center">
-                    <i class="fa-solid fa-utensils text-6xl text-orange-600 mb-4"></i>
-                    <h3 class="text-2xl font-bold text-orange-900 mb-2">Cozinha e Alimentos</h3>
-                    <p class="text-gray-700 text-lg">Preparar Lanches, doces, organizar pratos e copos.</p>
-                </div>
-            </div>
-
-            <div class="mt-8 flex justify-between">
-                <button onclick="goToStep(2)" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold text-xl py-4 px-6 rounded-2xl flex items-center gap-2">
-                    <i class="fa-solid fa-arrow-left"></i> Voltar
-                </button>
-                <button id="btnNext3" onclick="calculateResults(); goToStep(4)" disabled class="opacity-50 cursor-not-allowed bg-emerald-500 text-white font-bold text-xl py-4 px-8 rounded-2xl shadow-lg flex items-center gap-3">
-                    <span>Ver Resultado</span>
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                </button>
-            </div>
-        </section>
-
-        <!-- ETAPA 4: Profissões Recomendadas e Exploração -->
-        <section id="step4" class="hidden fade-in bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-indigo-200">
-            <div class="text-center mb-8">
-                <span class="text-6xl">🎉</span>
-                <h2 class="text-3xl sm:text-4xl font-bold text-indigo-900 mt-2">Que Incrível! Veja o que combina com você:</h2>
-                <p class="text-xl text-gray-600 mt-2">Clique em cada cartão para conhecer a rotina do trabalho!</p>
-            </div>
-
-            <!-- Lista Dinâmica de Profissões -->
-            <div id="jobsList" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <!-- Inserido dinamicamente via JS -->
-            </div>
-
-            <div class="mt-10 p-6 bg-indigo-50 rounded-2xl border-2 border-indigo-200 text-center">
-                <h3 class="text-2xl font-bold text-indigo-900 mb-2">Gostou das opções?</h3>
-                <p class="text-lg text-gray-700 mb-4">Você pode mostrar esta lista para seu professor, conselheiro ou para sua família!</p>
-                <div class="flex flex-wrap justify-center gap-4">
-                    <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-bold py-3 px-6 rounded-xl flex items-center gap-2">
-                        <i class="fa-solid fa-print"></i> Imprimir / Salvar
-                    </button>
-                    <button onclick="restart()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-lg font-bold py-3 px-6 rounded-xl flex items-center gap-2">
-                        <i class="fa-solid fa-rotate-right"></i> Recomeçar
-                    </button>
-                </div>
-            </div>
-        </section>
-
+        </div>
     </main>
 
-    <!-- Modal de Detalhes da Profissão (Acessível e Grande) -->
-    <div id="jobModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 border-4 border-indigo-400 shadow-2xl relative fade-in max-h-[90vh] overflow-y-auto">
-            <button onclick="closeModal()" class="absolute top-4 right-4 bg-red-100 hover:bg-red-200 text-red-600 w-12 h-12 rounded-full font-bold text-2xl flex items-center justify-center">
-                ✕
-            </button>
-
-            <div class="flex items-center gap-4 mb-4">
-                <div id="modalIconContainer" class="p-4 rounded-2xl bg-indigo-100 text-indigo-600 text-5xl">
-                    <i id="modalIcon" class="fa-solid fa-briefcase"></i>
-                </div>
-                <div>
-                    <h3 id="modalTitle" class="text-3xl font-bold text-indigo-900">Nome da Profissão</h3>
-                    <p id="modalCategory" class="text-indigo-600 font-semibold text-lg">Categoria</p>
-                </div>
+    <!-- Rodapé Acessível -->
+    <footer class="bg-slate-900 text-white mt-12 border-t-4 border-amber-500">
+        <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
+            <div>
+                <h4 class="text-2xl font-black text-amber-400 mb-1">Serviço Nacional de Aprendizagem Comercial</h4>
+                <p class="text-xl font-bold">SENAC Canoinhas</p>
+                <p class="text-lg text-slate-300 mt-2">
+                    <i class="fa-solid fa-location-dot text-amber-400 mr-2"></i>
+                    Rua Rolando Malucelli, 16 - CEP 89460-000 - Canoinhas/SC
+                </p>
+                <p class="text-lg text-slate-300">
+                    <i class="fa-solid fa-phone text-amber-400 mr-2"></i>
+                    Telefone: (47) 3622-3256
+                </p>
             </div>
-
-            <div class="space-y-6 text-gray-800 text-lg">
-                <div class="bg-amber-50 p-4 rounded-2xl border-2 border-amber-200">
-                    <h4 class="font-bold text-amber-900 text-xl flex items-center gap-2 mb-2">
-                        <i class="fa-solid fa-star text-amber-500"></i> O que faz nesse trabalho?
-                    </h4>
-                    <p id="modalDescription" class="text-xl">Descrição da atividade.</p>
-                </div>
-
-                <div class="bg-blue-50 p-4 rounded-2xl border-2 border-blue-200">
-                    <h4 class="font-bold text-blue-900 text-xl flex items-center gap-2 mb-2">
-                        <i class="fa-solid fa-wrench text-blue-500"></i> O que você usa para trabalhar?
-                    </h4>
-                    <p id="modalTools" class="text-xl">Ferramentas utilizadas.</p>
-                </div>
-
-                <div class="bg-green-50 p-4 rounded-2xl border-2 border-green-200">
-                    <h4 class="font-bold text-green-900 text-xl flex items-center gap-2 mb-2">
-                        <i class="fa-solid fa-face-smile text-green-500"></i> O que é bem legal nesse trabalho?
-                    </h4>
-                    <p id="modalCool" class="text-xl">Pontos positivos.</p>
-                </div>
-            </div>
-
-            <div class="mt-8 flex justify-between items-center">
-                <button id="modalAudioBtn" class="btn-audio text-xl py-3 px-6">
-                    <i class="fa-solid fa-volume-high"></i> Ouvir Explicação
-                </button>
-                <button onclick="closeModal()" class="bg-indigo-600 text-white font-bold text-xl py-3 px-8 rounded-2xl">
-                    Entendi!
-                </button>
+            
+            <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700">
+                <p class="text-lg text-slate-200 font-semibold">Parceria com a APAE Canoinhas</p>
+                <p class="text-sm text-slate-400 mt-1">Ação gratuita promovida para os alunos do PROEP.</p>
             </div>
         </div>
-    </div>
-
-    <!-- Rodapé -->
-    <footer class="bg-indigo-900 text-indigo-200 text-center p-4 text-sm sm:text-base mt-8">
-        <p>Encontro 1: Descobrindo Interesses e Possividades | Apoio à Escolha Profissional Acessível 🌟</p>
     </footer>
 
-    <!-- Lógica em JS -->
-    <script>
-        // Banco de Dados Amplo de Profissões Ilustradas e Acessíveis (30 Opções)
-        const professions = [
-            // Categoria: Natureza e Animais
-            {
-                id: 'jardinagem',
-                title: 'Jardinagem e Horta',
-                icon: 'fa-seedling',
-                color: 'green',
-                ambiente: 'natureza',
-                ferramenta: 'maos',
-                description: 'Cuidar de plantas, flores e hortas. Molhar a terra, tirar folhinhas secas e ver as plantas crescerem.',
-                tools: 'Regador, pás, luvas, vasos e terra.',
-                cool: 'Você trabalha ao ar livre, sente o cheiro das plantas e deixa a cidade mais bonita!'
-            },
-            {
-                id: 'cuidador_pet',
-                title: 'Ajudante de Pet Shop',
-                icon: 'fa-dog',
-                color: 'amber',
-                ambiente: 'natureza',
-                ferramenta: 'maos',
-                description: 'Ajudar a dar banho nos bichinhos, escovar os pelos, passear e dar carinho.',
-                tools: 'Escovas, shampoo para pet, coleiras e brinquedos.',
-                cool: 'Estar sempre rodeado por animais carinhosos e fofinhos!'
-            },
-            {
-                id: 'fazenda_horta',
-                title: 'Auxiliar de Fazenda / Sítio',
-                icon: 'fa-wheat-awn',
-                color: 'green',
-                ambiente: 'natureza',
-                ferramenta: 'maos',
-                description: 'Alimentar os animais do sítio, colher frutas e legumes fresquinhos da horta.',
-                tools: 'Cestos de colheita, ração, baldes e botas de borracha.',
-                cool: 'Você fica pertinho dos animais no campo e come alimentos saudáveis!'
-            },
-            {
-                id: 'limpeza_parques',
-                title: 'Cuidar de Parques e Praças',
-                icon: 'fa-tree',
-                color: 'emerald',
-                ambiente: 'natureza',
-                ferramenta: 'maos',
-                description: 'Varrer folhinhas no parque, recolher os lixos e manter os banquinhos limpos e prontos para uso.',
-                tools: 'Vassoura de jardim, sacos de lixo e rastelo.',
-                cool: 'Você deixa a natureza limpa para todo mundo brincar e passear!'
-            },
-
-            // Categoria: Comida e Culinária
-            {
-                id: 'padaria',
-                title: 'Ajudante de Padaria',
-                icon: 'fa-bread-slice',
-                color: 'orange',
-                ambiente: 'fechado',
-                ferramenta: 'cozinha',
-                description: 'Ajudar a fazer pães, embalar doces, organizar os balcões e assar pãezinhos quentinhos.',
-                tools: 'Formas de bolo, assadeiras, luvas de forno e sacos de papel.',
-                cool: 'O cheiro de pão quentinho o dia todo é maravilhoso!'
-            },
-            {
-                id: 'aux_cozinha',
-                title: 'Auxiliar de Cozinha',
-                icon: 'fa-utensils',
-                color: 'amber',
-                ambiente: 'fechado',
-                ferramenta: 'cozinha',
-                description: 'Lavar verduras, descascar batatas, picar temperos e deixar tudo pronto para o cozinheiro.',
-                tools: 'Tábua de corte, descascador de legumes e tigelas.',
-                cool: 'Aprender receitas deliciosas que você pode fazer em casa!'
-            },
-            {
-                id: 'confeitaria',
-                title: 'Ajudante de Confeitaria',
-                icon: 'fa-cake-candles',
-                color: 'pink',
-                ambiente: 'fechado',
-                ferramenta: 'cozinha',
-                description: 'Confeitar bolos, colocar granulado em brigadeiros e arrumar os doces nas caixinhas.',
-                tools: 'Saco de confeitar, colheres, formas de cupcake e confetis.',
-                cool: 'Deixar as festas de aniversário das pessoas mais doces e bonitas!'
-            },
-            {
-                id: 'pizzaria',
-                title: 'Montador de Pizzas',
-                icon: 'fa-pizza-slice',
-                color: 'red',
-                ambiente: 'fechado',
-                ferramenta: 'cozinha',
-                description: 'Abrir a massa, espalhar o molho de tomate e colocar bastante queijo e ingredientes saborosos.',
-                tools: 'Rolo de massa, espátula, formas de pizza e ingredientes.',
-                cool: 'Criar as pizzas mais gostosas e recheadas da cidade!'
-            },
-            {
-                id: 'garcom_atendente',
-                title: 'Atendente de Lanchonete',
-                icon: 'fa-mug-hot',
-                color: 'orange',
-                ambiente: 'pessoas',
-                ferramenta: 'cozinha',
-                description: 'Servir sucos e lanches nas mesas, limpar os pratos e perguntar se o cliente precisa de algo.',
-                tools: 'Bandejas, guardanapos, panos de limpeza e cardápios.',
-                cool: 'Ver as pessoas felizes comendo suas comidas preferidas!'
-            },
-
-            // Categoria: Lojas e Comércio
-            {
-                id: 'aux_reposicao',
-                title: 'Repositor de Mercado',
-                icon: 'fa-boxes-packing',
-                color: 'blue',
-                ambiente: 'fechado',
-                ferramenta: 'maos',
-                description: 'Organizar produtos nas prateleiras do mercado. Deixar tudo alinhado e fácil de pegar.',
-                tools: 'Carrinho de mercadorias, etiquetas de preço e caixas.',
-                cool: 'Deixar o mercado super organizado como em um jogo de encaixar!'
-            },
-            {
-                id: 'embalador',
-                title: 'Embalador de Presentes / Caixas',
-                icon: 'fa-gift',
-                color: 'purple',
-                ambiente: 'fechado',
-                ferramenta: 'maos',
-                description: 'Colocar os produtos dentro de sacolas, fazer laços bonitos e embalar presentes especialíssimos.',
-                tools: 'Fita adesiva, papéis de presente, tesoura sem ponta e laços.',
-                cool: 'Fazer embalagens lindas que deixam quem recebe muito feliz!'
-            },
-            {
-                id: 'estoque',
-                title: 'Organizador de Estoque',
-                icon: 'fa-warehouse',
-                color: 'indigo',
-                ambiente: 'fechado',
-                ferramenta: 'maos',
-                description: 'Conferir caixas que chegam no caminhão, contar as mercadorias e guardar nos armários certos.',
-                tools: 'Prancheta, caixas organizadoras e etiquetas.',
-                cool: 'Saber onde está guardada cada coisa no depósito!'
-            },
-            {
-                id: 'atendente_loja',
-                title: 'Atendente de Loja de Roupas',
-                icon: 'fa-shirt',
-                color: 'violet',
-                ambiente: 'pessoas',
-                ferramenta: 'maos',
-                description: 'Dobrar roupas, arrumar os cabides por cor e ajudar as pessoas a acharem o tamanho certo.',
-                tools: 'Cabides, fita métrica e prateleiras.',
-                cool: 'Trabalhar com roupas bonitas e estilosas todos os dias!'
-            },
-
-            // Categoria: Tecnologia e Escritório
-            {
-                id: 'tecnologia_dig',
-                title: 'Auxiliar de Computação',
-                icon: 'fa-desktop',
-                color: 'cyan',
-                ambiente: 'fechado',
-                ferramenta: 'tecnologia',
-                description: 'Digitar nomes, organizar pastas de arquivos no computador e conferir dados.',
-                tools: 'Computador, mouse, teclado e monitor.',
-                cool: 'Trabalhar em um ambiente tranquilo e mexer bastante no computador!'
-            },
-            {
-                id: 'digitalizador',
-                title: 'Digitalizador de Documentos',
-                icon: 'fa-print',
-                color: 'teal',
-                ambiente: 'fechado',
-                ferramenta: 'tecnologia',
-                description: 'Colocar folhas de papel no scanner para transformar papéis em arquivos de computador.',
-                tools: 'Scanner, impressora e computador.',
-                cool: 'Ajudar a salvar papéis importantes dentro do computador!'
-            },
-            {
-                id: 'etiquetador',
-                title: 'Etiquetador e Código de Barras',
-                icon: 'fa-barcode',
-                color: 'sky',
-                ambiente: 'fechado',
-                ferramenta: 'tecnologia',
-                description: 'Usar o leitor a laser para colar etiquetas de preço e códigos em caixas e produtos.',
-                tools: 'Pistola de etiquetas, leitor de código de barras e computador.',
-                cool: 'Usar aparelhos com luzinhas e sons como de videogame!'
-            },
-            {
-                id: 'aux_fotografia',
-                title: 'Ajudante de Fotos e Imagens',
-                icon: 'fa-camera',
-                color: 'fuchsia',
-                ambiente: 'fechado',
-                ferramenta: 'tecnologia',
-                description: 'Ajudar a tirar fotos de produtos, arrumar o cenário bonito e guardar as fotos na pasta certa.',
-                tools: 'Câmera fotográfica, luzes e tripé.',
-                cool: 'Registrar fotos incríveis e usar a imaginação!'
-            },
-
-            // Categoria: Atendimento e Pessoas
-            {
-                id: 'recepcao',
-                title: 'Atendente de Recepção',
-                icon: 'fa-user-tie',
-                color: 'purple',
-                ambiente: 'pessoas',
-                ferramenta: 'tecnologia',
-                description: 'Receber as pessoas com um belo sorriso, dar crachás e mostrar onde elas devem ir.',
-                tools: 'Computador, crachás de identificação e telefone.',
-                cool: 'Ser a primeira pessoa simpática a dar boas-vindas para todo mundo!'
-            },
-            {
-                id: 'biblioteca',
-                title: 'Ajudante de Biblioteca',
-                icon: 'fa-book-open',
-                color: 'amber',
-                ambiente: 'pessoas',
-                ferramenta: 'maos',
-                description: 'Guardar livros nas estantes por ordem de letras, carimbar datas e ajudar a achar histórias.',
-                tools: 'Carimbos, prateleiras e marcadores de página.',
-                cool: 'Ficar em um lugar calmo e cercado de histórias fantásticas!'
-            },
-            {
-                id: 'portaria',
-                title: 'Controlador de Acesso / Portaria',
-                icon: 'fa-key',
-                color: 'slate',
-                ambiente: 'pessoas',
-                ferramenta: 'maos',
-                description: 'Abrir o portão para os moradores, receber cartas da correspondência e cumprimentar a todos.',
-                tools: 'Chaves, interfone e livro de registros.',
-                cool: 'Cuidar da segurança do prédio e ser amigo dos moradores!'
-            },
-            {
-                id: 'guia_museu',
-                title: 'Apoio em Museus e Eventos',
-                icon: 'fa-masks-theater',
-                color: 'rose',
-                ambiente: 'pessoas',
-                ferramenta: 'maos',
-                description: 'Entregar panfletos na entrada, indicar o caminho dos banheiros e avisar sobre as regras.',
-                tools: 'Crachá, uniforme, mapas e rádio de comunicação.',
-                cool: 'Trabalhar em lugares bonitos com exposições e apresentações!'
-            },
-
-            // Categoria: Artesanato, Montagem e Manutenção
-            {
-                id: 'artesanato',
-                title: 'Artesão e Trabalhos Manuais',
-                icon: 'fa-paint-brush',
-                color: 'pink',
-                ambiente: 'fechado',
-                ferramenta: 'maos',
-                description: 'Pintar peças de madeira, montar pulseiras, fazer velas aromáticas e sabonetes cheirosos.',
-                tools: 'Pincéis, tintas, miçangas e moldes.',
-                cool: 'Usar toda a sua criatividade para criar coisas únicas com as mãos!'
-            },
-            {
-                id: 'marcenaria_aux',
-                title: 'Ajudante de Marcenaria',
-                icon: 'fa-hammer',
-                color: 'amber',
-                ambiente: 'fechado',
-                ferramenta: 'maos',
-                description: 'Lixar peças de madeira para deixá-las bem lisinhas e ajudar a passar verniz e tinta.',
-                tools: 'Lixas de madeira, pincéis, panos e óculos de proteção.',
-                cool: 'Ver pedaços de madeira virarem móveis lindos para a casa!'
-            },
-            {
-                id: 'lavanderia',
-                title: 'Ajudante de Lavanderia',
-                icon: 'fa-shirt',
-                color: 'blue',
-                ambiente: 'fechado',
-                ferramenta: 'maos',
-                description: 'Separar roupas por cor, colocar na máquina de lavar, dobrar e guardar nos saquinhos.',
-                tools: 'Máquina de lavar, sabão cheiroso e cestos de roupa.',
-                cool: 'Deixar todas as roupas limpinhas, cheirosas e prontas para uso!'
-            },
-            {
-                id: 'aux_costura',
-                title: 'Ajudante de Costura / Estamparia',
-                icon: 'fa-scissors',
-                color: 'indigo',
-                ambiente: 'fechado',
-                ferramenta: 'maos',
-                description: 'Cortar linhas que sobram nas roupas, colocar botões e prender estampas legais em camisetas.',
-                tools: 'Tesouras sem ponta, prensa de camisetas e fita métrica.',
-                cool: 'Criar estamparia bonita e personalizações incríveis!'
-            },
-
-            // Categoria: Serviços Operacionais e Organização
-            {
-                id: 'organizacao_carrinhos',
-                title: 'Organizador de Carrinhos',
-                icon: 'fa-cart-shopping',
-                color: 'green',
-                ambiente: 'natureza',
-                ferramenta: 'maos',
-                description: 'Juntar os carrinhos de compras do estacionamento e levá-los de volta para a entrada do mercado.',
-                tools: 'Fita de segurança, colete refletivo e luvas.',
-                cool: 'Caminhar ao ar livre e manter o estacionamento super organizado!'
-            },
-            {
-                id: 'limpeza_organizacao',
-                title: 'Auxiliar de Limpeza e Organização',
-                icon: 'fa-broom',
-                color: 'cyan',
-                ambiente: 'fechado',
-                ferramenta: 'maos',
-                description: 'Passar pano nos móveis, tirar a poeira, organizar cadeiras e manter tudo brilhando.',
-                tools: 'Espanador, panos macios, rodo e balde.',
-                cool: 'Transformar um lugar bagunçado em um ambiente limpo e agradável!'
-            },
-            {
-                id: 'lava_rapido',
-                title: 'Ajudante de Lava-Rápido',
-                icon: 'fa-car',
-                color: 'blue',
-                ambiente: 'natureza',
-                ferramenta: 'maos',
-                description: 'Passar espuma nos carros com esponja, jogar água com a mangueira e secar os vidros.',
-                tools: 'Esponjas gigantes, baldes com sabão e panos de microfibra.',
-                cool: 'Brincar com água nos dias quentes e ver os carros saírem brilhando!'
-            },
-            {
-                id: 'entregador_interno',
-                title: 'Entregador de Correspondência Interna',
-                icon: 'fa-envelope text-6xl',
-                color: 'yellow',
-                ambiente: 'pessoas',
-                ferramenta: 'maos',
-                description: 'Entregar cartas, envelopes e pequenos pacotes nas salas certas dentro de uma grande empresa.',
-                tools: 'Pasta de documentos, carrinho de entregas e caneta.',
-                cool: 'Passear por todo o prédio conversando e entregando coisas importantes!'
-            },
-            {
-                id: 'reciclagem',
-                title: 'Separador de Materiais Recicláveis',
-                icon: 'fa-recycle',
-                color: 'emerald',
-                ambiente: 'fechado',
-                ferramenta: 'maos',
-                description: 'Separar garrafas plásticas, papéis, latas de alumínio e papelões nas lixeiras certas.',
-                tools: 'Luvas bem grossas, caixas coloridas e sacos de reciclagem.',
-                cool: 'Você ajuda diretamente a salvar o planeta Terra e a natureza!'
-            }
-        ];
-
-        let selections = {
-            ambiente: null,
-            ferramenta: null
-        };
-
-        let isAudioActive = false;
-
-        // Função para navegação entre telas
-        function goToStep(stepNumber) {
-            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
-            const currentStep = document.getElementById(`step${stepNumber}`);
-            currentStep.classList.remove('hidden');
-
-            // Falar o título da etapa se o som estiver ativo
-            if(stepNumber === 2) {
-                speakText("Passo 1: Onde você prefere trabalhar? Escolha uma das três opções na tela.");
-            } else if(stepNumber === 3) {
-                speakText("Passo 2: O que você gosta de usar no dia a dia? Escolha uma das três opções.");
-            }
-        }
-
-        // Seleção interativa dos cartões
-        function selectOption(category, value, element) {
-            selections[category] = value;
-
-            // Destacar o cartão selecionado no grupo
-            const parent = element.parentElement;
-            parent.querySelectorAll('.btn-card').forEach(card => {
-                card.classList.remove('card-selected');
-            });
-            element.classList.add('card-selected');
-
-            // Falar a opção escolhida
-            const titleText = element.querySelector('h3').innerText;
-            speakText(`Você escolheu: ${titleText}`);
-
-            // Habilitar o botão de próximo
-            if(category === 'ambiente') {
-                const btn = document.getElementById('btnNext2');
-                btn.disabled = false;
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
-            } else if(category === 'ferramenta') {
-                const btn = document.getElementById('btnNext3');
-                btn.disabled = false;
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-        }
-
-        // Filtrar e gerar resultados
-        function calculateResults() {
-            const jobsContainer = document.getElementById('jobsList');
-            jobsContainer.innerHTML = '';
-
-            // Filtrar as opções que mais combinam ou mostrar sugestões variadas
-            let matches = professions.filter(job => job.ambiente === selections.ambiente || job.ferramenta === selections.ferramenta);
-
-            // Garantir que pelo menos 2 apareçam para dar escolhas
-            if (matches.length < 2) {
-                matches = professions.slice(0, 4);
-            }
-
-            matches.forEach(job => {
-                const card = document.createElement('div');
-                card.className = `btn-card bg-white border-4 border-${job.color}-300 rounded-3xl p-6 shadow-md flex flex-col justify-between`;
-                card.innerHTML = `
-                    <div class="text-center">
-                        <div class="text-6xl text-${job.color}-500 mb-4">
-                            <i class="fa-solid ${job.icon}"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-900 mb-2">${job.title}</h3>
-                        <p class="text-gray-600 text-lg mb-4">${job.description}</p>
-                    </div>
-                    <button onclick="openModal('${job.id}')" class="w-full bg-${job.color}-500 hover:bg-${job.color}-600 text-white font-bold text-xl py-3 rounded-2xl flex items-center justify-center gap-2 mt-2">
-                        <i class="fa-solid fa-eye"></i> Saber Mais
-                    </button>
-                `;
-                jobsContainer.appendChild(card);
-            });
-
-            speakText("Parabéns! Preparamos opções incríveis de profissões para você. Clique em 'Saber mais' em qualquer uma delas!");
-        }
-
-        // Abrir Modal de Detalhes
-        function openModal(jobId) {
-            const job = professions.find(j => j.id === jobId);
-            if(!job) return;
-
-            document.getElementById('modalTitle').innerText = job.title;
-            document.getElementById('modalIcon').className = `fa-solid ${job.icon}`;
-            document.getElementById('modalDescription').innerText = job.description;
-            document.getElementById('modalTools').innerText = job.tools;
-            document.getElementById('modalCool').innerText = job.cool;
-
-            const modalAudioBtn = document.getElementById('modalAudioBtn');
-            modalAudioBtn.onclick = () => {
-                speakText(`${job.title}. ${job.description}. Você vai usar: ${job.tools}. O mais legal é: ${job.cool}`);
-            };
-
-            document.getElementById('jobModal').classList.remove('hidden');
-
-            speakText(`Profissão: ${job.title}. Clique no botão amarelo para ouvir a explicação completa.`);
-        }
-
-        // Fechar Modal
-        function closeModal() {
-            document.getElementById('jobModal').classList.add('hidden');
-            window.speechSynthesis.cancel();
-        }
-
-        // Recomeçar o teste
-        function restart() {
-            selections = { ambiente: null, ferramenta: null };
-            document.querySelectorAll('.card-selected').forEach(c => c.classList.remove('card-selected'));
-            document.getElementById('btnNext2').disabled = true;
-            document.getElementById('btnNext2').classList.add('opacity-50', 'cursor-not-allowed');
-            document.getElementById('btnNext3').disabled = true;
-            document.getElementById('btnNext3').classList.add('opacity-50', 'cursor-not-allowed');
-            goToStep(1);
-        }
-
-        // Função de Leitura em Voz Alta (Síntese de Fala Nativa)
-        function speakText(text) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Para falas anteriores
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'pt-BR';
-                utterance.rate = 0.9; // Velocidade um pouco mais lenta e clara
-                utterance.pitch = 1.1; // Tom amigável
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        // Alternar suporte de som visual
-        function toggleAudioHelp() {
-            isAudioActive = !isAudioActive;
-            const btn = document.getElementById('audioToggleBtn');
-            if(isAudioActive) {
-                btn.classList.add('bg-yellow-500', 'text-gray-900');
-                speakText("O leitor de voz está ativado. Clique nos botões ou textos para ouvir!");
-            } else {
-                btn.classList.remove('bg-yellow-500', 'text-gray-900');
-                window.speechSynthesis.cancel();
-            }
-        }
-    </script>
 </body>
 </html>
