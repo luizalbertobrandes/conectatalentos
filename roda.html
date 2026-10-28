@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Caça ao Tesouro dos Talentos e o Mural das Profissões</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para ícones expressivos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Lexend (altamente legível para acessibilidade) -->
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Lexend', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            blue: '#2563EB',
+                            green: '#16A34A',
+                            yellow: '#CA8A04',
+                            purple: '#9333EA',
+                            orange: '#EA580C',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+            background-color: #F8FAFC;
+            user-select: none;
+        }
+
+        /* Animações e Feedback Visual */
+        .card-hover {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-hover:hover, .card-hover:focus {
+            transform: scale(1.03);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Modadores de alto contraste para acessibilidade */
+        .high-contrast {
+            background-color: #000000 !important;
+            color: #FFFF00 !important;
+        }
+        .high-contrast button {
+            border: 4px solid #FFFF00 !important;
+        }
+
+        /* Pulse suave para atrair atenção para botões principais */
+        @keyframes pulse-light {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-light 2.5s infinite;
+        }
+
+        /* Scrollbar acessível */
+        ::-webkit-scrollbar {
+            width: 16px;
+            height: 16px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94A3B8;
+            border-radius: 8px;
+            border: 4px solid #F8FAFC;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800 bg-slate-50">
+
+    <!-- Cabeçalho Principal Interativo -->
+    <header class="bg-white border-b-4 border-blue-500 p-4 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4 cursor-pointer" onclick="goToStep(0)">
+                <div class="bg-blue-600 text-white p-3 rounded-2xl text-3xl shadow-lg">
+                    <i class="fa-solid fa-gem"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-extrabold text-blue-900 leading-tight">
+                        A Caça ao Tesouro dos Talentos
+                    </h1>
+                    <p class="text-lg text-slate-600 font-semibold">Mural das Profissões & Atividades Espaciais</p>
+                </div>
+            </div>
+
+            <!-- Controles de Acessibilidade e Leitura por Voz -->
+            <div class="flex items-center gap-3 flex-wrap justify-center">
+                <button onclick="toggleTTS()" id="btn-tts" class="flex items-center gap-2 bg-purple-100 hover:bg-purple-200 text-purple-800 px-4 py-3 rounded-2xl font-bold text-lg border-2 border-purple-300 transition">
+                    <i class="fa-solid fa-volume-high text-2xl"></i>
+                    <span id="tts-status">Voz: Ligada</span>
+                </button>
+
+                <button onclick="toggleHighContrast()" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-3 rounded-2xl font-bold text-lg border-2 border-slate-300 transition">
+                    <i class="fa-solid fa-circle-half-stroke text-2xl"></i>
+                    <span>Contraste</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Barra de Navegação das 4 Etapas (Passos Pequenos com Pictogramas Grandes) -->
+    <nav class="bg-slate-200 p-3 shadow-inner">
+        <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3">
+            <button onclick="goToStep(1)" id="nav-step-1" class="nav-btn flex flex-col sm:flex-row items-center justify-center gap-2 bg-white p-3 rounded-2xl border-4 border-slate-300 font-bold text-xl text-slate-700 shadow transition">
+                <span class="text-3xl">🤝</span>
+                <span class="text-center sm:text-left">1. Círculo dos Talentos</span>
+            </button>
+
+            <button onclick="goToStep(2)" id="nav-step-2" class="nav-btn flex flex-col sm:flex-row items-center justify-center gap-2 bg-white p-3 rounded-2xl border-4 border-slate-300 font-bold text-xl text-slate-700 shadow transition">
+                <span class="text-3xl">🔍</span>
+                <span class="text-center sm:text-left">2. Caça-Ferramentas</span>
+            </button>
+
+            <button onclick="goToStep(3)" id="nav-step-3" class="nav-btn flex flex-col sm:flex-row items-center justify-center gap-2 bg-white p-3 rounded-2xl border-4 border-slate-300 font-bold text-xl text-slate-700 shadow transition">
+                <span class="text-3xl">🎧</span>
+                <span class="text-center sm:text-left">3. Quiz de Sons</span>
+            </button>
+
+            <button onclick="goToStep(4)" id="nav-step-4" class="nav-btn flex flex-col sm:flex-row items-center justify-center gap-2 bg-white p-3 rounded-2xl border-4 border-slate-300 font-bold text-xl text-slate-700 shadow transition">
+                <span class="text-3xl">🌳</span>
+                <span class="text-center sm:text-left">4. Árvore de Talentos</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
+
+        <!-- TELA INICIAL / BEM-VINDO -->
+        <section id="screen-home" class="step-screen bg-white rounded-3xl p-6 md:p-10 border-4 border-blue-200 shadow-xl text-center">
+            <div class="max-w-3xl mx-auto space-y-6">
+                <div class="text-7xl animate-bounce">🎨 🌱 🛠️ 💻</div>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-blue-900">
+                    Bem-vindos à Caça ao Tesouro dos Talentos!
+                </h2>
+                <p class="text-2xl text-slate-700 leading-relaxed font-medium">
+                    Aqui vamos descobrir o que você mais gosta de fazer e conhecer ferramentas reais do mundo do trabalho!
+                </p>
+
+                <!-- Card Guia para Mediadores -->
+                <div class="bg-amber-50 border-4 border-amber-300 p-6 rounded-3xl text-left space-y-3">
+                    <h3 class="text-xl font-bold text-amber-900 flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb text-amber-600 text-2xl"></i>
+                        Guia para o Instrutor / Mediador:
+                    </h3>
+                    <ul class="list-disc list-inside text-lg text-amber-950 space-y-2 font-medium">
+                        <li><strong>Acessibilidade Intelectual:</strong> Utilize os ícones grandes como suporte visual.</li>
+                        <li><strong>Orientação passo a passo:</strong> Clique no botão de áudio de cada atividade para ouvir as orientações explicadas.</li>
+                        <li><strong>Sem avaliação numérica:</strong> Valorize a exploração, o toque e a expressão espontânea do participante.</li>
+                    </ul>
+                </div>
+
+                <button onclick="goToStep(1)" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-extrabold text-2xl px-10 py-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-4 mx-auto border-b-8 border-green-800">
+                    <i class="fa-solid fa-play text-3xl"></i>
+                    <span>INICIAR ATIVIDADE</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ETAPA 1: CÍRCULO DOS GOSTOS E TALENTOS -->
+        <section id="screen-step-1" class="step-screen hidden space-y-6">
+            <div class="bg-blue-100 border-4 border-blue-400 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <span class="text-6xl">🤝</span>
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-blue-950">Etapa 1: O Círculo dos Gostos</h2>
+                        <p class="text-xl text-blue-800">Clique na carta para ver o que você mais gosta de fazer!</p>
+                    </div>
+                </div>
+                <button onclick="speakText('Etapa 1: Círculo dos Gostos e Talentos. Escolha uma ou duas cartas com o que você mais gosta de fazer!')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-2xl text-xl flex items-center gap-2 shadow">
+                    <i class="fa-solid fa-volume-high text-2xl"></i> Ouvir Explicação
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="cards-container">
+                <!-- As cartas de talentos serão geradas via JS -->
+            </div>
+
+            <!-- Modal de Acolhimento do Talento -->
+            <div id="talent-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+                <div class="bg-white rounded-3xl max-w-2xl w-full p-8 border-8 border-blue-500 text-center space-y-6 shadow-2xl animate-fade-in">
+                    <div id="modal-icon" class="text-8xl"></div>
+                    <h3 id="modal-title" class="text-4xl font-extrabold text-slate-800"></h3>
+                    <div id="modal-desc" class="bg-blue-50 p-6 rounded-2xl text-2xl text-blue-900 border-2 border-blue-200 font-semibold"></div>
+                    
+                    <div class="flex gap-4 justify-center">
+                        <button onclick="speakModalText()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-4 rounded-2xl text-xl flex items-center gap-2 shadow">
+                            <i class="fa-solid fa-volume-high"></i> Ouvir Novamente
+                        </button>
+                        <button onclick="closeTalentModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-4 rounded-2xl text-xl shadow">
+                            <i class="fa-solid fa-check text-2xl"></i> Entendi!
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ETAPA 2: A CAÇA AO TESOURO DAS FERRAMENTAS DE TRABALHO -->
+        <section id="screen-step-2" class="step-screen hidden space-y-6">
+            <div class="bg-amber-100 border-4 border-amber-400 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <span class="text-6xl">🔍</span>
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-amber-950">Etapa 2: Caça ao Tesouro das Ferramentas</h2>
+                        <p class="text-xl text-amber-900">Encontre a ferramenta na caixa e leve até a profissão certa!</p>
+                    </div>
+                </div>
+                <button onclick="speakText('Etapa 2: Caça ao Tesouro das Ferramentas de Trabalho. Procure o objeto na sala e leve até a mesa correspondente!')" class="bg-amber-600 hover:bg-amber-700 text-white font-bold p-4 rounded-2xl text-xl flex items-center gap-2 shadow">
+                    <i class="fa-solid fa-volume-high text-2xl"></i> Ouvir Explicação
+                </button>
+            </div>
+
+            <!-- Interação Prática Virtual complementar ao espaço físico -->
+            <div class="bg-white p-6 rounded-3xl border-4 border-slate-300 space-y-6 shadow-md">
+                <h3 class="text-2xl font-bold text-slate-800 text-center flex items-center justify-center gap-3">
+                    <span>🧰</span> Associação de Ferramenta e Profissão
+                </h3>
+
+                <p class="text-xl text-center text-slate-600">Arraste ou clique no Objeto e depois na Profissão correspondente:</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Coluna Ferramentas Objetos -->
+                    <div class="space-y-4">
+                        <h4 class="text-xl font-extrabold text-purple-800 text-center bg-purple-100 p-3 rounded-xl border-2 border-purple-300">
+                            1. Objetos Encontrados nas Caixas
+                        </h4>
+                        <div class="space-y-3" id="tools-list">
+                            <!-- JS insere os itens -->
+                        </div>
+                    </div>
+
+                    <!-- Coluna Profissões Destino -->
+                    <div class="space-y-4">
+                        <h4 class="text-xl font-extrabold text-green-800 text-center bg-green-100 p-3 rounded-xl border-2 border-green-300">
+                            2. Mesas das Profissões
+                        </h4>
+                        <div class="space-y-3" id="professions-list">
+                            <!-- JS insere as profissões -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="match-feedback" class="text-center text-2xl font-bold p-4 rounded-2xl hidden"></div>
+            </div>
+        </section>
+
+        <!-- ETAPA 3: QUIZ DIGITAL INTERATIVO (ADIVINHE O SOM E A IMAGEM) -->
+        <section id="screen-step-3" class="step-screen hidden space-y-6">
+            <div class="bg-purple-100 border-4 border-purple-400 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <span class="text-6xl">🎧</span>
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-purple-950">Etapa 3: Adivinhe o Som e a Imagem</h2>
+                        <p class="text-xl text-purple-800">Ouça o som do ambiente de trabalho e escolha a imagem correta!</p>
+                    </div>
+                </div>
+                <button onclick="speakText('Etapa 3: Quiz de Sons e Imagens. Clique no botão de áudio para ouvir o som e depois escolha a figura certa!')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold p-4 rounded-2xl text-xl flex items-center gap-2 shadow">
+                    <i class="fa-solid fa-volume-high text-2xl"></i> Ouvir Explicação
+                </button>
+            </div>
+
+            <!-- Game Container -->
+            <div class="bg-white p-6 md:p-8 rounded-3xl border-4 border-purple-300 shadow-xl text-center space-y-8">
+                
+                <div class="bg-purple-50 p-6 rounded-3xl border-2 border-purple-200 space-y-4">
+                    <span class="text-xl font-bold text-purple-900 block" id="quiz-progress">Pergunta 1 de 4</span>
+                    
+                    <button onclick="playQuizSound()" class="bg-purple-600 hover:bg-purple-700 text-white text-2xl font-extrabold px-8 py-6 rounded-3xl shadow-xl transition-all transform hover:scale-105 flex items-center justify-center gap-4 mx-auto border-b-8 border-purple-900 animate-pulse-slow">
+                        <i class="fa-solid fa-circle-play text-4xl"></i>
+                        <span>TOCAR SOM DO TRABALHO</span>
+                    </button>
+                    <p class="text-lg text-purple-700 font-semibold">(Clique no botão acima quantas vezes quiser para ouvir)</p>
+                </div>
+
+                <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800">Qual é a profissão desse som?</h3>
+
+                <!-- Opções em Cartas Grandes -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6" id="quiz-options">
+                    <!-- Opções inseridas dinamicamente -->
+                </div>
+
+                <div id="quiz-feedback" class="p-6 rounded-2xl text-2xl font-extrabold hidden"></div>
+            </div>
+        </section>
+
+        <!-- ETAPA 4: CONSTRUÇÃO DA ÁRVORE DOS NOSSOS TALENTOS -->
+        <section id="screen-step-4" class="step-screen hidden space-y-6">
+            <div class="bg-green-100 border-4 border-green-400 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <span class="text-6xl">🌳</span>
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-green-950">Etapa 4: Árvore dos Talentos</h2>
+                        <p class="text-xl text-green-800">Crie o seu Cartão de Talentos e monte o Painel Coletivo!</p>
+                    </div>
+                </div>
+                <button onclick="speakText('Etapa 4: Construção da Árvore dos Nossos Talentos. Escreva seu nome, escolha sua figura favorita e adicione sua folha no painel do grupo!')" class="bg-green-600 hover:bg-green-700 text-white font-bold p-4 rounded-2xl text-xl flex items-center gap-2 shadow">
+                    <i class="fa-solid fa-volume-high text-2xl"></i> Ouvir Explicação
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Formulário de Criação da Folha -->
+                <div class="lg:col-span-5 bg-white p-6 rounded-3xl border-4 border-green-300 shadow-lg space-y-6">
+                    <h3 class="text-2xl font-bold text-green-900 flex items-center gap-2 border-b-2 pb-3">
+                        <i class="fa-solid fa-address-card text-3xl"></i> Criar Meu Cartão
+                    </h3>
+
+                    <div>
+                        <label class="block text-xl font-bold text-slate-700 mb-2">Seu Nome / Apelido:</label>
+                        <input type="text" id="participant-name" placeholder="Digite ou fale seu nome..." class="w-full text-2xl p-4 border-4 border-slate-300 rounded-2xl focus:border-green-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xl font-bold text-slate-700 mb-2">Escolha seu Talento Principal:</label>
+                        <select id="participant-talent" class="w-full text-xl p-4 border-4 border-slate-300 rounded-2xl focus:border-green-500 focus:outline-none">
+                            <option value="💻 Informática e Computador">💻 Informática e Computador</option>
+                            <option value="🌱 Jardinagem e Natureza">🌱 Jardinagem e Natureza</option>
+                            <option value="🍳 Cozinha e Culinária">🍳 Cozinha e Culinária</option>
+                            <option value="🛠️ Consertos e Ferramentas">🛠️ Consertos e Ferramentas</option>
+                            <option value="📋 Organização e Escritório">📋 Organização e Escritório</option>
+                            <option value="😊 Atendimento e Sorriso">😊 Atendimento e Sorriso</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xl font-bold text-slate-700 mb-2">Escolha uma Cor para sua Folha:</label>
+                        <div class="flex gap-4" id="color-picker">
+                            <button onclick="selectColor('#22c55e')" class="color-btn w-12 h-12 rounded-full bg-green-500 border-4 border-slate-800 scale-110" data-color="#22c55e"></button>
+                            <button onclick="selectColor('#3b82f6')" class="color-btn w-12 h-12 rounded-full bg-blue-500 border-4 border-transparent" data-color="#3b82f6"></button>
+                            <button onclick="selectColor('#eab308')" class="color-btn w-12 h-12 rounded-full bg-yellow-500 border-4 border-transparent" data-color="#eab308"></button>
+                            <button onclick="selectColor('#a855f7')" class="color-btn w-12 h-12 rounded-full bg-purple-500 border-4 border-transparent" data-color="#a855f7"></button>
+                            <button onclick="selectColor('#f97316')" class="color-btn w-12 h-12 rounded-full bg-orange-500 border-4 border-transparent" data-color="#f97316"></button>
+                        </div>
+                    </div>
+
+                    <button onclick="addLeafToTree()" class="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold text-2xl py-5 rounded-2xl shadow-lg border-b-6 border-green-800 flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-leaf text-3xl"></i>
+                        <span>PENDURAR NA ÁRVORE</span>
+                    </button>
+                </div>
+
+                <!-- Painel da Árvore dos Talentos do Grupo -->
+                <div class="lg:col-span-7 bg-emerald-50 p-6 rounded-3xl border-4 border-emerald-300 shadow-lg flex flex-col justify-between items-center relative min-h-[500px]">
+                    <div class="text-center space-y-2 z-10 bg-white/80 backdrop-blur p-4 rounded-2xl w-full border-2 border-emerald-200">
+                        <h3 class="text-3xl font-extrabold text-emerald-900">A Árvore dos Talentos do Grupo</h3>
+                        <p class="text-xl text-emerald-700 font-semibold">Mural de afinidades e conquistas de todos os participantes</p>
+                    </div>
+
+                    <!-- Representação Ilustrativa da Árvore -->
+                    <div id="tree-display" class="w-full flex-grow my-4 flex flex-wrap content-start justify-center gap-4 p-6 bg-emerald-100/60 rounded-2xl border-2 border-dashed border-emerald-400 relative overflow-y-auto max-h-[450px]">
+                        <!-- Folhas adicionadas dinamicamente -->
+                    </div>
+
+                    <div class="w-full flex justify-between items-center z-10 pt-2">
+                        <button onclick="clearTree()" class="text-slate-500 hover:text-red-600 font-bold text-lg flex items-center gap-1">
+                            <i class="fa-solid fa-trash"></i> Limpar Mural
+                        </button>
+                        <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-lg flex items-center gap-2 shadow">
+                            <i class="fa-solid fa-print"></i> Imprimir / Salvar Painel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Rodapé de Acessibilidade -->
+    <footer class="bg-slate-800 text-white p-4 text-center mt-8">
+        <p class="text-lg font-medium">Atividade Pedagógica Multissensorial • Adaptada para Inclusão e Deficiência Intelectual</p>
+    </footer>
+
+    <!-- SCRIPT DA APLICAÇÃO -->
+    <script>
+        /* --- ESTADO DA APLICAÇÃO --- */
+        let ttsActive = true;
+        let selectedColor = '#22c55e';
+        let currentQuizIndex = 0;
+        let selectedTool = null;
+
+        /* --- DADOS DAS ETAPAS --- */
+
+        // Etapa 1: Cartas de Talentos
+        const talentCards = [
+            { id: 1, name: "Usar Computador", icon: "💻", color: "bg-blue-100 border-blue-400 text-blue-900", desc: "Você gosta de tecnologia! Isso conecta a profissões como Operador de Computador, Digitador ou Atendente Web." },
+            { id: 2, name: "Cuidar de Plantas", icon: "🌱", color: "bg-green-100 border-green-400 text-green-900", desc: "Você tem afinidade com a natureza! Profissões como Jardineiro, Auxiliar de Horta e Florista adoram essa habilidade." },
+            { id: 3, name: "Cozinhar / Alimentos", icon: "🍳", color: "bg-amber-100 border-amber-400 text-amber-900", desc: "Você gosta de preparar comidinhas! Pode atuar como Auxiliar de Cozinha, Padeiro ou Atendente de Lanchonete." },
+            { id: 4, name: "Usar Ferramentas", icon: "🛠️", color: "bg-slate-100 border-slate-400 text-slate-900", desc: "Você gosta de consertar e montar! Profissões como Auxiliar de Manutenção e Montador usam bastante essas ferramentas." },
+            { id: 5, name: "Organizar Papéis", icon: "📋", color: "bg-purple-100 border-purple-400 text-purple-900", desc: "Você é organizado! O trabalho de Auxiliar de Escritório, Almoxarife e Arquivista combina muito com você." },
+            { id: 6, name: "Atendimento com Sorriso", icon: "😊", color: "bg-rose-100 border-rose-400 text-rose-900", desc: "Você gosta de conversar e ajudar as pessoas! Ótimo para Recepcionista, Atendente de Loja e Recebedor." }
+        ];
+
+        // Etapa 2: Ferramentas e Profissões
+        const toolsData = [
+            { id: 't1', name: 'Teclado e Mouse', icon: '⌨️', profId: 'p1' },
+            { id: 't2', name: 'Avental e Colher', icon: '🧑‍🍳', profId: 'p2' },
+            { id: 't3', name: 'Vaso e Pá de Jardim', icon: '🪴', profId: 'p3' },
+            { id: 't4', name: 'Prancha de Papéis', icon: '📁', profId: 'p4' }
+        ];
+
+        const professionsData = [
+            { id: 'p1', name: 'Operador de Computador', icon: '💻' },
+            { id: 'p2', name: 'Cozinheiro / Lanchonete', icon: '🍳' },
+            { id: 'p3', name: 'Jardineiro', icon: '🌱' },
+            { id: 'p4', name: 'Auxiliar de Escritório', icon: '🏢' }
+        ];
+
+        // Etapa 3: Quiz de Sons e Imagens
+        const quizQuestions = [
+            {
+                soundType: 'keyboard',
+                soundName: 'Som de Teclado Digitando',
+                correctId: 1,
+                options: [
+                    { id: 1, title: 'Digitador / Informática', icon: '💻', imageText: 'Pessoa usando teclado no computador' },
+                    { id: 2, title: 'Jardineiro', icon: '🌻', imageText: 'Pessoa regando plantas' }
+                ]
+            },
+            {
+                soundType: 'cash',
+                soundName: 'Som de Caixa Registradora',
+                correctId: 1,
+                options: [
+                    { id: 1, title: 'Atendente de Loja / Caixa', icon: '🛒', imageText: 'Caixa de supermercado ou loja' },
+                    { id: 2, title: 'Cozinheiro', icon: '🍲', imageText: 'Panela no fogão' }
+                ]
+            },
+            {
+                soundType: 'kitchen',
+                soundName: 'Som de Utensílios de Cozinha',
+                correctId: 2,
+                options: [
+                    { id: 1, title: 'Mecânico', icon: '🔧', imageText: 'Chave de fenda e ferramentas' },
+                    { id: 2, title: 'Cozinha / Restauração', icon: '🍳', imageText: 'Cozinheiro preparando refeição' }
+                ]
+            },
+            {
+                soundType: 'scissors',
+                soundName: 'Som de Tesoura Recortando',
+                correctId: 1,
+                options: [
+                    { id: 1, title: 'Artesanato / Cabeleireiro', icon: '✂️', imageText: 'Tesoura cortando papel ou cabelo' },
+                    { id: 2, title: 'Atendente de Telefone', icon: '🎧', imageText: 'Pessoa com fone de ouvido' }
+                ]
+            }
+        ];
+
+        // Inicialização
+        window.onload = function() {
+            renderTalentCards();
+            renderStep2();
+            renderQuizQuestion();
+            loadTreeData();
+        };
+
+        /* --- SÍNTESE DE VOZ (TEXT-TO-SPEECH) --- */
+        function speakText(text) {
+            if (!ttsActive) return;
+            window.speechSynthesis.cancel(); // Para fala anterior
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.9; // Velocidade levemente reduzida para melhor compreensão
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleTTS() {
+            ttsActive = !ttsActive;
+            const btnStatus = document.getElementById('tts-status');
+            const btn = document.getElementById('btn-tts');
+
+            if (ttsActive) {
+                btnStatus.innerText = 'Voz: Ligada';
+                btn.classList.remove('bg-gray-200', 'text-gray-700');
+                btn.classList.add('bg-purple-100', 'text-purple-800');
+                speakText('Voz ativada');
+            } else {
+                btnStatus.innerText = 'Voz: Desligada';
+                btn.classList.remove('bg-purple-100', 'text-purple-800');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        /* --- NAVEGAÇÃO ENTRE ETAPAS --- */
+        function goToStep(stepNumber) {
+            // Esconde todas as telas
+            document.querySelectorAll('.step-screen').forEach(el => el.classList.add('hidden'));
+
+            // Remove destaque de botões de navegação
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('border-blue-600', 'bg-blue-50', 'text-blue-900');
+            });
+
+            if (stepNumber === 0) {
+                document.getElementById('screen-home').classList.remove('hidden');
+                speakText("Bem-vindos à Caça ao Tesouro dos Talentos");
+                return;
+            }
+
+            const targetScreen = document.getElementById(`screen-step-${stepNumber}`);
+            if (targetScreen) {
+                targetScreen.classList.remove('hidden');
+
+                // Destaque na nav
+                const activeNav = document.getElementById(`nav-step-${stepNumber}`);
+                if (activeNav) {
+                    activeNav.classList.add('border-blue-600', 'bg-blue-50', 'text-blue-900');
+                }
+
+                // Fala automática do título da etapa
+                if (stepNumber === 1) speakText("Etapa 1: Círculo dos Gostos e Talentos");
+                if (stepNumber === 2) speakText("Etapa 2: Caça ao Tesouro das Ferramentas de Trabalho");
+                if (stepNumber === 3) speakText("Etapa 3: Quiz Adivinhe o Som e a Imagem");
+                if (stepNumber === 4) speakText("Etapa 4: Construção da Árvore dos Nossos Talentos");
+            }
+        }
+
+        /* --- ETAPA 1: CARTAS DE TALENTOS --- */
+        function renderTalentCards() {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '';
+
+            talentCards.forEach(card => {
+                const el = document.createElement('div');
+                el.className = `card-hover p-6 rounded-3xl border-4 cursor-pointer flex flex-col items-center justify-center text-center space-y-4 shadow-md ${card.color}`;
+                el.onclick = () => openTalentModal(card);
+
+                el.innerHTML = `
+                    <span class="text-7xl">${card.icon}</span>
+                    <h3 class="text-2xl font-extrabold">${card.name}</h3>
+                    <button class="mt-2 bg-white/80 hover:bg-white text-slate-800 font-bold px-4 py-2 rounded-xl text-lg shadow-sm border border-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-hand-pointer text-blue-600"></i> Escolher
+                    </button>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        let currentModalCard = null;
+
+        function openTalentModal(card) {
+            currentModalCard = card;
+            document.getElementById('modal-icon').innerText = card.icon;
+            document.getElementById('modal-title').innerText = card.name;
+            document.getElementById('modal-desc').innerText = card.desc;
+
+            const modal = document.getElementById('talent-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            speakModalText();
+        }
+
+        function speakModalText() {
+            if (currentModalCard) {
+                speakText(`${currentModalCard.name}. ${currentModalCard.desc}`);
+            }
+        }
+
+        function closeTalentModal() {
+            const modal = document.getElementById('talent-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            window.speechSynthesis.cancel();
+        }
+
+        /* --- ETAPA 2: ASSOCIAÇÃO DE FERRAMENTAS --- */
+        function renderStep2() {
+            const toolsList = document.getElementById('tools-list');
+            const profsList = document.getElementById('professions-list');
+
+            toolsList.innerHTML = '';
+            profsList.innerHTML = '';
+
+            toolsData.forEach(tool => {
+                const btn = document.createElement('button');
+                btn.id = `tool-btn-${tool.id}`;
+                btn.className = `w-full text-left p-4 rounded-2xl border-4 border-slate-300 bg-slate-50 hover:bg-purple-50 text-xl font-bold flex items-center gap-4 transition shadow-sm`;
+                btn.onclick = () => selectTool(tool);
+                btn.innerHTML = `<span class="text-4xl">${tool.icon}</span> <span>${tool.name}</span>`;
+                toolsList.appendChild(btn);
+            });
+
+            professionsData.forEach(prof => {
+                const btn = document.createElement('button');
+                btn.id = `prof-btn-${prof.id}`;
+                btn.className = `w-full text-left p-4 rounded-2xl border-4 border-slate-300 bg-slate-50 hover:bg-green-50 text-xl font-bold flex items-center gap-4 transition shadow-sm`;
+                btn.onclick = () => matchProfession(prof);
+                btn.innerHTML = `<span class="text-4xl">${prof.icon}</span> <span>${prof.name}</span>`;
+                profsList.appendChild(btn);
+            });
+        }
+
+        function selectTool(tool) {
+            selectedTool = tool;
+            
+            // Destacar seleção visual
+            toolsData.forEach(t => {
+                const el = document.getElementById(`tool-btn-${t.id}`);
+                if (t.id === tool.id) {
+                    el.classList.add('border-purple-600', 'bg-purple-100');
+                } else {
+                    el.classList.remove('border-purple-600', 'bg-purple-100');
+                }
+            });
+
+            speakText(`Selecionado: ${tool.name}. Agora escolha a mesa da profissão certa!`);
+        }
+
+        function matchProfession(prof) {
+            const feedback = document.getElementById('match-feedback');
+
+            if (!selectedTool) {
+                feedback.className = 'text-center text-2xl font-bold p-4 rounded-2xl bg-amber-100 text-amber-900 border-2 border-amber-300 block';
+                feedback.innerText = '⚠️ Primeiro toque em um objeto da coluna da esquerda!';
+                speakText('Primeiro selecione um objeto da esquerda');
+                return;
+            }
+
+            if (selectedTool.profId === prof.id) {
+                feedback.className = 'text-center text-2xl font-bold p-4 rounded-2xl bg-green-100 text-green-900 border-2 border-green-400 block';
+                feedback.innerHTML = `🌟 Muito bem! O objeto <strong>${selectedTool.name}</strong> pertence a <strong>${prof.name}</strong>!`;
+                speakText(`Muito bem! O objeto ${selectedTool.name} é de ${prof.name}`);
+                
+                // Desabilitar par correto visualmente
+                document.getElementById(`tool-btn-${selectedTool.id}`).classList.add('opacity-40', 'pointer-events-none');
+                document.getElementById(`prof-btn-${prof.id}`).classList.add('opacity-40', 'pointer-events-none');
+                selectedTool = null;
+            } else {
+                feedback.className = 'text-center text-2xl font-bold p-4 rounded-2xl bg-red-100 text-red-900 border-2 border-red-300 block';
+                feedback.innerText = '🤔 Hum, esse objeto pertence a outra profissão. Tente novamente!';
+                speakText('Tente novamente! Escolha outra profissão para esse objeto.');
+            }
+        }
+
+        /* --- ETAPA 3: QUIZ DIGITAL (WEB AUDIO SYNTH / SONS SIMULADOS) --- */
+        function renderQuizQuestion() {
+            const q = quizQuestions[currentQuizIndex];
+            document.getElementById('quiz-progress').innerText = `Pergunta ${currentQuizIndex + 1} de ${quizQuestions.length}`;
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            document.getElementById('quiz-feedback').classList.add('hidden');
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = `card-hover p-6 rounded-3xl border-4 border-slate-300 bg-slate-50 hover:bg-blue-50 text-center flex flex-col items-center justify-center gap-4 transition shadow-md`;
+                btn.onclick = () => checkQuizAnswer(opt.id);
+
+                btn.innerHTML = `
+                    <span class="text-7xl">${opt.icon}</span>
+                    <span class="text-2xl font-extrabold text-slate-800">${opt.title}</span>
+                    <span class="text-slate-500 font-medium">${opt.imageText}</span>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        // Sintetizador de efeitos sonoros com Web Audio API para simular os sons sem dependência externa
+        function playQuizSound() {
+            const q = quizQuestions[currentQuizIndex];
+            speakText(`Ouça com atenção o som de: ${q.soundName}`);
+
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            if (q.soundType === 'keyboard') {
+                // Simulação de cliques de teclado
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.value = 400 + Math.random() * 300;
+                        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start();
+                        osc.stop(audioCtx.currentTime + 0.05);
+                    }, i * 120);
+                }
+            } else if (q.soundType === 'cash') {
+                // Simulação som "Plim!" de caixa registradora
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(987.77, audioCtx.currentTime); // B5
+                osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.1); // E6
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.8);
+            } else if (q.soundType === 'kitchen') {
+                // Simulação de panela / talher
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'square';
+                        osc.frequency.value = 800 + i * 200;
+                        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start();
+                        osc.stop(audioCtx.currentTime + 0.15);
+                    }, i * 200);
+                }
+            } else if (q.soundType === 'scissors') {
+                // Simulação som tesoura
+                for (let i = 0; i < 2; i++) {
+                    setTimeout(() => {
+                        const bufferSize = audioCtx.sampleRate * 0.1;
+                        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                        const data = buffer.getChannelData(0);
+                        for (let j = 0; j < bufferSize; j++) {
+                            data[j] = Math.random() * 2 - 1;
+                        }
+                        const noise = audioCtx.createBufferSource();
+                        noise.buffer = buffer;
+                        const gain = audioCtx.createGain();
+                        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                        noise.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        noise.start();
+                    }, i * 250);
+                }
+            }
+        }
+
+        function checkQuizAnswer(optionId) {
+            const q = quizQuestions[currentQuizIndex];
+            const feedback = document.getElementById('quiz-feedback');
+            feedback.classList.remove('hidden');
+
+            if (optionId === q.correctId) {
+                feedback.className = 'p-6 rounded-2xl text-2xl font-extrabold bg-green-100 text-green-900 border-4 border-green-400 block';
+                feedback.innerHTML = '🎉 PARABÉNS! Você acertou a imagem e o som!';
+                speakText('Parabéns! Você acertou!');
+
+                setTimeout(() => {
+                    if (currentQuizIndex < quizQuestions.length - 1) {
+                        currentQuizIndex++;
+                        renderQuizQuestion();
+                    } else {
+                        feedback.innerHTML = '🏆 Excelente! Você completou todo o Quiz de Sons!';
+                        speakText('Excelente! Você completou todo o Quiz de Sons!');
+                    }
+                }, 2500);
+            } else {
+                feedback.className = 'p-6 rounded-2xl text-2xl font-extrabold bg-amber-100 text-amber-900 border-4 border-amber-400 block';
+                feedback.innerHTML = '💡 Vamos ouvir mais uma vez? Clique em Tocar Som do Trabalho!';
+                speakText('Quase lá! Clique em tocar som para ouvir novamente.');
+            }
+        }
+
+        /* --- ETAPA 4: ÁRVORE DOS TALENTOS DO GRUPO --- */
+        function selectColor(colorHex) {
+            selectedColor = colorHex;
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                if (btn.getAttribute('data-color') === colorHex) {
+                    btn.classList.add('scale-110', 'border-slate-800');
+                    btn.classList.remove('border-transparent');
+                } else {
+                    btn.classList.remove('scale-110', 'border-slate-800');
+                    btn.classList.add('border-transparent');
+                }
+            });
+        }
+
+        let groupTreeData = [];
+
+        function addLeafToTree() {
+            const nameInput = document.getElementById('participant-name');
+            const name = nameInput.value.trim() || 'Participante';
+            const talent = document.getElementById('participant-talent').value;
+
+            const leafItem = {
+                id: Date.now(),
+                name: name,
+                talent: talent,
+                color: selectedColor
+            };
+
+            groupTreeData.push(leafItem);
+            saveTreeData();
+            renderTree();
+
+            speakText(`Parabéns ${name}! Sua folha de ${talent} foi colocada na Árvore dos Talentos!`);
+            nameInput.value = '';
+        }
+
+        function renderTree() {
+            const container = document.getElementById('tree-display');
+            container.innerHTML = '';
+
+            if (groupTreeData.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center my-auto text-slate-400 text-2xl font-bold p-8">
+                        🍃 Nenhuma folha na árvore ainda.<br>Preencha os dados ao lado e clique em "Pendurar na Árvore"!
+                    </div>
+                `;
+                return;
+            }
+
+            groupTreeData.forEach(item => {
+                const leaf = document.createElement('div');
+                leaf.className = 'p-4 rounded-2xl text-white font-bold text-xl shadow-lg flex items-center gap-3 border-2 border-white/40 transform hover:scale-105 transition cursor-default animate-bounce-short';
+                leaf.style.backgroundColor = item.color;
+
+                leaf.innerHTML = `
+                    <span class="text-3xl">🍃</span>
+                    <div>
+                        <div class="text-lg font-black text-white leading-none">${item.name}</div>
+                        <div class="text-sm text-white/90 font-medium">${item.talent}</div>
+                    </div>
+                `;
+                container.appendChild(leaf);
+            });
+        }
+
+        function saveTreeData() {
+            try {
+                localStorage.setItem('talents_tree_data', JSON.stringify(groupTreeData));
+            } catch (e) {
+                console.log('LocalStorage indisponível');
+            }
+        }
+
+        function loadTreeData() {
+            try {
+                const saved = localStorage.getItem('talents_tree_data');
+                if (saved) {
+                    groupTreeData = JSON.parse(saved);
+                } else {
+                    // Dados de demonstração padrão
+                    groupTreeData = [
+                        { id: 1, name: 'Lucas', talent: '💻 Informática e Computador', color: '#3b82f6' },
+                        { id: 2, name: 'Maria', talent: '🌱 Jardinagem e Natureza', color: '#22c55e' }
+                    ];
+                }
+            } catch (e) {
+                groupTreeData = [];
+            }
+            renderTree();
+        }
+
+        function clearTree() {
+            if (confirm('Deseja realmente limpar o painel da árvore?')) {
+                groupTreeData = [];
+                saveTreeData();
+                renderTree();
+            }
+        }
+
+        /* --- CONTRASTE ACCESSIBILITY TOGGLE --- */
+        function toggleHighContrast() {
+            document.body.classList.toggle('high-contrast');
+        }
+    </script>
+</body>
+</html>
