@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sabores Locais & Empreendedorismo Social Gastronômico</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        amber: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                        },
+                        emerald: {
+                            600: '#059669',
+                            700: '#047857',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .tab-btn.active {
+            border-bottom-color: #d97706;
+            color: #d97706;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans">
+
+    <!-- Header Navigation -->
+    <header class="bg-gradient-to-r from-amber-700 via-amber-600 to-emerald-700 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/10 p-2.5 rounded-2xl backdrop-blur-md">
+                    <i class="fa-solid font-bold fa-utensils text-amber-300 text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xl sm:text-2xl tracking-tight">Sabores Locais</h1>
+                    <p class="text-xs text-amber-100 font-medium hidden sm:block">Empreendedorismo Social Gastronômico • STEAM</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <!-- Select Group / Profile Status -->
+                <div id="currentGroupBadge" class="hidden sm:flex items-center bg-black/20 px-3 py-1.5 rounded-full text-xs font-semibold text-amber-200">
+                    <i class="fa-solid fa-users mr-1.5"></i> <span id="badgeGroupName">Nenhum Time</span>
+                </div>
+
+                <!-- Professor Login / Portal Button -->
+                <button onclick="toggleTeacherModal(true)" class="bg-white/10 hover:bg-white/20 text-white border border-white/30 px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span class="hidden md:inline">Área do Professor</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col">
+
+        <!-- Navigation Tabs (Student Workflow) -->
+        <div class="flex border-b border-slate-200 mb-8 overflow-x-auto no-scrollbar scroll-smooth">
+            <button onclick="switchTab('equipe')" id="tab-equipe" class="tab-btn active border-b-2 border-transparent px-5 py-3 text-sm font-medium text-slate-500 hover:text-amber-600 flex items-center whitespace-nowrap transition">
+                <i class="fa-solid fa-users-gear mr-2"></i> 1. Equipe STEAM
+            </button>
+            <button onclick="switchTab('persona')" id="tab-persona" class="tab-btn border-b-2 border-transparent px-5 py-3 text-sm font-medium text-slate-500 hover:text-amber-600 flex items-center whitespace-nowrap transition">
+                <i class="fa-solid fa-user-pen mr-2"></i> 2. Persona & Mercado
+            </button>
+            <button onclick="switchTab('etapa1')" id="tab-etapa1" class="tab-btn border-b-2 border-transparent px-5 py-3 text-sm font-medium text-slate-500 hover:text-amber-600 flex items-center whitespace-nowrap transition">
+                <i class="fa-solid fa-magnifying-glass-chart mr-2"></i> Etapa 1: Diagnóstico
+            </button>
+            <button onclick="switchTab('etapa2')" id="tab-etapa2" class="tab-btn border-b-2 border-transparent px-5 py-3 text-sm font-medium text-slate-500 hover:text-amber-600 flex items-center whitespace-nowrap transition">
+                <i class="fa-solid fa-lightbulb mr-2"></i> Etapa 2: Co-criação
+            </button>
+            <button onclick="switchTab('etapa3')" id="tab-etapa3" class="tab-btn border-b-2 border-transparent px-5 py-3 text-sm font-medium text-slate-500 hover:text-amber-600 flex items-center whitespace-nowrap transition">
+                <i class="fa-solid fa-rocket mr-2"></i> Etapa 3: Pitch & Feira
+            </button>
+        </div>
+
+        <!-- TAB CONTENT AREA -->
+        <div id="tabContents" class="flex-1">
+
+            <!-- TAB 1: EQUIPE STEAM -->
+            <section id="content-equipe" class="space-y-6">
+                <div class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-3xl p-6 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="space-y-2 max-w-2xl">
+                        <span class="bg-white/20 text-xs uppercase px-3 py-1 rounded-full font-bold tracking-wider">Passo Inicial</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold">Identificação do Time STEAM</h2>
+                        <p class="text-amber-100 text-sm">Defina o nome do seu grupo e distribua os papéis estratégicos para garantir o sucesso no projeto de Empreendedorismo Social Gastronômico.</p>
+                    </div>
+                    <div class="text-5xl opacity-80 hidden md:block">
+                        <i class="fa-solid fa-people-group"></i>
+                    </div>
+                </div>
+
+                <form id="formEquipe" onsubmit="saveEquipe(event)" class="glass-card rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Nome do Time / Projeto Social *</label>
+                        <input type="text" id="teamName" required placeholder="Ex: Raízes da Terra, Sabores da Região..." class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Orador -->
+                        <div class="p-5 bg-amber-50/50 border border-amber-200/60 rounded-2xl space-y-3">
+                            <div class="flex items-center space-x-3 text-amber-800">
+                                <div class="bg-amber-500 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-bullhorn"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold">Orador</h3>
+                                    <p class="text-xs text-slate-500">Conduz as apresentações e a comunicação externa.</p>
+                                </div>
+                            </div>
+                            <input type="text" id="memberOrador" required placeholder="Nome do integrante" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 outline-none bg-white">
+                        </div>
+
+                        <!-- Guardião do Foco -->
+                        <div class="p-5 bg-emerald-50/50 border border-emerald-200/60 rounded-2xl space-y-3">
+                            <div class="flex items-center space-x-3 text-emerald-800">
+                                <div class="bg-emerald-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-clock"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold">Guardião do Foco</h3>
+                                    <p class="text-xs text-slate-500">Garante o tempo, prazos e organização dos materiais.</p>
+                                </div>
+                            </div>
+                            <input type="text" id="memberGuardiao" required placeholder="Nome do integrante" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+                        </div>
+
+                        <!-- Redator -->
+                        <div class="p-5 bg-blue-50/50 border border-blue-200/60 rounded-2xl space-y-3">
+                            <div class="flex items-center space-x-3 text-blue-800">
+                                <div class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-pen-nib"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold">Redator</h3>
+                                    <p class="text-xs text-slate-500">Registra no diário de bordo e sintetiza as entregas.</p>
+                                </div>
+                            </div>
+                            <input type="text" id="memberRedator" required placeholder="Nome do integrante" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                        </div>
+
+                        <!-- Provocador de Ideias -->
+                        <div class="p-5 bg-purple-50/50 border border-purple-200/60 rounded-2xl space-y-3">
+                            <div class="flex items-center space-x-3 text-purple-800">
+                                <div class="bg-purple-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-brain"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold">Provocador de Ideias</h3>
+                                    <p class="text-xs text-slate-500">Estimula a busca por alternativas inovadoras "fora da caixa".</p>
+                                </div>
+                            </div>
+                            <input type="text" id="memberProvocador" required placeholder="Nome do integrante" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-purple-500 outline-none bg-white">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-4">
+                        <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 py-3 rounded-xl shadow-md transition flex items-center space-x-2">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Salvar Equipe & Continuar</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- TAB 2: PERSONA & GERADOR DE AVATAR -->
+            <section id="content-persona" class="hidden space-y-6">
+                <div class="bg-slate-900 text-white rounded-3xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div>
+                        <span class="bg-amber-500 text-black text-xs font-bold px-3 py-1 rounded-full uppercase">Design Thinking</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold mt-2">Mapeamento da Persona Regional</h2>
+                        <p class="text-slate-400 text-sm mt-1">Escolha um avatar em emoji e descreva o produtor ou consumidor local para entender suas dores e necessidades.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Left Column: Emoji Avatar Picker -->
+                    <div class="lg:col-span-5 glass-card rounded-3xl p-6 shadow-sm flex flex-col items-center justify-start space-y-5">
+                        <h3 class="font-extrabold text-slate-800 text-lg w-full text-center border-b pb-3">Seletor de Avatar (Emoji)</h3>
+                        
+                        <!-- Avatar Display Box -->
+                        <div class="w-40 h-40 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full flex items-center justify-center border-4 border-amber-500/30 shadow-inner relative">
+                            <span id="avatarEmojiDisplay" class="text-7xl select-none transition-transform duration-200 hover:scale-110">👨‍🌾</span>
+                            <span id="badgePersonaType" class="absolute -bottom-2 bg-amber-600 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow">Agricultor</span>
+                        </div>
+
+                        <!-- Emoji Selection Tabs / Grid -->
+                        <div class="w-full space-y-3">
+                            <label class="block text-xs font-bold text-slate-600">Escolha o Perfil da Persona:</label>
+                            
+                            <!-- Preset Categories -->
+                            <div class="grid grid-cols-4 gap-2 text-center text-2xl">
+                                <button type="button" onclick="selectEmoji('👨‍🌾', 'Agricultor')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">👨‍🌾</button>
+                                <button type="button" onclick="selectEmoji('👩‍🌾', 'Agricultora')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">👩‍🌾</button>
+                                <button type="button" onclick="selectEmoji('👨‍🍳', 'Chef / Cozinheiro')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">👨‍🍳</button>
+                                <button type="button" onclick="selectEmoji('👩‍🍳', 'Chef / Cozinheira')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">👩‍🍳</button>
+                                <button type="button" onclick="selectEmoji('👵', 'Dona / Artesã')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">👵</button>
+                                <button type="button" onclick="selectEmoji('👴', 'Seu / Produtor')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">👴</button>
+                                <button type="button" onclick="selectEmoji('🧑‍💼', 'Empreendedor')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">🧑‍💼</button>
+                                <button type="button" onclick="selectEmoji('🛍️', 'Consumidor')" class="p-2.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-400 transition flex items-center justify-center">🛍️</button>
+                            </div>
+
+                            <!-- More Variations -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Outras Expressões & Pessoas:</label>
+                                <div class="grid grid-cols-6 gap-1 text-xl text-center">
+                                    <button type="button" onclick="selectEmoji('🙂', 'Simpático')" class="p-1.5 rounded-lg border hover:bg-slate-100">🙂</button>
+                                    <button type="button" onclick="selectEmoji('🤔', 'Reflexivo')" class="p-1.5 rounded-lg border hover:bg-slate-100">🤔</button>
+                                    <button type="button" onclick="selectEmoji('🧐', 'Analisador')" class="p-1.5 rounded-lg border hover:bg-slate-100">🧐</button>
+                                    <button type="button" onclick="selectEmoji('😃', 'Entusiasta')" class="p-1.5 rounded-lg border hover:bg-slate-100">😃</button>
+                                    <button type="button" onclick="selectEmoji('👩‍🏭', 'Produtora')" class="p-1.5 rounded-lg border hover:bg-slate-100">👩‍🏭</button>
+                                    <button type="button" onclick="selectEmoji('🤝', 'Parceiro')" class="p-1.5 rounded-lg border hover:bg-slate-100">🤝</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Persona Details Form -->
+                    <div class="lg:col-span-7 glass-card rounded-3xl p-6 sm:p-8 shadow-sm">
+                        <form id="formPersona" onsubmit="savePersona(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">📌 Nome da Persona *</label>
+                                <input type="text" id="personaName" required placeholder="Ex: Seu João da Horta, Dona Maria Doceira..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">📌 Ocupação *</label>
+                                <input type="text" id="personaOccupation" required placeholder="Ex: Pequeno agricultor familiar, feirante, artesã..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">📌 Características Gerais</label>
+                                <textarea id="personaTraits" rows="2" placeholder="Descreva hábitos, idade, valores e modo de trabalho..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">📌 Desafios e Dores (O que o atrapalha?)</label>
+                                <textarea id="personaPains" rows="2" placeholder="Ex: Dificuldade em escoar a produção, falta de marca visual, custos altos de transporte..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">📌 Motivações e Sonhos</label>
+                                <textarea id="personaMotivations" rows="2" placeholder="Ex: Aumentar a renda da família, valorizar receitas tradicionais locais..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                            </div>
+
+                            <div class="pt-4 flex justify-end">
+                                <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-3 rounded-xl shadow transition flex items-center space-x-2">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    <span>Salvar Persona</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: ETAPA 1 - Mapeamento e Diagnóstico -->
+            <section id="content-etapa1" class="hidden space-y-6">
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-3 text-amber-700">
+                        <i class="fa-solid fa-clipboard-list text-2xl"></i>
+                        <h2 class="text-2xl font-bold">Etapa 1: Mapeamento e Diagnóstico Regional</h2>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Pesquisa sobre a culinária tradicional da região e diagnóstico das dificuldades enfrentadas por pequenos produtores locais para comercializar seus produtos.
+                    </p>
+                </div>
+
+                <form id="formEtapa1" onsubmit="saveEtapa1(event)" class="glass-card rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <div>
+                        <h3 class="text-lg font-extrabold text-slate-800 mb-2 flex items-center">
+                            <i class="fa-solid fa-book-journal-whills text-amber-600 mr-2"></i> Diário de Bordo Digital (Pesquisa Culinária)
+                        </h3>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Quais ingredientes e pratos culinários tradicionais foram identificados na região?</label>
+                        <textarea id="e1Culinaria" rows="3" required placeholder="Ex: Uso do pinhão, mandioca, milho crioulo, PANCs locais..." class="w-full px-4 py-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-extrabold text-slate-800 mb-2 flex items-center">
+                            <i class="fa-solid fa-comments text-amber-600 mr-2"></i> Entrevistas & Dor do Mercado Regional
+                        </h3>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Resumo das entrevistas com produtores e consumidores (Dificuldades de venda e logística):</label>
+                        <textarea id="e1Entrevistas" rows="4" required placeholder="Registre aqui os depoimentos e principais dores coletadas nas entrevistas..." class="w-full px-4 py-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-3 rounded-xl shadow transition flex items-center space-x-2">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Salvar Etapa 1</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- TAB 4: ETAPA 2 - Reflexão & Co-Criação -->
+            <section id="content-etapa2" class="hidden space-y-6">
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-3 text-emerald-700">
+                        <i class="fa-solid fa-lightbulb text-2xl"></i>
+                        <h2 class="text-2xl font-bold">Etapa 2: Ideação e Co-criação (Integração de UCs)</h2>
+                    </div>
+                    <p class="text-sm text-slate-600">
+                        Desenvolvimento interdisciplinar integrando Gastronomia, Tecnologia, Design, Segurança e Alinhamento com os Objetivos de Desenvolvimento Sustentável (ODS 8 e ODS 10).
+                    </p>
+                </div>
+
+                <form id="formEtapa2" onsubmit="saveEtapa2(event)" class="glass-card rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <!-- Gastronomia / Ficha Técnica -->
+                    <div class="p-5 bg-amber-50/60 rounded-2xl border border-amber-200/80 space-y-3">
+                        <h3 class="font-extrabold text-amber-900 flex items-center">
+                            <i class="fa-solid fa-utensils mr-2"></i> Gastronomia & PANCs
+                        </h3>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Ficha Técnica da Receita Inovadora (Ingredientes, PANCs e modo de preparo):</label>
+                            <textarea id="e2Gastronomia" rows="3" required placeholder="Nome do prato, PANCs utilizadas e proposta de valor nutricional..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-amber-500 bg-white"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Tecnologia & Design -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="p-5 bg-blue-50/60 rounded-2xl border border-blue-200/80 space-y-3">
+                            <h3 class="font-extrabold text-blue-900 flex items-center">
+                                <i class="fa-solid fa-laptop-code mr-2"></i> Tecnologia (E-commerce / Catálogo)
+                            </h3>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Proposta da plataforma digital ou catálogo interativo comunitário:</label>
+                            <textarea id="e2Tecnologia" rows="3" placeholder="Como funcionará a plataforma de comercialização para os produtores..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                        </div>
+
+                        <div class="p-5 bg-purple-50/60 rounded-2xl border border-purple-200/80 space-y-3">
+                            <h3 class="font-extrabold text-purple-900 flex items-center">
+                                <i class="fa-solid fa-palette mr-2"></i> Design & Identidade Visual
+                            </h3>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Descrição do Logotipo, marca social e conceito visual:</label>
+                            <textarea id="e2Design" rows="3" placeholder="Cores, símbolos e slogan que representam o impacto social da marca..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-purple-500 bg-white"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Primeiros Socorros & Ergonomia -->
+                    <div class="p-5 bg-rose-50/60 rounded-2xl border border-rose-200/80 space-y-3">
+                        <h3 class="font-extrabold text-rose-900 flex items-center">
+                            <i class="fa-solid fa-kit-medical mr-2"></i> Primeiros Socorros & Ergonomia
+                        </h3>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Normas de segurança na cozinha e procedimentos de primeiros socorros mapeados:</label>
+                        <textarea id="e2Seguranca" rows="2" placeholder="Ergonomia nos postos de trabalho e prevenção de acidentes na produção gastronômica..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-rose-500 bg-white"></textarea>
+                    </div>
+
+                    <!-- ODS Alignment -->
+                    <div class="p-5 bg-emerald-50/60 rounded-2xl border border-emerald-200/80 space-y-3">
+                        <h3 class="font-extrabold text-emerald-900 flex items-center">
+                            <i class="fa-solid fa-globe mr-2"></i> Alinhamento com ODS (8 & 10)
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-medium text-slate-700">
+                            <div>
+                                <p class="font-bold text-emerald-800">ODS 8: Trabalho Decente e Crescimento Econômico</p>
+                                <p class="text-slate-500">Como o projeto fortalece a renda local?</p>
+                            </div>
+                            <div>
+                                <p class="font-bold text-emerald-800">ODS 10: Redução das Desigualdades</p>
+                                <p class="text-slate-500">Como o projeto inclui pequenos produtores?</p>
+                            </div>
+                        </div>
+                        <textarea id="e2Ods" rows="2" required placeholder="Justifique o impacto social do projeto nestas duas ODS..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-emerald-500 bg-white"></textarea>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl shadow transition flex items-center space-x-2">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Salvar Etapa 2</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- TAB 5: ETAPA 3 - Prototipagem & Pitch Final -->
+            <section id="content-etapa3" class="hidden space-y-6">
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-3 text-amber-700">
+                        <i class="fa-solid fa-rocket text-2xl"></i>
+                        <h2 class="text-2xl font-bold">Etapa 3: Prototipagem e Pitch Final</h2>
+                    </div>
+                    <p class="text-sm text-slate-600">
+                        Simulação da feira gastronômica (pop-up) e estruturação da apresentação final consolidando Matemática, Artes, Ciência e Transformação Social.
+                    </p>
+                </div>
+
+                <form id="formEtapa3" onsubmit="saveEtapa3(event)" class="glass-card rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <div>
+                        <h3 class="text-lg font-extrabold text-slate-800 mb-2 flex items-center">
+                            <i class="fa-solid fa-store text-amber-600 mr-2"></i> Feira Gastronômica Simulada (Pop-Up)
+                        </h3>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Descrição dos protótipos de produtos, embalagens sustentáveis e experiência da feira:</label>
+                        <textarea id="e3PopUp" rows="3" required placeholder="Como foram testados os produtos e embalagens na feira..." class="w-full px-4 py-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-extrabold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-presentation-screen text-amber-600 mr-2"></i> Estrutura do Pitch Final
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">📊 Custos & Finanças (Matemática)</label>
+                                <textarea id="e3Custos" rows="2" placeholder="Custos de produção, preço de venda e margem social..." class="w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">🎨 Conceito Criativo (Artes)</label>
+                                <textarea id="e3Artes" rows="2" placeholder="Design da embalagem e narrativa do produto..." class="w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">🧪 Embasa Nutricional (Ciências)</label>
+                                <textarea id="e3Ciencias" rows="2" placeholder="Benefícios nutricionais das PANCs e ingredientes locais..." class="w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">🌱 Impacto Comunitário (Social)</label>
+                                <textarea id="e3Social" rows="2" placeholder="Transformação esperada na vida dos pequenos produtores..." class="w-full px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4 border-t">
+                        <button type="button" onclick="sendToGoogleSheets()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-6 py-3 rounded-xl shadow transition flex items-center space-x-2">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Enviar Projeto para Planilha do Professor</span>
+                        </button>
+
+                        <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-3 rounded-xl shadow transition flex items-center space-x-2">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Salvar Etapa 3</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- PROFESSOR MODAL & AREA -->
+    <div id="teacherModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 sm:p-8 space-y-6">
+            
+            <!-- Lock Screen / Password Entry -->
+            <div id="teacherLock" class="space-y-6 text-center py-8">
+                <div class="w-16 h-16 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-extrabold text-slate-800">Acesso Restrito ao Professor</h3>
+                    <p class="text-sm text-slate-500 mt-1">Informe a senha de acesso para visualizar todas as equipes e configurar a integração com a Planilha Google.</p>
+                </div>
+                <div class="max-w-xs mx-auto space-y-3">
+                    <input type="password" id="teacherPassInput" placeholder="Senha do Professor" class="w-full text-center text-lg tracking-wider px-4 py-2.5 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-amber-500">
+                    <button onclick="unlockTeacherArea()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-xl transition">Acessar Painel</button>
+                    <p id="passError" class="text-xs text-rose-600 hidden font-semibold">Senha incorreta! Tente novamente.</p>
+                </div>
+                <button onclick="toggleTeacherModal(false)" class="text-xs text-slate-400 hover:text-slate-600 underline">Voltar para o aplicativo</button>
+            </div>
+
+            <!-- Unlocked Content (Dashboard) -->
+            <div id="teacherDashboard" class="hidden space-y-6">
+                <div class="flex items-center justify-between border-b pb-4">
+                    <div>
+                        <h3 class="text-2xl font-extrabold text-slate-800">Painel de Acompanhamento do Professor</h3>
+                        <p class="text-xs text-slate-500">Visualização completa das equipes, personas e diários de bordo.</p>
+                    </div>
+                    <button onclick="toggleTeacherModal(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+                </div>
+
+                <!-- Webhook Config Block -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                    <label class="block text-xs font-bold text-slate-700">Link do Webhook do Google Apps Script (Sua Planilha Google)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 px-3 py-2 text-xs border border-slate-300 rounded-xl outline-none font-mono">
+                        <button onclick="saveScriptUrl()" class="bg-slate-800 text-white text-xs px-4 py-2 rounded-xl font-bold hover:bg-slate-900">Salvar Script</button>
+                    </div>
+                    <p class="text-[11px] text-slate-500">
+                        * Cole aqui a URL gerada ao implantar o código Web App do Google Apps Script na sua planilha.
+                    </p>
+                </div>
+
+                <!-- Teams List / Submission Records -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-slate-800">Projetos de Grupos Cadastrados</h4>
+                        <button onclick="exportAllData()" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1.5 rounded-lg hover:bg-emerald-200">
+                            <i class="fa-solid fa-download mr-1"></i> Exportar Dados (JSON)
+                        </button>
+                    </div>
+
+                    <div id="teamsContainer" class="space-y-4">
+                        <!-- Rendered teams will appear here -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-3 transition transform translate-y-20 opacity-0 z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMsg" class="text-sm font-semibold">Salvo com sucesso!</span>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC -->
+    <script>
+        // State storage key
+        const STORAGE_KEY = 'sabores_locais_db';
+
+        // Selected Emoji State
+        let selectedEmoji = '👨‍🌾';
+        let selectedEmojiLabel = 'Agricultor';
+
+        // Initialize application state
+        let appData = {
+            scriptUrl: '',
+            currentTeam: null,
+            teams: {}
+        };
+
+        window.onload = function() {
+            loadFromStorage();
+            updateGroupBadge();
+        };
+
+        // Load / Save Local Storage
+        function loadFromStorage() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (data) {
+                appData = JSON.parse(data);
+                if (appData.scriptUrl) {
+                    document.getElementById('scriptUrlInput').value = appData.scriptUrl;
+                }
+            }
+        }
+
+        function saveToStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            updateGroupBadge();
+        }
+
+        // Tab Navigation
+        function switchTab(tabId) {
+            const tabs = ['equipe', 'persona', 'etapa1', 'etapa2', 'etapa3'];
+            tabs.forEach(t => {
+                document.getElementById(`content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('active');
+            });
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+
+        // Update Header Badge
+        function updateGroupBadge() {
+            const badge = document.getElementById('badgeGroupName');
+            if (appData.currentTeam && appData.teams[appData.currentTeam]) {
+                badge.innerText = appData.currentTeam;
+            } else {
+                badge.innerText = 'Nenhum Time Ativo';
+            }
+        }
+
+        // --- EMOJI AVATAR SELECTOR LOGIC ---
+        function selectEmoji(emoji, label) {
+            selectedEmoji = emoji;
+            selectedEmojiLabel = label;
+            
+            document.getElementById('avatarEmojiDisplay').innerText = emoji;
+            document.getElementById('badgePersonaType').innerText = label;
+        }
+
+        // --- FORM SAVING LOGIC ---
+        function getActiveTeamObj() {
+            if (!appData.currentTeam) return null;
+            if (!appData.teams[appData.currentTeam]) {
+                appData.teams[appData.currentTeam] = {};
+            }
+            return appData.teams[appData.currentTeam];
+        }
+
+        // Form 1: Equipe STEAM
+        function saveEquipe(e) {
+            e.preventDefault();
+            const name = document.getElementById('teamName').value.trim();
+            if (!name) return;
+
+            appData.currentTeam = name;
+            if (!appData.teams[name]) appData.teams[name] = {};
+
+            appData.teams[name].equipe = {
+                nomeTime: name,
+                orador: document.getElementById('memberOrador').value,
+                guardiao: document.getElementById('memberGuardiao').value,
+                redator: document.getElementById('memberRedator').value,
+                provocador: document.getElementById('memberProvocador').value
+            };
+
+            saveToStorage();
+            showToast('Equipe STEAM cadastrada!');
+            switchTab('persona');
+        }
+
+        // Form 2: Persona
+        function savePersona(e) {
+            e.preventDefault();
+            const team = getActiveTeamObj();
+            if (!team) {
+                showToast('Cadastre primeiro o nome da Equipe na Etapa 1!', 'error');
+                switchTab('equipe');
+                return;
+            }
+
+            team.persona = {
+                emoji: selectedEmoji,
+                tipoEmoji: selectedEmojiLabel,
+                nome: document.getElementById('personaName').value,
+                ocupacao: document.getElementById('personaOccupation').value,
+                caracteristicas: document.getElementById('personaTraits').value,
+                dores: document.getElementById('personaPains').value,
+                motivacoes: document.getElementById('personaMotivations').value
+            };
+
+            saveToStorage();
+            showToast('Persona salva com sucesso!');
+            switchTab('etapa1');
+        }
+
+        // Form 3: Etapa 1
+        function saveEtapa1(e) {
+            e.preventDefault();
+            const team = getActiveTeamObj();
+            if (!team) return switchTab('equipe');
+
+            team.etapa1 = {
+                culinaria: document.getElementById('e1Culinaria').value,
+                entrevistas: document.getElementById('e1Entrevistas').value
+            };
+
+            saveToStorage();
+            showToast('Etapa 1 salva!');
+            switchTab('etapa2');
+        }
+
+        // Form 4: Etapa 2
+        function saveEtapa2(e) {
+            e.preventDefault();
+            const team = getActiveTeamObj();
+            if (!team) return switchTab('equipe');
+
+            team.etapa2 = {
+                gastronomia: document.getElementById('e2Gastronomia').value,
+                tecnologia: document.getElementById('e2Tecnologia').value,
+                design: document.getElementById('e2Design').value,
+                seguranca: document.getElementById('e2Seguranca').value,
+                ods: document.getElementById('e2Ods').value
+            };
+
+            saveToStorage();
+            showToast('Etapa 2 salva!');
+            switchTab('etapa3');
+        }
+
+        // Form 5: Etapa 3
+        function saveEtapa3(e) {
+            e.preventDefault();
+            const team = getActiveTeamObj();
+            if (!team) return switchTab('equipe');
+
+            team.etapa3 = {
+                popUp: document.getElementById('e3PopUp').value,
+                custos: document.getElementById('e3Custos').value,
+                artes: document.getElementById('e3Artes').value,
+                ciencias: document.getElementById('e3Ciencias').value,
+                social: document.getElementById('e3Social').value
+            };
+
+            saveToStorage();
+            showToast('Etapa 3 salva com sucesso!');
+        }
+
+        // Send data to Google Sheets via Webhook
+        function sendToGoogleSheets() {
+            const team = getActiveTeamObj();
+            if (!team) {
+                showToast('Cadastre uma equipe antes de enviar os dados!', 'error');
+                return;
+            }
+
+            if (!appData.scriptUrl) {
+                showToast('O professor ainda não configurou o Webhook da Planilha!', 'error');
+                return;
+            }
+
+            const payload = {
+                time: appData.currentTeam,
+                dados: team
+            };
+
+            // Using fetch to post to Google Apps Script
+            fetch(appData.scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                showToast('Dados enviados para a planilha do professor!');
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('Erro ao enviar para a planilha!', 'error');
+            });
+        }
+
+        // --- TEACHER RESTRICTED AREA ---
+        function toggleTeacherModal(show) {
+            document.getElementById('teacherModal').classList.toggle('hidden', !show);
+        }
+
+        function unlockTeacherArea() {
+            const input = document.getElementById('teacherPassInput').value;
+            const errorMsg = document.getElementById('passError');
+
+            if (input === 'Leao') {
+                errorMsg.classList.add('hidden');
+                document.getElementById('teacherLock').classList.add('hidden');
+                document.getElementById('teacherDashboard').classList.remove('hidden');
+                renderTeacherDashboard();
+            } else {
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+        function saveScriptUrl() {
+            const url = document.getElementById('scriptUrlInput').value.trim();
+            appData.scriptUrl = url;
+            saveToStorage();
+            showToast('URL do Script atualizada com sucesso!');
+        }
+
+        function renderTeacherDashboard() {
+            const container = document.getElementById('teamsContainer');
+            container.innerHTML = '';
+
+            const keys = Object.keys(appData.teams);
+            if (keys.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhuma equipe cadastrada ainda.</p>`;
+                return;
+            }
+
+            keys.forEach(teamKey => {
+                const t = appData.teams[teamKey];
+                const eq = t.equipe || {};
+                const per = t.persona || {};
+
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 p-5 rounded-2xl shadow-sm space-y-3";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between border-b pb-2">
+                        <h5 class="font-extrabold text-amber-700 text-lg">${teamKey}</h5>
+                        <span class="text-xs bg-slate-100 px-2.5 py-1 rounded-full text-slate-600 font-semibold">Time STEAM</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-600">
+                        <div><strong>Orador:</strong> ${eq.orador || '-'}</div>
+                        <div><strong>Guardião:</strong> ${eq.guardiao || '-'}</div>
+                        <div><strong>Redator:</strong> ${eq.redator || '-'}</div>
+                        <div><strong>Provocador:</strong> ${eq.provocador || '-'}</div>
+                    </div>
+                    ${per.nome ? `
+                        <div class="bg-amber-50/50 p-3 rounded-xl text-xs space-y-1">
+                            <p class="font-bold text-amber-900">Persona: ${per.nome} (${per.ocupacao || 'Sem ocupação'})</p>
+                            <p class="text-slate-600"><strong>Dores:</strong> ${per.dores || 'N/A'}</p>
+                        </div>
+                    ` : ''}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function exportAllData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "sabores_locais_projetos.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // --- TOAST UTILITY ---
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = msg;
+            if (type === 'error') {
+                toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
