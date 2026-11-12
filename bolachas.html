@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolachas da Vovó Estefani | O Sabor de Casa em Cada Mordida</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fontes do Google: Fraunces (Serifada acolhedora/artesanal) e Plus Jakarta Sans (Moderna e legível) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,800;1,9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons para ícones elegantes -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Configuração personalizada do Tailwind com as cores solicitadas -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Fraunces', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        // Cor Principal: Vermelho Acolhedor / Geleia de Morango & Forno
+                        brandRed: {
+                            50: '#FEF2F2',
+                            100: '#FEE2E2',
+                            500: '#EF4444',
+                            600: '#D92626', // Principal vibrante
+                            700: '#B91C1C',
+                            800: '#991B1B',
+                            900: '#7F1D1D',
+                        },
+                        // Cor Secundária: Laranja Caramelo / Casca de Laranja & Mel
+                        brandOrange: {
+                            50: '#FFF7ED',
+                            100: '#FFEDD5',
+                            400: '#FB923C',
+                            500: '#F97316', // Secundária vibrante
+                            600: '#EA580C',
+                            700: '#C2410C',
+                        },
+                        // Cor Terciária: Amarelo Manteiga / Baunilha & Sol
+                        brandYellow: {
+                            50: '#FEFCE8',
+                            100: '#FEF9C3',
+                            200: '#FEF08A',
+                            300: '#FDE047',
+                            400: '#FACC15', // Terciária luminosa
+                            500: '#EAB308',
+                        },
+                        cream: '#FFFDF7',
+                    },
+                    boxShadow: {
+                        'warm': '0 10px 30px -5px rgba(217, 38, 38, 0.15)',
+                        'cookie': '0 20px 40px -15px rgba(234, 88, 12, 0.25)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Padrão sutil de toalha de mesa / padaria artesanal */
+        .bg-bakery-pattern {
+            background-color: #FFFDF7;
+            background-image: radial-gradient(#F97316 0.75px, transparent 0.75px), radial-gradient(#D92626 0.75px, #FFFDF7 0.75px);
+            background-size: 32px 32px;
+            background-position: 0 0, 16px 16px;
+            background-attachment: fixed;
+        }
+        
+        /* Efeito de flutuação suave para o mascote/bolacha hero */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        .animate-float {
+            animation: floatSlow 5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="font-sans text-stone-800 bg-cream antialiased selection:bg-brandYellow-300 selection:text-brandRed-900 overflow-x-hidden">
+
+    <!-- ==================== BARRA DE NAVEGAÇÃO ==================== -->
+    <header class="sticky top-0 z-40 bg-cream/90 backdrop-blur-md border-b border-brandOrange-100 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                
+                <!-- Logotipo da Marca (SVG Exclusivo) -->
+                <a href="#" class="flex items-center gap-3 group focus:outline-none">
+                    <div class="w-12 h-12 rounded-2xl bg-brandRed-600 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform border-2 border-brandYellow-400">
+                        <!-- Ícone SVG de Bolacha Artesanal com Coração -->
+                        <svg class="w-8 h-8 text-brandYellow-300" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M32 6C35.5 6 38.2 8.4 41.3 9.7C44.4 11 48 10.6 50.5 13.1C53 15.6 52.6 19.2 53.9 22.3C55.2 25.4 57.6 28.1 57.6 31.6C57.6 35.1 55.2 37.8 53.9 40.9C52.6 44 53 47.6 50.5 50.1C48 52.6 44.4 52.2 41.3 53.5C38.2 54.8 35.5 57.2 32 57.2C28.5 57.2 25.8 54.8 22.7 53.5C19.6 52.2 16 52.6 13.5 50.1C11 47.6 11.4 44 10.1 40.9C8.8 37.8 6.4 35.1 6.4 31.6C6.4 28.1 8.8 25.4 10.1 22.3C11.4 19.2 11 15.6 13.5 13.1C16 10.6 19.6 11 22.7 9.7C25.8 8.4 28.5 6 32 6Z" fill="#FACC15" stroke="#EA580C" stroke-width="3"/>
+                            <path d="M32 42C32 42 21 34.8 21 27.5C21 24.2 23.6 21.6 26.8 21.6C28.8 21.6 30.6 22.6 32 24.2C33.4 22.6 35.2 21.6 37.2 21.6C40.4 21.6 43 24.2 43 27.5C43 34.8 32 42 32 42Z" fill="#D92626"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="block font-display font-extrabold text-xl sm:text-2xl text-brandRed-600 leading-none tracking-tight">Vovó Estefani</span>
+                        <span class="block text-xs font-bold uppercase tracking-widest text-brandOrange-600 mt-0.5">Bolachas Artesanais</span>
+                    </div>
+                </a>
+
+                <!-- Links Desktop -->
+                <nav class="hidden md:flex items-center gap-8 font-semibold text-stone-700">
+                    <a href="#sabores" class="hover:text-brandRed-600 transition-colors">Nossas Bolachas</a>
+                    <a href="#historia" class="hover:text-brandRed-600 transition-colors">A Receita da Vovó</a>
+                    <a href="#identidade" class="hover:text-brandRed-600 transition-colors">Identidade & Cores</a>
+                    <a href="#contato" class="hover:text-brandRed-600 transition-colors">Encomendas</a>
+                </nav>
+
+                <!-- Botão Carrinho / Cesta -->
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleCart()" class="relative inline-flex items-center gap-2 bg-brandOrange-500 hover:bg-brandOrange-600 text-white font-bold px-4 py-2.5 rounded-2xl shadow-sm hover:shadow-md transition-all active:scale-95">
+                        <i class="ph-bold ph-basket text-xl"></i>
+                        <span class="hidden sm:inline">Minha Cesta</span>
+                        <span id="cart-badge" class="bg-brandYellow-400 text-brandRed-900 text-xs font-extrabold px-2 py-0.5 rounded-full">0</span>
+                    </button>
+
+                    <!-- Botão Menu Mobile -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2.5 rounded-xl bg-brandYellow-100 text-brandRed-700 hover:bg-brandYellow-200 transition-colors" aria-label="Abrir Menu">
+                        <i class="ph-bold ph-list text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="hidden md:hidden bg-cream border-b border-brandOrange-200 px-4 pt-2 pb-6 space-y-2 shadow-lg">
+            <a href="#sabores" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-xl font-bold text-stone-700 hover:bg-brandYellow-100 hover:text-brandRed-600">Nossas Bolachas</a>
+            <a href="#historia" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-xl font-bold text-stone-700 hover:bg-brandYellow-100 hover:text-brandRed-600">A Receita da Vovó</a>
+            <a href="#identidade" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-xl font-bold text-stone-700 hover:bg-brandYellow-100 hover:text-brandRed-600">Identidade & Cores</a>
+            <a href="#contato" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-xl font-bold text-stone-700 hover:bg-brandYellow-100 hover:text-brandRed-600">Encomendas</a>
+        </div>
+    </header>
+
+    <!-- ==================== SEÇÃO HERO (DESTAQUE PRINCIPAL) ==================== -->
+    <section class="relative overflow-hidden bg-gradient-to-br from-brandRed-600 via-brandRed-700 to-brandOrange-600 text-white pt-12 pb-20 lg:py-24">
+        <!-- Formas decorativas de fundo -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-brandOrange-500/30 blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-brandYellow-400/20 blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Texto Principal -->
+                <div class="lg:col-span-7 text-center lg:text-left space-y-6">
+                    <div class="inline-flex items-center gap-2 bg-brandYellow-400 text-brandRed-900 font-extrabold text-xs sm:text-sm px-4 py-1.5 rounded-full shadow-md">
+                        <i class="ph-fill ph-sparkle text-brandRed-600"></i>
+                        <span>Fornada Fresquinha Todo Dia • 100% Artesanal</span>
+                    </div>
+
+                    <h1 class="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl leading-tight tracking-tight">
+                        O carinho de casa assado no <span class="text-brandYellow-300 underline decoration-brandOrange-400 decoration-wavy underline-offset-8">forno da Vovó Estefani.</span>
+                    </h1>
+
+                    <p class="text-lg sm:text-xl text-brandYellow-50/90 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                        Receitas passadas de geração em geração com manteiga de verdade, frutas frescas e aquele cheirinho irresistível que abraça a cozinha inteira.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                        <a href="#sabores" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-brandYellow-400 hover:bg-brandYellow-300 text-brandRed-900 font-extrabold text-lg px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-95">
+                            <span>Escolher Meus Sabores</span>
+                            <i class="ph-bold ph-arrow-right"></i>
+                        </a>
+                        <a href="#historia" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/30 text-white font-bold text-lg px-7 py-4 rounded-2xl transition-all">
+                            <i class="ph-bold ph-book-open-text"></i>
+                            <span>Conhecer a História</span>
+                        </a>
+                    </div>
+
+                    <!-- Selos de Qualidade -->
+                    <div class="grid grid-cols-3 gap-4 pt-6 border-t border-white/20 max-w-lg mx-auto lg:mx-0">
+                        <div>
+                            <p class="font-display font-extrabold text-2xl sm:text-3xl text-brandYellow-300">100%</p>
+                            <p class="text-xs sm:text-sm text-brandYellow-100">Sem Conservantes</p>
+                        </div>
+                        <div>
+                            <p class="font-display font-extrabold text-2xl sm:text-3xl text-brandYellow-300">1968</p>
+                            <p class="text-xs sm:text-sm text-brandYellow-100">Caderno Original</p>
+                        </div>
+                        <div>
+                            <p class="font-display font-extrabold text-2xl sm:text-3xl text-brandYellow-300">4.9 ★</p>
+                            <p class="text-xs sm:text-sm text-brandYellow-100">Amor em Cada Lata</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ilustração Exclusiva da Marca (Emblema + Lata da Vovó Estefani) -->
+                <div class="lg:col-span-5 flex justify-center">
+                    <div class="relative w-full max-w-md animate-float">
+                        <!-- Círculo Amarelo de Destaque -->
+                        <div class="bg-brandYellow-400 rounded-[2.5rem] p-6 sm:p-8 shadow-2xl border-4 border-brandOrange-400 relative">
+                            <!-- Etiqueta Vermelha -->
+                            <div class="absolute -top-5 -right-4 bg-brandRed-600 text-white font-display font-bold px-5 py-2.5 rounded-2xl shadow-lg border-2 border-brandYellow-300 rotate-6">
+                                Receita Secreta!
+                            </div>
+
+                            <!-- SVG Ilustrativo da Vovó Estefani & Bolachas -->
+                            <svg class="w-full h-auto drop-shadow-md" viewBox="0 0 400 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Fundo Prato Laranja -->
+                                <circle cx="200" cy="200" r="155" fill="#F97316"/>
+                                <circle cx="200" cy="200" r="138" fill="#FFFDF7" stroke="#D92626" stroke-width="4" stroke-dasharray="10 8"/>
+                                
+                                <!-- Bolacha 1 (Esquerda - Rosquinha de Laranja) -->
+                                <g transform="translate(85, 175) rotate(-12)">
+                                    <circle cx="55" cy="55" r="50" fill="#F59E0B" stroke="#B45309" stroke-width="4"/>
+                                    <circle cx="55" cy="55" r="16" fill="#FFFDF7" stroke="#B45309" stroke-width="3"/>
+                                    <path d="M25 35 Q55 15 85 35" stroke="#FEF08A" stroke-width="6" stroke-linecap="round"/>
+                                </g>
+
+                                <!-- Bolacha 2 (Direita - Coração com Goiabada) -->
+                                <g transform="translate(205, 170) rotate(14)">
+                                    <rect x="10" y="10" width="95" height="95" rx="28" fill="#FBBF24" stroke="#D97706" stroke-width="4"/>
+                                    <!-- Recheio Vermelho (Goiabada/Morango) -->
+                                    <path d="M57.5 76C57.5 76 35 61.5 35 46.5C35 39.8 40.3 34.5 46.8 34.5C50.9 34.5 54.6 36.6 57.5 39.8C60.4 36.6 64.1 34.5 68.2 34.5C74.7 34.5 80 39.8 80 46.5C80 61.5 57.5 76 57.5 76Z" fill="#D92626"/>
+                                </g>
+
+                                <!-- Bolacha 3 (Centro Frente - Bolacha Pintada Clássica) -->
+                                <g transform="translate(135, 200)">
+                                    <path d="M65 8C73 8 79 14 86 17C93 20 101 19 107 25C113 31 112 39 115 46C118 53 124 59 124 67C124 75 118 81 115 88C112 95 113 103 107 109C101 115 93 114 86 117C79 120 73 126 65 126C57 126 51 120 44 117C37 114 29 115 23 109C17 103 18 95 15 88C12 81 6 75 6 67C6 59 12 53 15 46C18 39 17 31 23 25C29 19 37 20 44 17C51 14 57 8 65 8Z" fill="#FDE047" stroke="#EA580C" stroke-width="5"/>
+                                    <!-- Glacê Vermelho e Confeitos -->
+                                    <circle cx="65" cy="67" r="32" fill="#D92626"/>
+                                    <circle cx="55" cy="57" r="4" fill="#FEF08A"/>
+                                    <circle cx="75" cy="60" r="4" fill="#FB923C"/>
+                                    <circle cx="65" cy="78" r="4" fill="#FFFFFF"/>
+                                    <circle cx="52" cy="72" r="3.5" fill="#FEF08A"/>
+                                    <circle cx="77" cy="74" r="3.5" fill="#FEF08A"/>
+                                </g>
+
+                                <!-- Faixa Superior da Marca -->
+                                <path d="M55 95 C130 55, 270 55, 345 95 L330 135 C265 102, 135 102, 70 135 Z" fill="#D92626" stroke="#FEF08A" stroke-width="3"/>
+                                <text x="200" y="103" text-anchor="middle" fill="#FEF08A" font-family="Fraunces, serif" font-weight="800" font-size="22" letter-spacing="1">VOVÓ ESTEFANI</text>
+                            </svg>
+
+                            <div class="mt-4 bg-white rounded-2xl p-4 text-center shadow-inner border border-brandOrange-200">
+                                <p class="font-display font-bold text-brandRed-700 text-lg">Lata Colecionável "Tarde na Varanda"</p>
+                                <p class="text-sm text-stone-600">Mix especial com 450g de bolachas amanteigadas e recheadas.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onda divisória decorativa -->
+        <div class="absolute bottom-0 left-0 right-0 leading-none">
+            <svg class="w-full h-8 sm:h-12 text-cream fill-current" viewBox="0 0 1440 48" preserveAspectRatio="none">
+                <path d="M0,48 L1440,48 L1440,12 C1200,48 960,0 720,24 C480,48 240,0 0,24 Z"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ==================== CATÁLOGO DE SABORES ==================== -->
+    <section id="sabores" class="py-16 sm:py-24 bg-bakery-pattern">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- Cabeçalho da Seção -->
+            <div class="text-center max-w-3xl mx-auto mb-12 space-y-4">
+                <span class="inline-block bg-brandOrange-100 text-brandOrange-700 font-extrabold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full">
+                    Direto do Forno para sua Mesa
+                </span>
+                <h2 class="font-display font-extrabold text-3xl sm:text-5xl text-brandRed-700">
+                    Nossas Bolachas Especiais
+                </h2>
+                <p class="text-stone-600 text-lg">
+                    Escolha seus pacotes favoritos e monte sua cesta artesanal. Todas as receitas levam o toque especial da Vovó Estefani.
+                </p>
+
+                <!-- Filtros de Categoria -->
+                <div class="flex flex-wrap justify-center gap-2 pt-4" id="filter-buttons">
+                    <button onclick="filterProducts('todos')" data-filter="todos" class="filter-btn active bg-brandRed-600 text-white font-bold px-5 py-2.5 rounded-xl shadow-sm transition-all">
+                        Todas as Receitas
+                    </button>
+                    <button onclick="filterProducts('recheadas')" data-filter="recheadas" class="filter-btn bg-white hover:bg-brandYellow-100 text-stone-700 border border-brandOrange-200 font-bold px-5 py-2.5 rounded-xl transition-all">
+                        Recheadas com Fruta
+                    </button>
+                    <button onclick="filterProducts('amanteigadas')" data-filter="amanteigadas" class="filter-btn bg-white hover:bg-brandYellow-100 text-stone-700 border border-brandOrange-200 font-bold px-5 py-2.5 rounded-xl transition-all">
+                        Amanteigadas & Cítricas
+                    </button>
+                    <button onclick="filterProducts('especiarias')" data-filter="especiarias" class="filter-btn bg-white hover:bg-brandYellow-100 text-stone-700 border border-brandOrange-200 font-bold px-5 py-2.5 rounded-xl transition-all">
+                        Mel & Especiarias
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grid de Produtos (Renderizado via JS) -->
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Cards inseridos dinamicamente -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== HISTÓRIA DA MARCA ==================== -->
+    <section id="historia" class="py-16 sm:py-24 bg-brandYellow-100/70 border-y border-brandOrange-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                
+                <!-- Card Visual / Ilustração da Cozinha -->
+                <div class="relative">
+                    <div class="bg-brandOrange-500 rounded-3xl p-4 sm:p-6 shadow-cookie rotate-1">
+                        <div class="bg-cream rounded-2xl p-6 sm:p-8 border-2 border-dashed border-brandRed-500 space-y-6">
+                            <div class="flex items-center justify-between border-b border-brandOrange-200 pb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-brandRed-600 text-brandYellow-300 flex items-center justify-center font-display font-bold text-lg">
+                                        E
+                                    </div>
+                                    <div>
+                                        <p class="font-display font-bold text-brandRed-700">Caderno de Receitas Nº 01</p>
+                                        <p class="text-xs text-stone-500">Anotado à mão por Estefani</p>
+                                    </div>
+                                </div>
+                                <span class="bg-brandYellow-300 text-brandRed-900 text-xs font-extrabold px-3 py-1 rounded-full">Desde 1968</span>
+                            </div>
+
+                            <blockquote class="font-display italic text-xl sm:text-2xl text-stone-800 leading-relaxed">
+                                “O segredo de uma boa bolacha não está só na manteiga fresca ou na raspa de laranja colhida no pé — está na paciência de esperar dourar e no carinho de dividir com quem a gente ama.”
+                            </blockquote>
+
+                            <div class="grid grid-cols-2 gap-4 pt-2">
+                                <div class="bg-brandYellow-50 p-4 rounded-xl border border-brandYellow-300">
+                                    <i class="ph-fill ph-orange-slice text-2xl text-brandOrange-500 mb-1"></i>
+                                    <h4 class="font-bold text-stone-800 text-sm">Ingredientes Reais</h4>
+                                    <p class="text-xs text-stone-600 mt-1">Goiabada cascão, mel silvestre e laranja-da-terra.</p>
+                                </div>
+                                <div class="bg-brandRed-50 p-4 rounded-xl border border-brandRed-200">
+                                    <i class="ph-fill ph-heart text-2xl text-brandRed-600 mb-1"></i>
+                                    <h4 class="font-bold text-stone-800 text-sm">Feito à Mão</h4>
+                                    <p class="text-xs text-stone-600 mt-1">Modeladas uma a uma antes de ir ao forno.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Texto Narrativo -->
+                <div class="space-y-6">
+                    <span class="inline-block bg-brandRed-600 text-white font-extrabold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full">
+                        Nossa Essência
+                    </span>
+                    <h2 class="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl text-stone-900 leading-tight">
+                        Mais que uma bolacha, uma memória afetiva em volta da mesa.
+                    </h2>
+                    <p class="text-stone-700 text-lg leading-relaxed">
+                        Tudo começou na pequena cozinha da <strong>Vovó Estefani</strong>, onde o aroma de baunilha, canela e casca de laranja anunciava que o café da tarde estava pronto. Vizinhos, netos e amigos sempre batiam à porta atraídos pelo som das latas coloridas sendo abertas.
+                    </p>
+                    <p class="text-stone-700 text-lg leading-relaxed">
+                        Hoje, levamos essa mesma tradição para todo o Brasil, preservando o ponto exato de crocância por fora e maciez que derrete na boca.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== IDENTIDADE VISUAL DA MARCA (PALETA SOLICITADA) ==================== -->
+    <section id="identidade" class="py-16 sm:py-24 bg-cream">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-14 space-y-3">
+                <span class="inline-block bg-brandYellow-200 text-brandRed-800 font-extrabold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full">
+                    Guia da Nova Marca
+                </span>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-brandRed-700">
+                    As Cores do Nosso Sabor
+                </h2>
+                <p class="text-stone-600">
+                    A identidade visual da <strong>Vovó Estefani</strong> foi pensada para despertar apetite, calor humano e alegria através de três cores principais.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Cor Principal: Vermelho -->
+                <div class="rounded-3xl overflow-hidden shadow-warm border border-brandRed-200 bg-white flex flex-col">
+                    <div class="h-36 bg-brandRed-600 p-6 flex flex-col justify-between text-white">
+                        <span class="text-xs font-extrabold uppercase tracking-wider bg-black/20 self-start px-3 py-1 rounded-full">Cor Principal</span>
+                        <div>
+                            <h3 class="font-display font-bold text-2xl">Vermelho Geleia</h3>
+                            <p class="text-sm text-brandRed-100">#D92626</p>
+                        </div>
+                    </div>
+                    <div class="p-6 text-stone-600 text-sm leading-relaxed flex-1">
+                        Representa o <strong>amor da vovó</strong>, o calor do forno a lenha, o recheio de goiabada cascão e a paixão por receber bem. É a cor de maior destaque e identidade da marca.
+                    </div>
+                </div>
+
+                <!-- Cor Secundária: Laranja -->
+                <div class="rounded-3xl overflow-hidden shadow-warm border border-brandOrange-200 bg-white flex flex-col">
+                    <div class="h-36 bg-brandOrange-500 p-6 flex flex-col justify-between text-white">
+                        <span class="text-xs font-extrabold uppercase tracking-wider bg-black/20 self-start px-3 py-1 rounded-full">Cor Secundária</span>
+                        <div>
+                            <h3 class="font-display font-bold text-2xl">Laranja Caramelo</h3>
+                            <p class="text-sm text-brandOrange-100">#F97316</p>
+                        </div>
+                    </div>
+                    <div class="p-6 text-stone-600 text-sm leading-relaxed flex-1">
+                        Simboliza o <strong>dourado perfeito da massa assada</strong>, o mel silvestre e as raspas de laranja fresca usadas nas receitas tradicionais. Traz energia e acolhimento.
+                    </div>
+                </div>
+
+                <!-- Cor Terciária: Amarelo -->
+                <div class="rounded-3xl overflow-hidden shadow-warm border border-brandYellow-300 bg-white flex flex-col">
+                    <div class="h-36 bg-brandYellow-400 p-6 flex flex-col justify-between text-brandRed-900">
+                        <span class="text-xs font-extrabold uppercase tracking-wider bg-white/50 self-start px-3 py-1 rounded-full">Cor Terciária</span>
+                        <div>
+                            <h3 class="font-display font-bold text-2xl">Amarelo Manteiga</h3>
+                            <p class="text-sm text-brandRed-800">#FACC15</p>
+                        </div>
+                    </div>
+                    <div class="p-6 text-stone-600 text-sm leading-relaxed flex-1">
+                        Evoca a <strong>manteiga pura da fazenda</strong>, a baunilha e a luz da manhã na varanda. Funciona como ponto de luz, alegria e destaque nos selos e embalagens.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== ENCOMENDAS & CLUBE DA LATA ==================== -->
+    <section id="contato" class="py-16 sm:py-24 bg-gradient-to-r from-brandOrange-600 to-brandRed-600 text-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white text-stone-800 rounded-[2.5rem] p-8 sm:p-12 shadow-2xl border-4 border-brandYellow-400">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-6 space-y-4">
+                        <span class="inline-block bg-brandYellow-400 text-brandRed-900 font-extrabold text-xs uppercase px-3 py-1 rounded-full">
+                            Encomendas & Presentes
+                        </span>
+                        <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-brandRed-700">
+                            Quer uma lata personalizada para eventos ou cafés?
+                        </h2>
+                        <p class="text-stone-600 leading-relaxed">
+                            Preparamos kits especiais para festas, lembranças corporativas e assinaturas mensais de bolachas fresquinhas.
+                        </p>
+                        <div class="space-y-2 pt-2 text-sm font-semibold text-stone-700">
+                            <p class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-brandOrange-500 text-lg"></i> Entregas em embalagens protegidas contra quebra</p>
+                            <p class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-brandOrange-500 text-lg"></i> Cartão escrito com dedicatória personalizada</p>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-6">
+                        <form id="order-form" onsubmit="handleCustomOrder(event)" class="space-y-4 bg-cream p-6 rounded-3xl border border-brandOrange-200">
+                            <div>
+                                <label class="block text-sm font-bold text-stone-700 mb-1">Seu Nome</label>
+                                <input type="text" required placeholder="Ex: Maria Clara" class="w-full px-4 py-3 rounded-xl border border-brandOrange-200 focus:outline-none focus:ring-2 focus:ring-brandRed-500 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-stone-700 mb-1">WhatsApp ou E-mail</label>
+                                <input type="text" required placeholder="(47) 99999-9999" class="w-full px-4 py-3 rounded-xl border border-brandOrange-200 focus:outline-none focus:ring-2 focus:ring-brandRed-500 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-stone-700 mb-1">O que você deseja encomendar?</label>
+                                <textarea rows="3" required placeholder="Conte quantas latas ou sabores você gostaria..." class="w-full px-4 py-3 rounded-xl border border-brandOrange-200 focus:outline-none focus:ring-2 focus:ring-brandRed-500 bg-white"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-brandRed-600 hover:bg-brandRed-700 text-white font-extrabold py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                                <i class="ph-bold ph-paper-plane-tilt"></i>
+                                <span>Enviar Pedido para a Vovó</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== RODAPÉ ==================== -->
+    <footer class="bg-brandRed-900 text-brandYellow-100 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-brandYellow-400 text-brandRed-900 flex items-center justify-center font-display font-extrabold text-xl">
+                    VE
+                </div>
+                <div>
+                    <p class="font-display font-bold text-lg text-white">Bolachas da Vovó Estefani</p>
+                    <p class="text-xs text-brandYellow-200/80">Feito com manteiga, carinho e tradição.</p>
+                </div>
+            </div>
+
+            <p class="text-sm text-brandYellow-200/70 text-center">
+                © 2026 Bolachas da Vovó Estefani. Todos os direitos reservados.
+            </p>
+
+            <div class="flex items-center gap-4">
+                <a href="#sabores" class="w-10 h-10 rounded-full bg-white/10 hover:bg-brandOrange-500 flex items-center justify-center text-white transition-colors" aria-label="Instagram">
+                    <i class="ph-bold ph-instagram-logo text-xl"></i>
+                </a>
+                <a href="#contato" class="w-10 h-10 rounded-full bg-white/10 hover:bg-brandOrange-500 flex items-center justify-center text-white transition-colors" aria-label="WhatsApp">
+                    <i class="ph-bold ph-whatsapp-logo text-xl"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== DRAWER DA CESTA (CARRINHO LATERAL) ==================== -->
+    <div id="cart-drawer" class="fixed inset-0 z-50 hidden">
+        <!-- Backdrop -->
+        <div onclick="toggleCart()" class="absolute inset-0 bg-stone-900/60 backdrop-blur-sm transition-opacity"></div>
+        
+        <!-- Painel -->
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-cream shadow-2xl flex flex-col border-l-4 border-brandYellow-400">
+            <div class="p-6 bg-brandRed-600 text-white flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="ph-bold ph-basket text-2xl text-brandYellow-300"></i>
+                    <h3 class="font-display font-bold text-xl">Sua Cesta da Vovó</h3>
+                </div>
+                <button onclick="toggleCart()" class="p-2 rounded-xl bg-white/15 hover:bg-white/25 transition-colors">
+                    <i class="ph-bold ph-x text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Lista de Itens -->
+            <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4">
+                <!-- Preenchido via JS -->
+            </div>
+
+            <!-- Rodapé do Carrinho -->
+            <div class="p-6 bg-white border-t border-brandOrange-200 space-y-4">
+                <div class="flex justify-between items-center text-lg font-extrabold text-stone-800">
+                    <span>Total da Cesta:</span>
+                    <span id="cart-total" class="text-brandRed-600 text-2xl font-display">R$ 0,00</span>
+                </div>
+                <button onclick="checkoutCart()" class="w-full bg-brandOrange-500 hover:bg-brandOrange-600 text-white font-extrabold py-4 rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                    <span>Finalizar Encomenda</span>
+                    <i class="ph-bold ph-check-circle text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TOAST / NOTIFICAÇÃO FLUTUANTE ==================== -->
+    <div id="toast-box" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform translate-y-4">
+        <div class="bg-brandRed-700 text-white px-6 py-3.5 rounded-2xl shadow-xl border-2 border-brandYellow-400 flex items-center gap-3 font-bold text-sm sm:text-base">
+            <i class="ph-fill ph-cookie text-brandYellow-300 text-xl"></i>
+            <span id="toast-message">Bolacha adicionada à cesta!</span>
+        </div>
+    </div>
+
+    <!-- ==================== LÓGICA JAVASCRIPT ==================== -->
+    <script>
+        // Catálogo de produtos da Vovó Estefani
+        const products = [
+            {
+                id: 1,
+                name: "Coração de Goiabada",
+                category: "recheadas",
+                weight: "250g",
+                price: 18.90,
+                badge: "Mais Vendida",
+                badgeColor: "bg-brandRed-600 text-white",
+                description: "Massa amanteigada que derrete na boca com um generoso coração de goiabada cascão cremosa.",
+                accentColor: "#D92626",
+                cookieStyle: "heart"
+            },
+            {
+                id: 2,
+                name: "Rosquinha Sol de Laranja",
+                category: "amanteigadas",
+                weight: "300g",
+                price: 16.50,
+                badge: "Receita de 1968",
+                badgeColor: "bg-brandOrange-500 text-white",
+                description: "Feita com suco natural e raspas frescas de laranja-baía, finalizada com leve glacê cítrico.",
+                accentColor: "#F97316",
+                cookieStyle: "ring"
+            },
+            {
+                id: 3,
+                name: "Pintadinha da Vovó",
+                category: "amanteigadas",
+                weight: "250g",
+                price: 19.50,
+                badge: "Clássica",
+                badgeColor: "bg-brandYellow-400 text-brandRed-900",
+                description: "A tradicional bolacha festiva com cobertura artesanal e confeitos coloridos crocantes.",
+                accentColor: "#FACC15",
+                cookieStyle: "frosted"
+            },
+            {
+                id: 4,
+                name: "Broinha de Mel & Canela",
+                category: "especiarias",
+                weight: "280g",
+                price: 17.90,
+                badge: "Aromática",
+                badgeColor: "bg-brandOrange-500 text-white",
+                description: "Adoçada com mel silvestre puro, canela em pau moída na hora e um toque de cravo.",
+                accentColor: "#EA580C",
+                cookieStyle: "spiced"
+            },
+            {
+                id: 5,
+                name: "Casadinho de Morango",
+                category: "recheadas",
+                weight: "250g",
+                price: 21.00,
+                badge: "Edição Especial",
+                badgeColor: "bg-brandRed-600 text-white",
+                description: "Duas bolachinhas de baunilha unidas por geleia caseira de morangos frescos.",
+                accentColor: "#D92626",
+                cookieStyle: "heart"
+            },
+            {
+                id: 6,
+                name: "Sequilho de Nata & Baunilha",
+                category: "amanteigadas",
+                weight: "220g",
+                price: 15.90,
+                badge: "Levinha",
+                badgeColor: "bg-brandYellow-400 text-brandRed-900",
+                description: "Textura ultra delicada preparada com nata fresca da fazenda e fava de baunilha.",
+                accentColor: "#FACC15",
+                cookieStyle: "ring"
+            }
+        ];
+
+        // Estado do Carrinho
+        let cart = [];
+
+        // Gera ilustração SVG única para cada tipo de bolacha
+        function getCookieSVG(style) {
+            if (style === 'heart') {
+                return `
+                <svg class="w-28 h-28 mx-auto drop-shadow" viewBox="0 0 120 120" fill="none">
+                    <rect x="15" y="15" width="90" height="90" rx="28" fill="#FDE047" stroke="#EA580C" stroke-width="4"/>
+                    <path d="M60 82C60 82 36 66 36 50C36 42.5 41.8 37 49 37C53.3 37 57.1 39.2 60 42.6C62.9 39.2 66.7 37 71 37C78.2 37 84 42.5 84 50C84 66 60 82 60 82Z" fill="#D92626"/>
+                </svg>`;
+            }
+            if (style === 'ring') {
+                return `
+                <svg class="w-28 h-28 mx-auto drop-shadow" viewBox="0 0 120 120" fill="none">
+                    <circle cx="60" cy="60" r="46" fill="#FB923C" stroke="#C2410C" stroke-width="4"/>
+                    <circle cx="60" cy="60" r="15" fill="#FFFDF7" stroke="#C2410C" stroke-width="3"/>
+                    <path d="M32 42 Q60 22 88 42" stroke="#FEF08A" stroke-width="6" stroke-linecap="round"/>
+                </svg>`;
+            }
+            if (style === 'frosted') {
+                return `
+                <svg class="w-28 h-28 mx-auto drop-shadow" viewBox="0 0 120 120" fill="none">
+                    <circle cx="60" cy="60" r="46" fill="#FACC15" stroke="#EA580C" stroke-width="4"/>
+                    <circle cx="60" cy="60" r="30" fill="#D92626"/>
+                    <circle cx="50" cy="50" r="3.5" fill="#FEF08A"/>
+                    <circle cx="70" cy="52" r="3.5" fill="#FFFFFF"/>
+                    <circle cx="60" cy="70" r="3.5" fill="#FB923C"/>
+                    <circle cx="48" cy="66" r="3" fill="#FFFFFF"/>
+                    <circle cx="72" cy="67" r="3" fill="#FEF08A"/>
+                </svg>`;
+            }
+            return `
+            <svg class="w-28 h-28 mx-auto drop-shadow" viewBox="0 0 120 120" fill="none">
+                <circle cx="60" cy="60" r="46" fill="#D97706" stroke="#9A3412" stroke-width="4"/>
+                <path d="M35 45 L85 45 M30 60 L90 60 M35 75 L85 75" stroke="#FDE047" stroke-width="4" stroke-linecap="round"/>
+            </svg>`;
+        }
+
+        // Renderiza os cards de produtos
+        function renderProducts(filter = 'todos') {
+            const grid = document.getElementById('products-grid');
+            const filtered = filter === 'todos' 
+                ? products 
+                : products.filter(p => p.category === filter);
+
+            grid.innerHTML = filtered.map(product => `
+                <article class="bg-white rounded-3xl p-6 shadow-warm border border-brandOrange-100 hover:border-brandOrange-400 transition-all flex flex-col justify-between group">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="${product.badgeColor} text-xs font-extrabold px-3 py-1 rounded-full shadow-sm">
+                                ${product.badge}
+                            </span>
+                            <span class="text-xs font-bold text-stone-400 bg-stone-100 px-2.5 py-1 rounded-lg">
+                                Pacote ${product.weight}
+                            </span>
+                        </div>
+
+                        <!-- Ilustração da Bolacha -->
+                        <div class="bg-gradient-to-b from-brandYellow-50 to-brandOrange-50 rounded-2xl py-6 mb-5 group-hover:scale-[1.02] transition-transform">
+                            ${getCookieSVG(product.cookieStyle)}
+                        </div>
+
+                        <h3 class="font-display font-bold text-2xl text-stone-900 group-hover:text-brandRed-600 transition-colors">
+                            ${product.name}
+                        </h3>
+                        <p class="text-stone-600 text-sm mt-2 leading-relaxed">
+                            ${product.description}
+                        </p>
+                    </div>
+
+                    <div class="pt-6 mt-6 border-t border-brandOrange-100 flex items-center justify-between gap-4">
+                        <div>
+                            <span class="block text-xs text-stone-400 font-semibold">Valor unitário</span>
+                            <span class="font-display font-extrabold text-2xl text-brandRed-600">
+                                R$ ${product.price.toFixed(2).replace('.', ',')}
+                            </span>
+                        </div>
+                        <button onclick="addToCart(${product.id})" class="bg-brandOrange-500 hover:bg-brandRed-600 text-white font-bold px-4 py-3 rounded-2xl shadow-sm hover:shadow-md transition-all active:scale-95 flex items-center gap-2">
+                            <i class="ph-bold ph-plus"></i>
+                            <span>Adicionar</span>
+                        </button>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        // Filtro de categorias
+        function filterProducts(category) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.filter === category) {
+                    btn.className = "filter-btn active bg-brandRed-600 text-white font-bold px-5 py-2.5 rounded-xl shadow-sm transition-all";
+                } else {
+                    btn.className = "filter-btn bg-white hover:bg-brandYellow-100 text-stone-700 border border-brandOrange-200 font-bold px-5 py-2.5 rounded-xl transition-all";
+                }
+            });
+            renderProducts(category);
+        }
+
+        // Adicionar à Cesta
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existing = cart.find(item => item.id === productId);
+
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+
+            updateCartUI();
+            showToast(`"${product.name}" foi para a sua cesta!`);
+        }
+
+        // Alterar quantidade na cesta
+        function updateQty(productId, delta) {
+            const index = cart.findIndex(item => item.id === productId);
+            if (index === -1) return;
+
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+            updateCartUI();
+        }
+
+        // Atualiza interface da cesta
+        function updateCartUI() {
+            const badge = document.getElementById('cart-badge');
+            const itemsContainer = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+
+            const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
+            const totalPrice = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+
+            badge.textContent = totalQty;
+            totalEl.textContent = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+
+            if (cart.length === 0) {
+                itemsContainer.innerHTML = `
+                    <div class="text-center py-12 space-y-3">
+                        <div class="w-16 h-16 rounded-full bg-brandYellow-100 text-brandOrange-500 flex items-center justify-center mx-auto text-3xl">
+                            <i class="ph-bold ph-cookie"></i>
+                        </div>
+                        <p class="font-display font-bold text-lg text-stone-700">Sua cesta está vazia</p>
+                        <p class="text-sm text-stone-500">Escolha algumas bolachas fresquinhas para começar!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            itemsContainer.innerHTML = cart.map(item => `
+                <div class="bg-white p-4 rounded-2xl border border-brandOrange-200 flex items-center justify-between gap-3 shadow-sm">
+                    <div>
+                        <h4 class="font-display font-bold text-stone-800">${item.name}</h4>
+                        <p class="text-xs text-stone-500">${item.weight} • R$ ${item.price.toFixed(2).replace('.', ',')} cada</p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-brandYellow-50 px-2 py-1 rounded-xl border border-brandYellow-300">
+                        <button onclick="updateQty(${item.id}, -1)" class="w-7 h-7 rounded-lg bg-white text-brandRed-600 font-bold hover:bg-brandRed-50 flex items-center justify-center">-</button>
+                        <span class="font-extrabold text-sm w-5 text-center">${item.qty}</span>
+                        <button onclick="updateQty(${item.id}, 1)" class="w-7 h-7 rounded-lg bg-brandOrange-500 text-white font-bold hover:bg-brandOrange-600 flex items-center justify-center">+</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Abrir / Fechar Cesta
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.toggle('hidden');
+        }
+
+        // Abrir / Fechar Menu Mobile
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Finalizar pedido da cesta
+        function checkoutCart() {
+            if (cart.length === 0) {
+                showToast("Adicione pelo menos uma bolacha antes de finalizar!");
+                return;
+            }
+            cart = [];
+            updateCartUI();
+            toggleCart();
+            showToast("Pedido recebido! A Vovó Estefani já vai preparar sua fornada!");
+        }
+
+        // Formulário de encomenda personalizada
+        function handleCustomOrder(event) {
+            event.preventDefault();
+            event.target.reset();
+            showToast("Mensagem enviada com carinho! Responderemos em breve.");
+        }
+
+        // Exibir notificação Toast (substitui alert)
+        let toastTimeout;
+        function showToast(message) {
+            const box = document.getElementById('toast-box');
+            const msg = document.getElementById('toast-message');
+            msg.textContent = message;
+
+            box.classList.remove('opacity-0', 'translate-y-4');
+            box.classList.add('opacity-100', 'translate-y-0');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                box.classList.remove('opacity-100', 'translate-y-0');
+                box.classList.add('opacity-0', 'translate-y-4');
+            }, 3200);
+        }
+
+        // Inicialização ao carregar a página
+        window.onload = function() {
+            renderProducts();
+            updateCartUI();
+        };
+    </script>
+</body>
+</html>
