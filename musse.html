@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sapinhas Pimposas | Doces com amor</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --rosa: #ffb6c5;
+  --rosa-escuro: #ed7190;
+  --amarelo: #ffe59b;
+  --laranja: #ffa66d;
+  --creme: #fff8eb;
+  --marrom: #725044;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--creme);
+  color: var(--marrom);
+  font-family: 'Poppins', sans-serif;
+}
+
+header {
+  background: var(--rosa);
+  padding: 18px 8%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.logo {
+  font-family: 'Pacifico', cursive;
+  font-size: 27px;
+  color: white;
+  text-shadow: 2px 2px var(--rosa-escuro);
+}
+
+nav a {
+  text-decoration: none;
+  color: white;
+  font-weight: 600;
+  margin-left: 18px;
+}
+
+nav a:hover {
+  color: var(--marrom);
+}
+
+.hero {
+  padding: 75px 8%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 35px;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, #fff1dc, #ffe0e6);
+  text-align: center;
+}
+
+.hero-text {
+  max-width: 520px;
+}
+
+.hero h1 {
+  font-family: 'Pacifico', cursive;
+  color: var(--rosa-escuro);
+  font-size: clamp(40px, 7vw, 65px);
+  line-height: 1.2;
+}
+
+.hero p {
+  margin: 20px 0;
+  font-size: 17px;
+}
+
+.hero img {
+  width: min(100%, 340px);
+  border-radius: 50%;
+  border: 9px solid white;
+  box-shadow: 8px 8px var(--amarelo);
+}
+
+.btn {
+  display: inline-block;
+  background: var(--laranja);
+  color: white;
+  text-decoration: none;
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-weight: 700;
+  transition: .2s;
+}
+
+.btn:hover {
+  background: var(--rosa-escuro);
+  transform: translateY(-3px);
+}
+
+section {
+  padding: 65px 8%;
+  text-align: center;
+}
+
+h2 {
+  font-family: 'Pacifico', cursive;
+  font-size: 36px;
+  color: var(--rosa-escuro);
+  margin-bottom: 20px;
+}
+
+.sobre {
+  background: white;
+}
+
+.sobre p {
+  max-width: 650px;
+  margin: auto;
+  line-height: 1.9;
+}
+
+.produtos {
+  background: #fff4d7;
+}
+
+.cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.card {
+  background: white;
+  padding: 18px;
+  width: 280px;
+  border-radius: 25px;
+  border: 3px solid var(--rosa);
+  box-shadow: 5px 5px var(--amarelo);
+}
+
+.card img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  border-radius: 18px;
+}
+
+.card h3 {
+  color: var(--rosa-escuro);
+  margin: 15px 0 8px;
+}
+
+.card p {
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.destaque {
+  background: var(--rosa);
+  color: white;
+}
+
+.destaque h2 {
+  color: white;
+}
+
+.destaque p {
+  font-size: 19px;
+  font-weight: 600;
+}
+
+footer {
+  background: var(--laranja);
+  color: white;
+  text-align: center;
+  padding: 30px 15px;
+  line-height: 2;
+}
+
+footer strong {
+  font-family: 'Pacifico', cursive;
+  font-size: 23px;
+}
+
+@media(max-width: 600px) {
+  header {
+    justify-content: center;
+  }
+  nav a {
+    margin: 0 7px;
+    font-size: 13px;
+  }
+  .hero {
+    padding: 50px 6%;
+  }
+  section {
+    padding: 45px 6%;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">🐸 Sapinhas Pimposas</div>
+  <nav>
+    <a href="#inicio">Início</a>
+    <a href="#sobre">Sobre</a>
+    <a href="#produtos">Produtos</a>
+    <a href="#contato">Contato</a>
+  </nav>
+</header>
+
+<main>
+
+<section class="hero" id="inicio">
+  <div class="hero-text">
+    <h1>Um docinho cheio de amor! 💗</h1>
+    <p>Bem-vindos à Sapinhas Pimposas! Aqui cada colherada é uma dose de felicidade, carinho e muito sabor.</p>
+    <a class="btn" href="#produtos">Conheça nossos doces 🍮</a>
+  </div>
+
+  <img src="https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600"
+       alt="Sobremesa cremosa">
+</section>
+
+<section class="sobre" id="sobre">
+  <h2>🌸 Sobre nós 🌸</h2>
+  <p>
+    A Sapinhas Pimposas nasceu para deixar a vida mais doce!
+    Somos apaixonadas por sobremesas e acreditamos que pequenos
+    momentos podem se transformar em grandes felicidades.
+    Nosso carinho especial vai para o delicioso mousse de maracujá,
+    preparado para adoçar seu dia!
+  </p>
+</section>
+
+<section class="produtos" id="produtos">
+  <h2>Nosso cantinho doce 🍊</h2>
+  <p>Uma explosão de sabor em cada colherada!</p>
+
+  <div class="cards">
+    <div class="card">
+      <img src="https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600"
+           alt="Sobremesa cremosa">
+      <h3>Mousse de Maracujá</h3>
+      <p>Cremoso, refrescante e com aquele azedinho delicioso do maracujá!</p>
+      <a class="btn" href="#contato">Quero pedir!</a>
+    </div>
+
+    <div class="card">
+      <img src="https://images.unsplash.com/photo-1481391319762-47dff72954d9?w=600"
+           alt="Doces variados">
+      <h3>Feito com carinho</h3>
+      <p>Docinhos preparados com muito amor para momentos especiais.</p>
+      <a class="btn" href="#contato">Saiba mais</a>
+    </div>
+  </div>
+</section>
+
+<section class="destaque">
+  <h2>Nosso segredo? 💛</h2>
+  <p>Uma pitadinha de carinho, muito sabor e uma colherada de felicidade!</p>
+</section>
+
+<section id="contato">
+  <h2>Faça seu pedido! 💌</h2>
+  <p>Venha experimentar essa delícia e deixe seu dia mais doce!</p>
+  <br>
+  <a class="btn" href="https://wa.me/SEUNUMERO">
+    Pedir pelo WhatsApp
+  </a>
+</section>
+
+</main>
+
+<footer>
+  <strong>🐸 Sapinhas Pimposas</strong>
+  <p>Mais que um doce, um sorriso em forma de mousse!</p>
+  <p>Feito com amor 💗 | © 2026</p>
+</footer>
+
+</body>
+</html>
