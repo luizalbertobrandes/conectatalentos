@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oficina Sabores Digitais | Painel do Professor</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Tone.js for creative audio alerts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        h1, h2, h3, .font-display {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s linear;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .timer-active-pulse {
+            animation: pulse-soft 2s infinite ease-in-out;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-orange-200 selection:text-orange-900">
+
+    <!-- Top Navigation / Header -->
+    <header class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-md text-white text-2xl">
+                    <i class="fa-solid fa-utensils"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-orange-400 block">Painel do Educador • Jovens Talentos</span>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight">Oficina Sabores Digitais</h1>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- Link para o Acervo do Google Drive -->
+                <a href="https://drive.google.com/drive/folders/1L5L1HH2iz4JV693QRWwGWc9-Lqr2K9Ib?usp=drive_link" target="_blank" rel="noopener noreferrer" 
+                   class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-4 py-2 rounded-xl text-sm font-medium transition-all shadow-sm">
+                    <i class="fa-brands fa-google-drive text-emerald-400 text-lg"></i>
+                    <span>Abrir Acervo (Mídias)</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-70"></i>
+                </a>
+
+                <!-- Controle de Som -->
+                <button id="soundToggleBtn" onclick="toggleSound()" 
+                        class="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-3.5 py-2 rounded-xl text-sm font-medium transition-all"
+                        title="Ativar/Desativar Alerta Sonoro">
+                    <i id="soundIcon" class="fa-solid fa-volume-high text-orange-400"></i>
+                    <span class="hidden md:inline" id="soundText">Som Ativo</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Intro Banner & Overall Progress -->
+        <section class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 mb-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                <div class="lg:col-span-2">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-semibold mb-3 border border-orange-200">
+                        <i class="fa-solid fa-sparkles"></i> Comunicação • Gastronomia • TICs
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Guia Interativo de Desenvolvimento</h2>
+                    <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+                        Acompanhe cada etapa da oficina com seus alunos. Utilize os <strong>cronômetros criativos</strong> abaixo para gerenciar o tempo das atividades práticas, fazer pausas e manter o ritmo da turma engajado desde a curadoria no Drive até o Pitch final.
+                    </p>
+                </div>
+
+                <!-- Progresso Geral da Oficina -->
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200/60 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-slate-700">Progresso da Oficina</span>
+                        <span id="overallProgressText" class="text-sm font-bold text-orange-600">0% concluído</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden mb-3">
+                        <div id="overallProgressBar" class="bg-gradient-to-r from-orange-500 to-amber-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-slate-500">
+                        <span><i class="fa-regular fa-clock mr-1"></i> Carga Total: ~16h a 20h</span>
+                        <span id="completedStagesCount">0 de 4 etapas</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stages Grid -->
+        <div id="stagesContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Cards gerados dinamicamente via JavaScript -->
+        </div>
+
+        <!-- Seção Extra: Dicas Rápidas de Mediação para o Professor -->
+        <section class="mt-10 bg-gradient-to-br from-indigo-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-lg">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div>
+                    <h3 class="text-xl font-bold flex items-center gap-2 mb-2">
+                        <i class="fa-solid fa-lightbulb text-amber-400"></i> Dicas de Mediação em Sala de Aula
+                    </h3>
+                    <p class="text-slate-300 text-sm max-w-3xl leading-relaxed">
+                        Incentive os jovens a trabalharem em equipes multidisciplinares (Designer, Chef/Roteirista, Dev/TICs). Quando o cronômetro atingir os últimos 5 minutos, avise a turma para prepararem a entrega rápida da etapa!
+                    </p>
+                </div>
+                <button onclick="resetAllWorkshop()" class="shrink-0 bg-white/10 hover:bg-rose-500/80 text-white border border-white/20 px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-left"></i> Reiniciar Oficina
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom Notification Modal (Substitui alert/confirm) -->
+    <div id="notificationModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl transform transition-all scale-95 opacity-0" id="modalContent">
+            <div class="w-16 h-16 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-3xl mx-auto mb-4" id="modalIcon">
+                <i class="fa-solid fa-bell"></i>
+            </div>
+            <h3 class="text-xl font-bold text-center text-slate-900 mb-2" id="modalTitle">Tempo Esgotado!</h3>
+            <p class="text-slate-600 text-center text-sm mb-6" id="modalMessage">O tempo desta etapa chegou ao fim.</p>
+            <div class="flex gap-3 justify-center" id="modalActions">
+                <button onclick="closeModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-6 rounded-xl transition-all">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados estruturados das 4 etapas da oficina
+        const workshopStages = [
+            {
+                id: 1,
+                badge: "Módulo 1 • Comunicação",
+                title: "Curadoria, Organização e Identidade Visual",
+                themeColor: "orange",
+                accentHex: "#f97316",
+                bgSoft: "bg-orange-50",
+                textAccent: "text-orange-600",
+                borderAccent: "border-orange-200",
+                icon: "fa-palette",
+                timerMetaphor: "Forno Pré-Aquecendo",
+                timerIcon: "fa-fire-burner",
+                defaultMinutes: 45,
+                description: "Análise, catalogação e reestruturação do acervo de imagens, vídeos e cartazes do Google Drive. Definição de tom de voz, público-alvo e paleta de cores.",
+                tools: ["Google Drive", "Canva / Figma", "Paleta de Cores"],
+                checklist: [
+                    "Acessar a pasta do Drive e baixar imagens, vídeos e cartazes",
+                    "Classificar mídias por categoria (pratos, bastidores, divulgação)",
+                    "Definir o nome da marca/projeto gastronômico da equipe",
+                    "Criar o manual básico de identidade visual e cartaz conceito"
+                ]
+            },
+            {
+                id: 2,
+                badge: "Módulo 2 • Gastronomia",
+                title: "Engenharia de Receitas e Conteúdo Audiovisual",
+                themeColor: "emerald",
+                accentHex: "#10b981",
+                bgSoft: "bg-emerald-50",
+                textAccent: "text-emerald-600",
+                borderAccent: "border-emerald-200",
+                icon: "fa-hat-chef",
+                timerMetaphor: "Tempo de Cozimento",
+                timerIcon: "fa-kitchen-set",
+                defaultMinutes: 60,
+                description: "Estudo de finger foods, confeitaria criativa ou culinária regional. Elaboração da ficha técnica e roteirização de vídeos curtos (Reels/Shorts).",
+                tools: ["Ficha Técnica", "Smartphone", "CapCut / InShot"],
+                checklist: [
+                    "Selecionar 2 receitas principais e estruturar ficha técnica",
+                    "Escrever roteiro dinâmico de 30s a 45s para vídeo curto",
+                    "Capturar fotos com iluminação natural/enquadramento",
+                    "Editar vídeo unindo gravações novas aos vídeos do acervo"
+                ]
+            },
+            {
+                id: 3,
+                badge: "Módulo 3 • TICs & Inovação",
+                title: "Desenvolvimento Digital e Cardápio Interativo",
+                themeColor: "indigo",
+                accentHex: "#6366f1",
+                bgSoft: "bg-indigo-50",
+                textAccent: "text-indigo-600",
+                borderAccent: "border-indigo-200",
+                icon: "fa-laptop-code",
+                timerMetaphor: "Compilando Sabores",
+                timerIcon: "fa-microchip",
+                defaultMinutes: 90,
+                description: "Construção de uma página web responsiva ou cardápio digital interativo integrando as fotos, vídeos e cartazes produzidos nas etapas anteriores.",
+                tools: ["HTML5 / Tailwind", "QR Code", "Formulários Web"],
+                checklist: [
+                    "Estruturar layout do cardápio digital ou landing page",
+                    "Inserir fotos tratadas, cartazes e links dos vídeos",
+                    "Adicionar botão de pedido/contato integrado (WhatsApp/Form)",
+                    "Gerar QR Code de acesso rápido para testar nos celulares"
+                ]
+            },
+            {
+                id: 4,
+                badge: "Módulo 4 • Encerramento",
+                title: "Mostra Final e Pitch de Lançamento",
+                themeColor: "rose",
+                accentHex: "#f43f5e",
+                bgSoft: "bg-rose-50",
+                textAccent: "text-rose-600",
+                borderAccent: "border-rose-200",
+                icon: "fa-bullhorn",
+                timerMetaphor: "Hora de Servir (Pitch)",
+                timerIcon: "fa-bell-concierge",
+                defaultMinutes: 20,
+                description: "Apresentação oficial dos projetos desenvolvidos pelas equipes. Demonstração ao vivo da campanha de comunicação e navegação no produto digital.",
+                tools: ["Projetor / TV", "Pitch Deck", "Avaliação Coletiva"],
+                checklist: [
+                    "Organizar a ordem de apresentação das equipes",
+                    "Apresentar o conceito gastronômico e os cartazes criados",
+                    "Demonstrar o funcionamento do cardápio/site via QR Code",
+                    "Realizar rodada de feedback construtivo entre turma e professor"
+                ]
+            }
+        ];
+
+        // Estado dos cronômetros e progresso
+        let timersState = {};
+        let completedTasks = {};
+        let soundEnabled = true;
+
+        // Inicializar estado
+        workshopStages.forEach(stage => {
+            timersState[stage.id] = {
+                totalSeconds: stage.defaultMinutes * 60,
+                remainingSeconds: stage.defaultMinutes * 60,
+                isRunning: false,
+                intervalId: null
+            };
+            completedTasks[stage.id] = new Array(stage.checklist.length).fill(false);
+        });
+
+        // Formatar segundos em MM:SS
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        // Alternar áudio com Tone.js
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('soundIcon');
+            const text = document.getElementById('soundText');
+            if (soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high text-orange-400';
+                text.textContent = 'Som Ativo';
+                playBeep('C5', '16n');
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-slate-400';
+                text.textContent = 'Mudo';
+            }
+        }
+
+        // Tocar som sintetizado (sem URLs externas)
+        async function playBeep(note = 'C5', duration = '8n') {
+            if (!soundEnabled) return;
+            try {
+                await Tone.start();
+                const synth = new Tone.Synth().toDestination();
+                synth.triggerAttackRelease(note, duration);
+            } catch (e) {
+                console.warn('Áudio aguardando interação:', e);
+            }
+        }
+
+        // Alarme criativo de conclusão
+        async function playCompletionAlarm() {
+            if (!soundEnabled) return;
+            try {
+                await Tone.start();
+                const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                const now = Tone.now();
+                synth.triggerAttackRelease(["C5", "E5", "G5"], "8n", now);
+                synth.triggerAttackRelease(["E5", "G5", "C6"], "4n", now + 0.25);
+            } catch (e) {
+                console.warn('Erro ao tocar alarme:', e);
+            }
+        }
+
+        // Renderizar todos os cards das etapas
+        function renderStages() {
+            const container = document.getElementById('stagesContainer');
+            container.innerHTML = '';
+
+            workshopStages.forEach(stage => {
+                const state = timersState[stage.id];
+                const radius = 54;
+                const circumference = 2 * Math.PI * radius;
+                const progressRatio = state.totalSeconds > 0 ? state.remainingSeconds / state.totalSeconds : 0;
+                const strokeDashoffset = circumference * (1 - progressRatio);
+
+                const card = document.createElement('article');
+                card.id = `stage-card-${stage.id}`;
+                card.className = `bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-slate-200/90 flex flex-col justify-between transition-all duration-300 hover:shadow-md`;
+
+                card.innerHTML = `
+                    <div>
+                        <!-- Cabeçalho da Etapa -->
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div>
+                                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold ${stage.bgSoft} ${stage.textAccent} border ${stage.borderAccent} mb-2">
+                                    ${stage.badge}
+                                </span>
+                                <h3 class="text-xl font-bold text-slate-900 leading-snug">${stage.title}</h3>
+                            </div>
+                            <div class="w-11 h-11 rounded-2xl ${stage.bgSoft} ${stage.textAccent} flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid ${stage.icon}"></i>
+                            </div>
+                        </div>
+
+                        <p class="text-slate-600 text-sm leading-relaxed mb-5">
+                            ${stage.description}
+                        </p>
+
+                        <!-- Tags de Ferramentas -->
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            ${stage.tools.map(tool => `
+                                <span class="text-xs font-medium bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200/70">
+                                    <i class="fa-solid fa-wrench text-slate-400 mr-1 text-[10px]"></i>${tool}
+                                </span>
+                            `).join('')}
+                        </div>
+
+                        <!-- Cronômetro Criativo -->
+                        <div id="timer-box-${stage.id}" class="bg-slate-900 text-white rounded-2xl p-5 mb-6 relative overflow-hidden shadow-inner">
+                            <div class="flex flex-col sm:flex-row items-center justify-between gap-5">
+                                
+                                <!-- Círculo de Progresso SVG -->
+                                <div class="relative w-32 h-32 flex items-center justify-center shrink-0">
+                                    <svg class="w-32 h-32" viewBox="0 0 120 120">
+                                        <circle class="text-slate-700" stroke-width="8" stroke="currentColor" fill="transparent" r="${radius}" cx="60" cy="60" />
+                                        <circle id="ring-${stage.id}" class="progress-ring__circle" stroke-width="8" stroke-dasharray="${circumference}" stroke-dashoffset="${strokeDashoffset}" stroke-linecap="round" stroke="${stage.accentHex}" fill="transparent" r="${radius}" cx="60" cy="60" />
+                                    </svg>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                        <i id="metaphor-icon-${stage.id}" class="fa-solid ${stage.timerIcon} text-sm mb-1" style="color: ${stage.accentHex}"></i>
+                                        <span id="time-display-${stage.id}" class="text-2xl font-extrabold tracking-tight font-mono">${formatTime(state.remainingSeconds)}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Controles do Cronômetro -->
+                                <div class="flex-1 w-full text-center sm:text-left">
+                                    <div class="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                                        <span class="w-2 h-2 rounded-full ${state.isRunning ? 'bg-emerald-400 animate-ping' : 'bg-slate-500'}" id="status-dot-${stage.id}"></span>
+                                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">${stage.timerMetaphor}</span>
+                                    </div>
+                                    <p id="status-label-${stage.id}" class="text-xs text-slate-300 mb-4">
+                                        ${state.isRunning ? 'Cronômetro em andamento...' : 'Pronto para iniciar a atividade'}
+                                    </p>
+
+                                    <!-- Botões Principais -->
+                                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
+                                        <button onclick="toggleTimer(${stage.id})" id="btn-toggle-${stage.id}"
+                                                class="px-4 py-2 rounded-xl text-xs font-bold text-white transition-all flex items-center gap-1.5 shadow-sm"
+                                                style="background-color: ${stage.accentHex}">
+                                            <i class="fa-solid ${state.isRunning ? 'fa-pause' : 'fa-play'}"></i>
+                                            <span>${state.isRunning ? 'Pausar' : 'Iniciar'}</span>
+                                        </button>
+
+                                        <button onclick="resetTimer(${stage.id})" 
+                                                class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all"
+                                                title="Resetar tempo desta etapa">
+                                            <i class="fa-solid fa-rotate-right"></i>
+                                        </button>
+
+                                        <button onclick="adjustTime(${stage.id}, 5)" 
+                                                class="px-2.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition-all"
+                                                title="Adicionar 5 minutos">
+                                            +5m
+                                        </button>
+
+                                        <button onclick="adjustTime(${stage.id}, -5)" 
+                                                class="px-2.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-rose-400 border border-slate-700 transition-all"
+                                                title="Remover 5 minutos">
+                                            -5m
+                                        </button>
+                                    </div>
+
+                                    <!-- Presets Rápidos -->
+                                    <div class="flex items-center justify-center sm:justify-start gap-1.5 text-[11px] text-slate-400">
+                                        <span>Presets:</span>
+                                        <button onclick="setPresetTime(${stage.id}, 15)" class="hover:text-white underline">15m</button>
+                                        <span>•</span>
+                                        <button onclick="setPresetTime(${stage.id}, 30)" class="hover:text-white underline">30m</button>
+                                        <span>•</span>
+                                        <button onclick="setPresetTime(${stage.id}, 45)" class="hover:text-white underline">45m</button>
+                                        <span>•</span>
+                                        <button onclick="setPresetTime(${stage.id}, 60)" class="hover:text-white underline">60m</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Checklist de Entregas da Etapa -->
+                    <div class="border-t border-slate-100 pt-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Checklist da Turma</span>
+                            <span id="stage-check-count-${stage.id}" class="text-xs font-semibold ${stage.textAccent}">0/${stage.checklist.length}</span>
+                        </div>
+                        <ul class="space-y-2">
+                            ${stage.checklist.map((item, idx) => `
+                                <li>
+                                    <label class="flex items-start gap-2.5 cursor-pointer group p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                                        <input type="checkbox" 
+                                               onchange="toggleTask(${stage.id}, ${idx})" 
+                                               ${completedTasks[stage.id][idx] ? 'checked' : ''}
+                                               class="mt-0.5 w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500 cursor-pointer">
+                                        <span id="task-text-${stage.id}-${idx}" class="text-xs sm:text-sm text-slate-700 group-hover:text-slate-900 transition-all ${completedTasks[stage.id][idx] ? 'line-through text-slate-400' : ''}">
+                                            ${item}
+                                        </span>
+                                    </label>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+            updateOverallProgress();
+        }
+
+        // Atualizar visual apenas do cronômetro específico (evita re-renderizar todo o DOM a cada segundo)
+        function updateTimerDisplay(stageId) {
+            const stage = workshopStages.find(s => s.id === stageId);
+            const state = timersState[stageId];
+            const radius = 54;
+            const circumference = 2 * Math.PI * radius;
+            const progressRatio = state.totalSeconds > 0 ? state.remainingSeconds / state.totalSeconds : 0;
+            const strokeDashoffset = circumference * (1 - progressRatio);
+
+            const displayEl = document.getElementById(`time-display-${stageId}`);
+            const ringEl = document.getElementById(`ring-${stageId}`);
+            const btnEl = document.getElementById(`btn-toggle-${stageId}`);
+            const dotEl = document.getElementById(`status-dot-${stageId}`);
+            const labelEl = document.getElementById(`status-label-${stageId}`);
+            const boxEl = document.getElementById(`timer-box-${stageId}`);
+
+            if (displayEl) displayEl.textContent = formatTime(state.remainingSeconds);
+            if (ringEl) ringEl.style.strokeDashoffset = strokeDashoffset;
+
+            if (btnEl) {
+                btnEl.innerHTML = state.isRunning 
+                    ? `<i class="fa-solid fa-pause"></i><span>Pausar</span>`
+                    : `<i class="fa-solid fa-play"></i><span>Iniciar</span>`;
+            }
+
+            if (dotEl) {
+                dotEl.className = state.isRunning 
+                    ? 'w-2 h-2 rounded-full bg-emerald-400 animate-ping' 
+                    : 'w-2 h-2 rounded-full bg-slate-500';
+            }
+
+            if (labelEl) {
+                if (state.remainingSeconds === 0) {
+                    labelEl.textContent = 'Tempo encerrado! Hora de revisar.';
+                } else if (state.isRunning) {
+                    labelEl.textContent = 'Atividade em andamento...';
+                } else {
+                    labelEl.textContent = 'Cronômetro pausado';
+                }
+            }
+
+            if (boxEl) {
+                if (state.isRunning) {
+                    boxEl.classList.add('ring-2', 'ring-offset-2');
+                    boxEl.style.setProperty('--tw-ring-color', stage.accentHex);
+                } else {
+                    boxEl.classList.remove('ring-2', 'ring-offset-2');
+                }
+            }
+        }
+
+        // Iniciar ou Pausar Cronômetro
+        function toggleTimer(stageId) {
+            const state = timersState[stageId];
+            const stage = workshopStages.find(s => s.id === stageId);
+
+            if (state.isRunning) {
+                clearInterval(state.intervalId);
+                state.isRunning = false;
+                playBeep('A4', '16n');
+            } else {
+                if (state.remainingSeconds <= 0) {
+                    state.remainingSeconds = state.totalSeconds;
+                }
+                playBeep('E5', '16n');
+                state.isRunning = true;
+                state.intervalId = setInterval(() => {
+                    if (state.remainingSeconds > 0) {
+                        state.remainingSeconds--;
+                        updateTimerDisplay(stageId);
+
+                        // Aviso sonoro sutil faltando 1 minuto
+                        if (state.remainingSeconds === 60) {
+                            playBeep('G5', '8n');
+                        }
+                    } else {
+                        clearInterval(state.intervalId);
+                        state.isRunning = false;
+                        updateTimerDisplay(stageId);
+                        playCompletionAlarm();
+                        showModal(
+                            'Tempo Esgotado!',
+                            `O cronômetro da etapa "${stage.title}" (${stage.timerMetaphor}) chegou ao fim! Reúna os alunos para o fechamento desta fase.`,
+                            stage.timerIcon
+                        );
+                    }
+                }, 1000);
+            }
+            updateTimerDisplay(stageId);
+        }
+
+        // Resetar cronômetro da etapa
+        function resetTimer(stageId) {
+            const stage = workshopStages.find(s => s.id === stageId);
+            const state = timersState[stageId];
+            clearInterval(state.intervalId);
+            state.isRunning = false;
+            state.totalSeconds = stage.defaultMinutes * 60;
+            state.remainingSeconds = stage.defaultMinutes * 60;
+            updateTimerDisplay(stageId);
+        }
+
+        // Ajustar minutos (+5 / -5)
+        function adjustTime(stageId, deltaMinutes) {
+            const state = timersState[stageId];
+            const deltaSeconds = deltaMinutes * 60;
+            state.remainingSeconds = Math.max(60, state.remainingSeconds + deltaSeconds);
+            state.totalSeconds = Math.max(state.remainingSeconds, state.totalSeconds + deltaSeconds);
+            updateTimerDisplay(stageId);
+        }
+
+        // Definir tempo preset
+        function setPresetTime(stageId, minutes) {
+            const state = timersState[stageId];
+            clearInterval(state.intervalId);
+            state.isRunning = false;
+            state.totalSeconds = minutes * 60;
+            state.remainingSeconds = minutes * 60;
+            updateTimerDisplay(stageId);
+        }
+
+        // Marcar/Desmarcar item do checklist
+        function toggleTask(stageId, taskIdx) {
+            completedTasks[stageId][taskIdx] = !completedTasks[stageId][taskIdx];
+            const textEl = document.getElementById(`task-text-${stageId}-${taskIdx}`);
+            if (textEl) {
+                if (completedTasks[stageId][taskIdx]) {
+                    textEl.classList.add('line-through', 'text-slate-400');
+                    playBeep('C6', '32n');
+                } else {
+                    textEl.classList.remove('line-through', 'text-slate-400');
+                }
+            }
+            updateOverallProgress();
+        }
+
+        // Atualizar barra de progresso geral
+        function updateOverallProgress() {
+            let totalItems = 0;
+            let checkedItems = 0;
+            let completedStages = 0;
+
+            workshopStages.forEach(stage => {
+                const tasks = completedTasks[stage.id];
+                const stageChecked = tasks.filter(Boolean).length;
+                totalItems += tasks.length;
+                checkedItems += stageChecked;
+
+                const countEl = document.getElementById(`stage-check-count-${stage.id}`);
+                if (countEl) countEl.textContent = `${stageChecked}/${tasks.length}`;
+
+                if (stageChecked === tasks.length) {
+                    completedStages++;
+                }
+            });
+
+            const percentage = totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0;
+            document.getElementById('overallProgressBar').style.width = `${percentage}%`;
+            document.getElementById('overallProgressText').textContent = `${percentage}% concluído`;
+            document.getElementById('completedStagesCount').textContent = `${completedStages} de ${workshopStages.length} etapas`;
+        }
+
+        // Reiniciar toda a oficina
+        function resetAllWorkshop() {
+            workshopStages.forEach(stage => {
+                resetTimer(stage.id);
+                completedTasks[stage.id] = new Array(stage.checklist.length).fill(false);
+            });
+            renderStages();
+        }
+
+        // Modal customizado
+        function showModal(title, message, iconClass = 'fa-bell') {
+            const modal = document.getElementById('notificationModal');
+            const content = document.getElementById('modalContent');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('modalIcon').innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('notificationModal');
+            const content = document.getElementById('modalContent');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 200);
+        }
+
+        // Inicializar aplicação
+        window.onload = () => {
+            renderStages();
+        };
+    </script>
+</body>
+</html>
