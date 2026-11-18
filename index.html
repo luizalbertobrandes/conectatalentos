@@ -1,256 +1,212 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma - Workshop SENAC & APAE</title>
-    <!-- Tailwind CSS -->
+    <title>UC7: Oficina Integradora - Ideias que Transformam</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Google Fonts (Inter) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Custom accessibility outline focus */
-        a:focus, button:focus {
-            outline: 4px solid #F59E0B !important;
-            outline-offset: 4px;
-        }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col justify-between">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
 
-    <!-- Cabeçalho Principal -->
-    <header class="bg-blue-900 text-white shadow-xl border-b-8 border-amber-500">
-        <div class="max-w-6xl mx-auto px-6 py-8 text-center sm:text-left">
-            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <!-- Badges de Parceria -->
-                <div class="flex items-center gap-3 bg-blue-950 px-5 py-3 rounded-2xl border-2 border-blue-700">
-                    <i class="fa-solid fa-handshake text-amber-400 text-3xl"></i>
-                    <span class="text-xl font-extrabold uppercase tracking-wide text-amber-300">SENAC & APAE Canoinhas</span>
+    <!-- Header / Navbar -->
+    <header class="bg-gradient-to-r from-blue-900 via-indigo-800 to-blue-700 text-white shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <span class="inline-block bg-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider mb-2">
+                        Curso: Talento Pessoal
+                    </span>
+                    <h1 class="text-2xl md:text-3xl font-bold">UC7: Oficina Integradora – Ideias que Transformam</h1>
+                    <p class="text-blue-100 text-sm mt-1">Portal Oficial de Integracao de Oficinas, Projetos e Pitch Final</p>
                 </div>
-                <!-- Badge PROEP -->
-                <div class="bg-amber-500 text-slate-950 font-black px-5 py-2.5 rounded-2xl text-lg flex items-center gap-2 shadow-md">
-                    <i class="fa-solid fa-graduation-cap text-2xl"></i>
-                    <span>Programa PROEP</span>
-                </div>
-            </div>
-
-            <!-- Título Principal -->
-            <h1 class="text-3xl sm:text-5xl font-black text-white leading-tight mb-4">
-                WORKSHOP: CONECTANDO TALENTOS AO MUNDO DO TRABALHO
-            </h1>
-            <p class="text-xl sm:text-2xl text-blue-100 font-medium max-w-4xl">
-                Uma jornada prática, acessível e participativa para descobrir habilidades e criar novos caminhos profissionais.
-            </p>
-
-            <!-- Resumo Informativo com Textos Grandes -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 pt-6 border-t border-blue-800 text-lg">
-                <div class="bg-blue-800/80 p-4 rounded-xl flex items-center gap-4 border border-blue-700">
-                    <i class="fa-solid fa-clock text-amber-400 text-4xl"></i>
-                    <div>
-                        <div class="text-amber-300 font-bold text-sm uppercase">Carga Horária</div>
-                        <div class="text-2xl font-black text-white">14 Horas</div>
-                        <div class="text-sm text-blue-200">18h30 às 21h25</div>
-                    </div>
-                </div>
-
-                <div class="bg-blue-800/80 p-4 rounded-xl flex items-center gap-4 border border-blue-700">
-                    <i class="fa-solid fa-users text-amber-400 text-4xl"></i>
-                    <div>
-                        <div class="text-amber-300 font-bold text-sm uppercase">Público Alvo</div>
-                        <div class="text-2xl font-black text-white">14 Participantes</div>
-                        <div class="text-sm text-blue-200">Alunos do PROEP</div>
-                    </div>
-                </div>
-
-                <div class="bg-blue-800/80 p-4 rounded-xl flex items-center gap-4 border border-blue-700">
-                    <i class="fa-solid fa-location-dot text-amber-400 text-4xl"></i>
-                    <div>
-                        <div class="text-amber-300 font-bold text-sm uppercase">Modalidade</div>
-                        <div class="text-2xl font-black text-white">Presencial</div>
-                        <div class="text-sm text-blue-200">Senac Canoinhas</div>
-                    </div>
+                <div class="bg-white/10 backdrop-blur-md px-4 py-3 rounded-lg border border-white/20 text-center md:text-right">
+                    <p class="text-xs text-blue-200">Carga Horária Total UC7</p>
+                    <p class="text-2xl font-extrabold text-white">40h</p>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Conteúdo Principal / Cronograma -->
-    <main class="max-w-6xl mx-auto px-4 py-10 w-full flex-grow">
-        <div class="text-center mb-10">
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-950 inline-flex items-center gap-3">
-                <i class="fa-solid fa-calendar-days text-amber-500"></i>
-                Cronograma dos Encontros
-            </h2>
-            <p class="text-xl text-slate-700 mt-2 font-semibold">
-                Clique nos botões grandes para acessar os detalhes de cada encontro:
-            </p>
-        </div>
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-8 flex-grow">
 
-        <!-- Lista de Cards do Cronograma -->
-        <div class="space-y-8">
-
-            <!-- Encontro 1 -->
-            <article class="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-4 border-blue-200 hover:border-blue-500 transition-all">
-                <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
-                    <div class="flex items-center gap-6 w-full lg:w-auto">
-                        <div class="bg-blue-900 text-amber-400 p-6 rounded-2xl shrink-0 flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 shadow-inner">
-                            <i class="fa-solid fa-compass text-4xl sm:text-5xl"></i>
-                        </div>
-                        <div>
-                            <span class="inline-block bg-blue-100 text-blue-900 font-black px-4 py-1 rounded-full text-lg mb-2">
-                                ENCONTRO 1
-                            </span>
-                            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
-                                Descobrindo Interesses, Talentos e Possibilidades
-                            </h3>
-                            <p class="text-lg text-slate-600 mt-2">
-                                Aproximação com o mundo do trabalho, exploração de profissões e ferramentas digitais.
-                            </p>
-                        </div>
-                    </div>
-                    <a href="apae1.html" class="w-full lg:w-auto bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-extrabold text-2xl py-5 px-8 rounded-2xl text-center shadow-lg hover:shadow-xl flex items-center justify-center gap-4 transition-all shrink-0 border-b-4 border-blue-950">
-                        <span>Acessar Encontro 1</span>
-                        <i class="fa-solid fa-circle-arrow-right text-amber-400 text-3xl"></i>
-                    </a>
+        <!-- Banner / Introdução -->
+        <section class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200 mb-10">
+            <div class="flex flex-col md:flex-row gap-6 items-center">
+                <div class="p-4 bg-orange-100 text-orange-600 rounded-2xl flex-shrink-0">
+                    <i data-lucide="lightbulb" class="w-12 h-12"></i>
                 </div>
-            </article>
-
-            <!-- Encontro 2 -->
-            <article class="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-4 border-blue-200 hover:border-blue-500 transition-all">
-                <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
-                    <div class="flex items-center gap-6 w-full lg:w-auto">
-                        <div class="bg-blue-900 text-amber-400 p-6 rounded-2xl shrink-0 flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 shadow-inner">
-                            <i class="fa-solid fa-briefcase text-4xl sm:text-5xl"></i>
-                        </div>
-                        <div>
-                            <span class="inline-block bg-blue-100 text-blue-900 font-black px-4 py-1 rounded-full text-lg mb-2">
-                                ENCONTRO 2
-                            </span>
-                            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
-                                Experimentando Possibilidades Profissionais
-                            </h3>
-                            <p class="text-lg text-slate-600 mt-2">
-                                Missões práticas em estações simuladas: atendimento, comércio, alimentos, organização e tecnologia.
-                            </p>
-                        </div>
-                    </div>
-                    <a href="apae2.html" class="w-full lg:w-auto bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-extrabold text-2xl py-5 px-8 rounded-2xl text-center shadow-lg hover:shadow-xl flex items-center justify-center gap-4 transition-all shrink-0 border-b-4 border-blue-950">
-                        <span>Acessar Encontro 2</span>
-                        <i class="fa-solid fa-circle-arrow-right text-amber-400 text-3xl"></i>
-                    </a>
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 mb-2">Sobre a Oficina Integradora</h2>
+                    <p class="text-slate-600 leading-relaxed">
+                        Esta Unidade Curricular conecta os aprendizados praticos de todas as oficinas anteriores para o desenvolvimento de soluções inovadoras, empreendedorismo social e prototipagem de projetos voltados ao bem comum. Navegue pelos portais das oficinas abaixo ou acesse a Apresentacao Final (Pitch Deck).
+                    </p>
                 </div>
-            </article>
+            </div>
+        </section>
 
-            <!-- Encontro 3 -->
-            <article class="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-4 border-blue-200 hover:border-blue-500 transition-all">
-                <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
-                    <div class="flex items-center gap-6 w-full lg:w-auto">
-                        <div class="bg-blue-900 text-amber-400 p-6 rounded-2xl shrink-0 flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 shadow-inner">
-                            <i class="fa-solid fa-comments text-4xl sm:text-5xl"></i>
+        <!-- Seção de Links para UCs (1 a 6) -->
+        <section class="mb-12">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="layout-grid" class="w-5 h-5 text-indigo-600"></i>
+                    Oficinas e Unidades Curriculares Integradas
+                </h2>
+                <span class="text-xs text-slate-500 font-medium">Oficinas UC1 a UC6</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <!-- UC1 -->
+                <a href="uc1.html" class="group bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-400 transition-all duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md">UC 1 • 24h</span>
+                            <i data-lucide="user-check" class="w-5 h-5 text-blue-500 group-hover:scale-110 transition-transform"></i>
                         </div>
-                        <div>
-                            <span class="inline-block bg-blue-100 text-blue-900 font-black px-4 py-1 rounded-full text-lg mb-2">
-                                ENCONTRO 3
-                            </span>
-                            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
-                                Vivenciando Situações do Cotidiano Profissional
-                            </h3>
-                            <p class="text-lg text-slate-600 mt-2">
-                                Simulações financeira, trabalho em equipe, organização e resolução de desafios práticos.
-                            </p>
-                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-blue-600 transition-colors mb-2">Protagonismo e Competências para o Futuro</h3>
+                        <p class="text-xs text-slate-500 line-clamp-2">Competencias socioemocionais, lideranca criativa, mapa do protagonismo e trabalho em rede.</p>
                     </div>
-                    <a href="https://labfin-ashen.vercel.app/index.html" class="w-full lg:w-auto bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-extrabold text-2xl py-5 px-8 rounded-2xl text-center shadow-lg hover:shadow-xl flex items-center justify-center gap-4 transition-all shrink-0 border-b-4 border-blue-950">
-                        <span>Acessar Encontro 3</span>
-                        <i class="fa-solid fa-circle-arrow-right text-amber-400 text-3xl"></i>
-                    </a>
-                </div>
-            </article>
-
-            <!-- Encontro 4 -->
-            <article class="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-4 border-blue-200 hover:border-blue-500 transition-all">
-                <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
-                    <div class="flex items-center gap-6 w-full lg:w-auto">
-                        <div class="bg-blue-900 text-amber-400 p-6 rounded-2xl shrink-0 flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 shadow-inner">
-                            <i class="fa-solid fa-route text-4xl sm:text-5xl"></i>
-                        </div>
-                        <div>
-                            <span class="inline-block bg-blue-100 text-blue-900 font-black px-4 py-1 rounded-full text-lg mb-2">
-                                ENCONTRO 4
-                            </span>
-                            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
-                                Construindo Caminhos para o Mundo do Trabalho
-                            </h3>
-                            <p class="text-lg text-slate-600 mt-2">
-                                Retomada das experiências, partilha de preferências e planejamento dos próximos passos de preparação.
-                            </p>
-                        </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-semibold text-blue-600 group-hover:translate-x-1 transition-transform">
+                        Acessar Oficina uc1.html
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
                     </div>
-                    <a href="apae4.html" class="w-full lg:w-auto bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-extrabold text-2xl py-5 px-8 rounded-2xl text-center shadow-lg hover:shadow-xl flex items-center justify-center gap-4 transition-all shrink-0 border-b-4 border-blue-950">
-                        <span>Acessar Encontro 4</span>
-                        <i class="fa-solid fa-circle-arrow-right text-amber-400 text-3xl"></i>
-                    </a>
-                </div>
-            </article>
+                </a>
 
-            <!-- Encontro 5 -->
-            <article class="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-4 border-amber-300 hover:border-amber-500 transition-all bg-amber-50/40">
-                <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
-                    <div class="flex items-center gap-6 w-full lg:w-auto">
-                        <div class="bg-amber-500 text-slate-950 p-6 rounded-2xl shrink-0 flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 shadow-inner">
-                            <i class="fa-solid fa-trophy text-4xl sm:text-5xl"></i>
+                <!-- UC2 -->
+                <a href="uc2.html" class="group bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md hover:border-emerald-400 transition-all duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-md">UC 2 • 40h</span>
+                            <i data-lucide="cpu" class="w-5 h-5 text-emerald-500 group-hover:scale-110 transition-transform"></i>
                         </div>
-                        <div>
-                            <span class="inline-block bg-amber-200 text-slate-950 font-black px-4 py-1 rounded-full text-lg mb-2">
-                                ENCONTRO 5
-                            </span>
-                            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
-                                Encerramento e Apresentação dos Caminhos
-                            </h3>
-                            <p class="text-lg text-slate-700 mt-2 font-medium">
-                                Integração final, entrega das sínteses de percursos formativos e celebração das conquistas.
-                            </p>
-                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-emerald-600 transition-colors mb-2">Introdução à Robótica e Programação Criativa</h3>
+                        <p class="text-xs text-slate-500 line-clamp-2">Logica, tecnologia, programacao por blocos e Tech Challenge de solucoes inovadoras.</p>
                     </div>
-                    <a href="apae5.html" class="w-full lg:w-auto bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-slate-950 font-black text-2xl py-5 px-8 rounded-2xl text-center shadow-lg hover:shadow-xl flex items-center justify-center gap-4 transition-all shrink-0 border-b-4 border-amber-800">
-                        <span>Acessar Encontro 5</span>
-                        <i class="fa-solid fa-star text-slate-950 text-3xl"></i>
-                    </a>
-                </div>
-            </article>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-semibold text-emerald-600 group-hover:translate-x-1 transition-transform">
+                        Acessar Oficina uc2.html
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                    </div>
+                </a>
 
-        </div>
+                <!-- UC3 -->
+                <a href="uc3.html" class="group bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md hover:border-purple-400 transition-all duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold px-2.5 py-1 bg-purple-50 text-purple-700 rounded-md">UC 3 • 32h</span>
+                            <i data-lucide="palette" class="w-5 h-5 text-purple-500 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-purple-600 transition-colors mb-2">Design Digital: Identidade e Storytelling</h3>
+                        <p class="text-xs text-slate-500 line-clamp-2">Branding, storytelling, midias digitais e producao de conteudo criativo com Canva e CapCut.</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-semibold text-purple-600 group-hover:translate-x-1 transition-transform">
+                        Acessar Oficina uc3.html
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                    </div>
+                </a>
+
+                <!-- UC4 -->
+                <a href="uc4.html" class="group bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md hover:border-cyan-400 transition-all duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold px-2.5 py-1 bg-cyan-50 text-cyan-700 rounded-md">UC 4 • 12h</span>
+                            <i data-lucide="heart-pulse" class="w-5 h-5 text-cyan-500 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-cyan-600 transition-colors mb-2">Equilíbrio Digital e Bem-Estar Juvenil</h3>
+                        <p class="text-xs text-slate-500 line-clamp-2">Estrategias de autocuidado, saude fisica no uso da tecnologia e guia de equilibrio digital.</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-semibold text-cyan-600 group-hover:translate-x-1 transition-transform">
+                        Acessar Oficina uc4.html
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                    </div>
+                </a>
+
+                <!-- UC5 -->
+                <a href="uc5.html" class="group bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md hover:border-rose-400 transition-all duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold px-2.5 py-1 bg-rose-50 text-rose-700 rounded-md">UC 5 • 20h</span>
+                            <i data-lucide="cross" class="w-5 h-5 text-rose-500 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-rose-600 transition-colors mb-2">Atitude de Cuidar: Primeiros Socorros</h3>
+                        <p class="text-xs text-slate-500 line-clamp-2">Avaliacao de emergencias, condutas seguras e kit do socorrista consciente.</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-semibold text-rose-600 group-hover:translate-x-1 transition-transform">
+                        Acessar Oficina uc5.html
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                    </div>
+                </a>
+
+                <!-- UC6 -->
+                <a href="uc6.html" class="group bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-400 transition-all duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold px-2.5 py-1 bg-amber-50 text-amber-700 rounded-md">UC 6 • 32h</span>
+                            <i data-lucide="utensils" class="w-5 h-5 text-amber-500 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 group-hover:text-amber-600 transition-colors mb-2">Gastronomia Sustentável e Criativa</h3>
+                        <p class="text-xs text-slate-500 line-clamp-2">Aproveitamento integral dos alimentos, empreendedorismo e receituario digital colaborativo.</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs font-semibold text-amber-600 group-hover:translate-x-1 transition-transform">
+                        Acessar Oficina uc6.html
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                    </div>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- Destaque Especial: Apresentação Final (UC0.html) -->
+        <section class="bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-6 md:p-8 text-white shadow-lg">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="space-y-2 text-center md:text-left">
+                    <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        Culminância do Curso
+                    </span>
+                    <h2 class="text-2xl md:text-3xl font-extrabold">Apresentação Final do Projeto (Pitch)</h2>
+                    <p class="text-amber-100 max-w-xl text-sm md:text-base">
+                        Acesse o produto final integrado (UC0.html) reunindo as entregas, protótipos e o Pitch da solução desenvolvida para a comunidade.
+                    </p>
+                </div>
+                <a href="uc0.html" class="inline-flex items-center justify-center px-6 py-3.5 bg-white text-orange-600 font-bold rounded-xl shadow-md hover:bg-orange-50 transition-colors whitespace-nowrap gap-2">
+                    <i data-lucide="presentation" class="w-5 h-5"></i>
+                    Ver Apresentação (uc0.html)
+                </a>
+            </div>
+        </section>
+
     </main>
 
-    <!-- Rodapé Acessível -->
-    <footer class="bg-slate-900 text-white mt-12 border-t-4 border-amber-500">
-        <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 mt-12 text-xs">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
-                <h4 class="text-2xl font-black text-amber-400 mb-1">Serviço Nacional de Aprendizagem Comercial</h4>
-                <p class="text-xl font-bold">SENAC Canoinhas</p>
-                <p class="text-lg text-slate-300 mt-2">
-                    <i class="fa-solid fa-location-dot text-amber-400 mr-2"></i>
-                    Rua Rolando Malucelli, 16 - CEP 89460-000 - Canoinhas/SC
-                </p>
-                <p class="text-lg text-slate-300">
-                    <i class="fa-solid fa-phone text-amber-400 mr-2"></i>
-                    Telefone: (47) 3622-3256
-                </p>
+                <p class="font-semibold text-slate-300">Senac | Fecomércio | Sesc</p>
+                <p>Programa Instrumental: Talento Pessoal (200h)</p>
             </div>
-            
-            <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700">
-                <p class="text-lg text-slate-200 font-semibold">Parceria com a APAE Canoinhas</p>
-                <p class="text-sm text-slate-400 mt-1">Ação gratuita promovida para os alunos do PROEP.</p>
+            <div class="flex gap-4">
+                <a href="uc0.html" class="hover:text-white transition-colors">Apresentacao Final (UC0)</a>
+                <span>•</span>
+                <span class="text-slate-500">UC7 Portal de Oficinas</span>
             </div>
         </div>
     </footer>
 
+    <!-- Lucide Icons Script Init -->
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>
+
+```
