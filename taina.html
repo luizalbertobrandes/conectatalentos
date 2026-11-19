@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTOE — Simulador de Emergências e APH</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b1120;
+      color: #f8fafc;
+    }
+    .font-mono-tech {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+    }
+    .btn-tactical {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-tactical:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(14, 165, 233, 0.25);
+    }
+    .btn-tactical:active:not(:disabled) {
+      transform: translateY(0);
+    }
+    .pulse-alert {
+      animation: pulseRed 2s infinite;
+    }
+    @keyframes pulseRed {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.45); }
+      50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 selection:bg-sky-500 selection:text-white">
+
+  <!-- TOP BAR / HEADER DA CENTRAL -->
+  <header class="border-b border-slate-800 bg-slate-950/90 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-red-600/20 border border-red-500/40 flex items-center justify-center text-red-400 pulse-alert">
+          <i class="fa-solid fa-kit-medical text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-base sm:text-lg tracking-tight text-white">CENTRAL CTOE</h1>
+            <span class="text-[10px] font-mono-tech uppercase px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">APH Operacional</span>
+          </div>
+          <p class="text-xs text-slate-400">Simulador Interativo de Ocorrências &amp; Tomada de Decisão</p>
+        </div>
+      </div>
+
+      <!-- STATUS DO SOCORRISTA -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-xs">
+        <div class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center gap-2">
+          <span class="text-slate-400">Nível:</span>
+          <span id="hud-level" class="font-bold text-amber-400">1 — Básico</span>
+        </div>
+        <div class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center gap-2">
+          <span class="text-slate-400">Ocorrências:</span>
+          <span id="hud-completed" class="font-mono-tech font-bold text-sky-400">0</span>
+        </div>
+        <div class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center gap-2">
+          <span class="text-slate-400">Média Geral:</span>
+          <span id="hud-avg" class="font-mono-tech font-bold text-emerald-400">--</span>
+        </div>
+        <button onclick="openBriefingModal()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition" title="Regras da Central">
+          <i class="fa-solid fa-circle-info"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+    <!-- COLUNA ESQUERDA: CONSOLE DA OCORRÊNCIA E INTERAÇÃO (7 cols) -->
+    <section class="lg:col-span-7 flex flex-col gap-4">
+
+      <!-- TELA INICIAL / BRIEFING DA CENTRAL -->
+      <div id="screen-intro" class="glass-panel rounded-2xl p-6 sm:p-8 flex flex-col justify-between gap-6 shadow-2xl">
+        <div class="space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold">
+            <i class="fa-solid fa-shield-halved"></i> INSTRUÇÃO DE INGRESSO — SOCORRISTA EM TREINAMENTO
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
+            Central de Treinamento Operacional em Emergências
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Você atuará como <strong class="text-white">Socorrista em Treinamento</strong> com formação introdutória em Atendimento Pré-Hospitalar (APH). Cada ocorrência exige leitura de cena, gestão de riscos, investigação ativa, priorização e acionamento correto das equipes especializadas (<span class="text-red-400 font-semibold">SAMU 192</span> e <span class="text-orange-400 font-semibold">Bombeiros 193</span>).
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800">
+              <div class="text-sky-400 font-bold text-xs uppercase mb-1 flex items-center gap-1.5">
+                <i class="fa-solid fa-magnifying-glass"></i> Investigação Progressiva
+              </div>
+              <p class="text-xs text-slate-400">Nem todos os dados aparecem no chamado inicial. Interrogue testemunhas, avalie a cena e examine sinais antes de agir.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800">
+              <div class="text-amber-400 font-bold text-xs uppercase mb-1 flex items-center gap-1.5">
+                <i class="fa-solid fa-bolt"></i> Eventos Surpresa &amp; Reviravoltas
+              </div>
+              <p class="text-xs text-slate-400">Novas vítimas, riscos ocultos e relatos contraditórios podem surgir no meio do atendimento exigindo repriorização imediata.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800">
+              <div class="text-purple-400 font-bold text-xs uppercase mb-1 flex items-center gap-1.5">
+                <i class="fa-solid fa-brain"></i> Raciocínio &amp; Cálculos APH
+              </div>
+              <p class="text-xs text-slate-400">Entre e durante as ocorrências, resolva problemas reais de matemática, lógica, biologia e defesa civil sob pressão.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800">
+              <div class="text-emerald-400 font-bold text-xs uppercase mb-1 flex items-center gap-1.5">
+                <i class="fa-solid fa-clipboard-check"></i> Avaliação Técnica Rigorosa
+              </div>
+              <p class="text-xs text-slate-400">Ao final de cada ocorrência você recebe nota (0–100), análise dos 7 critérios técnicos e desbloqueia níveis mais altos.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-800">
+          <div class="text-xs text-slate-400">
+            <i class="fa-solid fa-radio text-emerald-400 mr-1"></i> Rádio comunicador pronto. Aguardando despacho do Nível 1.
+          </div>
+          <button onclick="startNewIncident()" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-sm shadow-lg shadow-red-950/50 btn-tactical flex items-center justify-center gap-2">
+            <i class="fa-solid fa-truck-medical"></i> INICIAR PRIMEIRA OCORRÊNCIA
+          </button>
+        </div>
+      </div>
+
+      <!-- TELA DA OCORRÊNCIA ATIVA -->
+      <div id="screen-incident" class="hidden flex-col gap-4">
+
+        <!-- CABEÇALHO DO DESPACHO -->
+        <div class="glass-panel rounded-2xl p-5 border-l-4 border-l-red-500 shadow-xl">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2">
+              <span id="inc-badge-id" class="font-mono-tech text-xs font-bold px-2.5 py-1 rounded-md bg-red-500/20 text-red-300 border border-red-500/30">OCORRÊNCIA #01</span>
+              <span id="inc-badge-cat" class="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700">Categoria</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs font-mono-tech text-slate-400">
+              <span><i class="fa-regular fa-clock text-sky-400 mr-1"></i><span id="inc-time">14:20</span></span>
+              <span><i class="fa-solid fa-hourglass-half text-amber-400 mr-1"></i>Estágio <span id="inc-stage">1/4</span></span>
+            </div>
+          </div>
+
+          <h2 id="inc-title" class="text-lg sm:text-xl font-extrabold text-white mb-2">Título da Ocorrência</h2>
+          <p id="inc-dispatch" class="text-sm text-slate-300 leading-relaxed bg-slate-950/70 p-3.5 rounded-xl border border-slate-800/90">
+            Descrição inicial do despacho...
+          </p>
+
+          <!-- ALERTA DE EVENTO SURPRESA (DINÂMICO) -->
+          <div id="surprise-banner" class="hidden mt-3 p-3.5 rounded-xl bg-amber-950/60 border border-amber-500/50 text-amber-200 text-xs sm:text-sm flex items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation text-amber-400 text-base mt-0.5"></i>
+            <div>
+              <div class="font-bold uppercase text-amber-400 text-xs tracking-wider mb-0.5">Atualização Crítica no Cenário (Evento Surpresa)</div>
+              <p id="surprise-text" class="leading-relaxed"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAINEL DE INVESTIGAÇÃO E AÇÕES TÁTICAS -->
+        <div class="glass-panel rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-2">
+              <i class="fa-solid fa-terminal"></i> Console de Decisão do Socorrista
+            </h3>
+            <span id="action-prompt-label" class="text-xs text-slate-400">Escolha sua conduta ou investigue</span>
+          </div>
+
+          <!-- ABAS: DECISÕES DO ESTÁGIO vs INVESTIGAÇÃO RÁPIDA vs ACIONAMENTOS -->
+          <div class="flex flex-wrap gap-2">
+            <button onclick="switchTab('decisions')" id="tab-btn-decisions" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-600 text-white transition">
+              <i class="fa-solid fa-list-check mr-1.5"></i>Condutas &amp; Decisões
+            </button>
+            <button onclick="switchTab('investigate')" id="tab-btn-investigate" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+              <i class="fa-solid fa-magnifying-glass mr-1.5"></i>Investigar Cena (<span id="clues-left-count">0</span>)
+            </button>
+            <button onclick="switchTab('dispatch')" id="tab-btn-dispatch" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+              <i class="fa-solid fa-phone-volume mr-1.5"></i>Acionar Serviços
+            </button>
+            <button onclick="switchTab('freeform')" id="tab-btn-freeform" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+              <i class="fa-solid fa-pen-to-square mr-1.5"></i>Justificativa / Protocolo Livre
+            </button>
+          </div>
+
+          <!-- CONTEÚDO ABA 1: DECISÕES DO ESTÁGIO -->
+          <div id="tab-decisions" class="space-y-2.5">
+            <p id="stage-question" class="text-sm font-semibold text-white mb-2"></p>
+            <div id="stage-options" class="grid grid-cols-1 gap-2.5"></div>
+          </div>
+
+          <!-- CONTEÚDO ABA 2: INVESTIGAR CENA / TESTEMUNHAS / VÍTIMA -->
+          <div id="tab-investigate" class="hidden space-y-2.5">
+            <p class="text-xs text-slate-400 mb-2">Selecione uma ação de reconhecimento para descobrir informações ocultas antes de tomar sua decisão:</p>
+            <div id="investigate-options" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+          </div>
+
+          <!-- CONTEÚDO ABA 3: ACIONAMENTO DE SERVIÇOS (192, 193, 190, ETC.) -->
+          <div id="tab-dispatch" class="hidden space-y-3">
+            <p class="text-xs text-slate-400">Selecione os órgãos de emergência que devem ser acionados ou atualizados neste momento:</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <button onclick="callEmergencyService('SAMU 192')" id="btn-call-192" class="p-3 rounded-xl bg-slate-900 hover:bg-red-950/40 border border-slate-700 hover:border-red-500/50 text-left transition flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center font-mono-tech font-bold text-xs">192</div>
+                <div>
+                  <div class="text-xs font-bold text-white">Acionar SAMU (192)</div>
+                  <div class="text-[11px] text-slate-400">Atendimento médico móvel de urgência</div>
+                </div>
+              </button>
+              <button onclick="callEmergencyService('BOMBEIROS 193')" id="btn-call-193" class="p-3 rounded-xl bg-slate-900 hover:bg-orange-950/40 border border-slate-700 hover:border-orange-500/50 text-left transition flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center font-mono-tech font-bold text-xs">193</div>
+                <div>
+                  <div class="text-xs font-bold text-white">Corpo de Bombeiros (193)</div>
+                  <div class="text-[11px] text-slate-400">Resgate, salvamento, incêndio e riscos</div>
+                </div>
+              </button>
+              <button onclick="callEmergencyService('POLÍCIA 190')" id="btn-call-190" class="p-3 rounded-xl bg-slate-900 hover:bg-blue-950/40 border border-slate-700 hover:border-blue-500/50 text-left transition flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-mono-tech font-bold text-xs">190</div>
+                <div>
+                  <div class="text-xs font-bold text-white">Polícia Militar / Trânsito (190)</div>
+                  <div class="text-[11px] text-slate-400">Controle de via, isolamento e segurança</div>
+                </div>
+              </button>
+              <button onclick="callEmergencyService('DEFESA CIVIL / CONCESSIONÁRIA')" id="btn-call-199" class="p-3 rounded-xl bg-slate-900 hover:bg-amber-950/40 border border-slate-700 hover:border-amber-500/50 text-left transition flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-mono-tech font-bold text-xs">199</div>
+                <div>
+                  <div class="text-xs font-bold text-white">Defesa Civil / Concessionária</div>
+                  <div class="text-[11px] text-slate-400">Risco estrutural, rede elétrica ou rodovia</div>
+                </div>
+              </button>
+            </div>
+            <div id="dispatch-status" class="text-xs text-slate-400 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
+              Nenhum serviço acionado nesta ocorrência ainda.
+            </div>
+          </div>
+
+          <!-- CONTEÚDO ABA 4: REGISTRO LIVRE DE CONDUTA (AVALIAÇÃO DE COMUNICAÇÃO E RACIOCÍNIO) -->
+          <div id="tab-freeform" class="hidden space-y-3">
+            <p class="text-xs text-slate-400">Registre no boletim da Central como você comunicaria a situação ao regulador médico ou justifique sua priorização técnica (bônus de comunicação se contiver dados essenciais):</p>
+            <textarea id="freeform-input" rows="3" placeholder="Ex: Central, local seguro após sinalização, 1 vítima masculina ~40 anos consciente com obstrução grave de vias aéreas, iniciando manobra de desengasgo e solicitando apoio..." class="w-full rounded-xl bg-slate-950 border border-slate-700 p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500"></textarea>
+            <button onclick="submitFreeformReport()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition">
+              <i class="fa-solid fa-paper-plane mr-1.5"></i>Transmitir Boletim à Central
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TELA DE DESAFIO DE RACIOCÍNIO (ENTRE OCORRÊNCIAS) -->
+      <div id="screen-challenge" class="hidden glass-panel rounded-2xl p-6 space-y-5 border-t-4 border-t-purple-500 shadow-2xl">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 text-xs font-bold uppercase tracking-wider">
+            <i class="fa-solid fa-brain mr-1.5"></i>Desafio Técnico da Central
+          </span>
+          <span id="chal-domain" class="font-mono-tech text-xs text-slate-400 bg-slate-900 px-2.5 py-1 rounded-md border border-slate-800">Matemática Aplicada</span>
+        </div>
+
+        <div>
+          <h2 id="chal-title" class="text-xl font-extrabold text-white mb-2">Título do Desafio</h2>
+          <p id="chal-context" class="text-sm text-slate-300 leading-relaxed bg-slate-950/70 p-4 rounded-xl border border-slate-800"></p>
+        </div>
+
+        <div id="chal-input-area" class="space-y-3">
+          <!-- Renderizado dinamicamente (múltipla escolha técnica ou cálculo numérico) -->
+        </div>
+
+        <div id="chal-feedback" class="hidden p-4 rounded-xl border text-xs sm:text-sm leading-relaxed"></div>
+
+        <div class="flex justify-end pt-2">
+          <button id="chal-next-btn" onclick="proceedAfterChallenge()" class="hidden px-6 py-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm btn-tactical">
+            Avançar para Próxima Ocorrência <i class="fa-solid fa-arrow-right ml-1.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- TELA DE AVALIAÇÃO FINAL DA OCORRÊNCIA -->
+      <div id="screen-evaluation" class="hidden glass-panel rounded-2xl p-6 space-y-5 border-t-4 border-t-emerald-500 shadow-2xl">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <span class="text-xs font-mono-tech uppercase text-emerald-400 font-bold">Relatório Técnico de Encerramento</span>
+            <h2 id="eval-title" class="text-xl sm:text-2xl font-extrabold text-white mt-0.5">Avaliação da Ocorrência</h2>
+          </div>
+          <div class="flex items-center gap-3 bg-slate-950 px-4 py-2.5 rounded-2xl border border-slate-800">
+            <div class="text-right">
+              <div class="text-[10px] uppercase text-slate-400 font-bold">Pontuação Final</div>
+              <div id="eval-rank" class="text-xs font-bold text-amber-400">Desempenho</div>
+            </div>
+            <div id="eval-score" class="text-3xl font-extrabold font-mono-tech text-emerald-400">0</div>
+          </div>
+        </div>
+
+        <!-- 7 CRITÉRIOS TÉCNICOS -->
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Desempenho por Critério Operacional</h3>
+          <div id="eval-criteria-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+        </div>
+
+        <!-- ACERTOS, ERROS E JUSTIFICATIVA TÉCNICA -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl bg-emerald-950/25 border border-emerald-500/30 space-y-2">
+            <h4 class="text-xs font-bold uppercase text-emerald-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-check"></i> Acertos &amp; Decisões Adequadas
+            </h4>
+            <ul id="eval-positives" class="text-xs text-slate-300 space-y-1.5 list-disc pl-4"></ul>
+          </div>
+          <div class="p-4 rounded-xl bg-rose-950/25 border border-rose-500/30 space-y-2">
+            <h4 class="text-xs font-bold uppercase text-rose-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-xmark"></i> Falhas &amp; Pontos a Melhorar
+            </h4>
+            <ul id="eval-negatives" class="text-xs text-slate-300 space-y-1.5 list-disc pl-4"></ul>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1.5">
+          <h4 class="text-xs font-bold uppercase text-sky-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-book-medical"></i> Justificativa Técnica &amp; Protocolo Recomendado
+          </h4>
+          <p id="eval-technical-summary" class="text-xs sm:text-sm text-slate-300 leading-relaxed"></p>
+        </div>
+
+        <div id="eval-level-up-banner" class="hidden p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-200 text-xs font-semibold flex items-center gap-2.5">
+          <i class="fa-solid fa-award text-amber-400 text-lg"></i>
+          <span id="eval-level-up-text"></span>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+          <button onclick="startNewIncident(true)" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">
+            <i class="fa-solid fa-rotate-right mr-1.5"></i>Repetir Nível Atual
+          </button>
+          <button onclick="launchChallengeBetweenIncidents()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold text-sm btn-tactical">
+            Prosseguir para Desafio da Central <i class="fa-solid fa-arrow-right ml-1.5"></i>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- COLUNA DIREITA: PRONTUÁRIO DA CENA, DADOS COLETADOS E DIÁRIO OPERACIONAL (5 cols) -->
+    <aside class="lg:col-span-5 flex flex-col gap-4">
+
+      <!-- FICHA DINÂMICA DA OCORRÊNCIA (DADOS DESCOBERTOS) -->
+      <div class="glass-panel rounded-2xl p-4 sm:p-5 space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+            <i class="fa-solid fa-folder-open"></i> Prontuário de Campo (Dados Coletados)
+          </h3>
+          <span class="text-[11px] font-mono-tech text-slate-500">Atualização Real-Time</span>
+        </div>
+
+        <div id="field-dossier" class="grid grid-cols-2 gap-2 text-xs">
+          <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80">
+            <span class="text-[10px] uppercase text-slate-500 block">Local / Horário</span>
+            <span id="dos-loc" class="font-semibold text-slate-200">Aguardando despacho</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80">
+            <span class="text-[10px] uppercase text-slate-500 block">Vítimas Identificadas</span>
+            <span id="dos-victims" class="font-semibold text-slate-200">--</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80">
+            <span class="text-[10px] uppercase text-slate-500 block">Faixa Etária Aprox.</span>
+            <span id="dos-age" class="font-semibold text-slate-200">--</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80">
+            <span class="text-[10px] uppercase text-slate-500 block">Apoio Acionado</span>
+            <span id="dos-services" class="font-semibold text-sky-400">Nenhum</span>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-1">
+          <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80 text-xs">
+            <span class="text-[10px] uppercase text-rose-400 font-bold block mb-1"><i class="fa-solid fa-radiation mr-1"></i>Riscos Identificados na Cena</span>
+            <ul id="dos-risks" class="text-slate-300 space-y-1 list-disc pl-4">
+              <li class="text-slate-500 italic">Nenhum risco verificado ainda. Investigue a cena.</li>
+            </ul>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80 text-xs">
+            <span class="text-[10px] uppercase text-sky-400 font-bold block mb-1"><i class="fa-solid fa-notes-medical mr-1"></i>Sinais Clínicos &amp; Testemunhas</span>
+            <ul id="dos-findings" class="text-slate-300 space-y-1 list-disc pl-4">
+              <li class="text-slate-500 italic">Aguardando avaliação primária e relatos.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIÁRIO DE RÁDIO / FEEDBACK DA CENTRAL -->
+      <div class="glass-panel rounded-2xl p-4 sm:p-5 flex-1 flex flex-col min-h-[260px] max-h-[420px]">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+            <i class="fa-solid fa-walkie-talkie"></i> Transmissões da Central &amp; Consequências
+          </h3>
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+        </div>
+
+        <div id="radio-log" class="flex-1 overflow-y-auto space-y-2.5 pr-1 text-xs">
+          <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-300">
+            <span class="font-mono-tech text-[10px] text-sky-400 block mb-0.5">[CENTRAL CTOE — SISTEMA]</span>
+            Simulador inicializado. Leia as instruções e inicie a Ocorrência #01 para começar sua avaliação.
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- MODAL DE REGRAS E ESCOPO DO SOCORRISTA -->
+  <div id="briefing-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-panel rounded-2xl max-w-xl w-full p-6 space-y-4 border border-slate-700 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-extrabold text-base text-white flex items-center gap-2">
+          <i class="fa-solid fa-book-open text-sky-400"></i> Manual Operacional CTOE
+        </h3>
+        <button onclick="closeBriefingModal()" class="text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div class="space-y-2.5 text-xs text-slate-300 leading-relaxed max-h-[65vh] overflow-y-auto pr-1">
+        <p><strong class="text-white">1. Seu Papel:</strong> Você possui formação introdutória em primeiros socorros. Não realize procedimentos invasivos ou exclusivos de suporte avançado.</p>
+        <p><strong class="text-white">2. Ordem de Prioridade:</strong> Segurança da cena (sua e da equipe) → Reconhecimento de gravidade → Acionamento especializado (SAMU 192 / Bombeiros 193) → Medidas básicas seguras.</p>
+        <p><strong class="text-white">3. Níveis de Dificuldade:</strong><br>
+          • <em>Nível 1 – Básico:</em> 1 vítima, cenário controlado e conhecimentos gerais.<br>
+          • <em>Nível 2 – Intermediário:</em> Mais variáveis, riscos ambientais e cálculos aplicados.<br>
+          • <em>Nível 3 – Avançado:</em> Múltiplas vítimas, relatos incompletos e triagem lógica.<br>
+          • <em>Nível 4 – Especialista:</em> Ocorrências integradas de alta complexidade simultânea.</p>
+        <p><strong class="text-white">4. Pontuação:</strong> Cada decisão altera 7 indicadores técnicos (Segurança, Gravidade, Lógica, Primeiros Socorros, Decisão, Comunicação e Priorização). Nota mínima de <strong>70 pontos</strong> promove você ao próximo nível.</p>
+      </div>
+      <div class="pt-2 flex justify-end">
+        <button onclick="closeBriefingModal()" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // ESTADO GLOBAL DO SIMULADOR CTOE
+    // =========================================================================
+    const gameState = {
+      level: 1, // 1 a 4
+      completedIncidents: 0,
+      scoresHistory: [],
+      usedIncidentIds: [],
+      usedChallengeIds: [],
+      currentIncident: null,
+      currentStageIndex: 0,
+      revealedClues: [],
+      calledServices: [],
+      freeformSubmitted: false,
+      criteriaScores: {},
+      positives: [],
+      negatives: [],
+      surpriseTriggered: false
+    };
+
+    const LEVEL_NAMES = {
+      1: "1 — Básico",
+      2: "2 — Intermediário",
+      3: "3 — Avançado",
+      4: "4 — Especialista"
+    };
+
+    // =========================================================================
+    // BANCO DE OCORRÊNCIAS (5 CATEGORIAS x 4 NÍVEIS DE COMPLEXIDADE)
+    // =========================================================================
+    const INCIDENTS_DB = [
+      // -------------------- NÍVEL 1 (BÁSICO) --------------------
+      {
+        id: "N1_ENGASGAMENTO",
+        level: 1,
+        category: "Engasgamento",
+        title: "Obstrução de Vias Aéreas em Refeitório Comunitário",
+        time: "14:25",
+        location: "Refeitório do Centro Comunitário Municipal",
+        victimsCount: "1 vítima",
+        ageApprox: "Homem, ~42 anos",
+        dispatchText: "Chamado recebido durante um almoço comunitário. Ao entrar no salão, você avista um homem de aproximadamente 42 anos em pé próximo a uma mesa com alimentos, levando ambas as mãos ao pescoço, com expressão de angústia e sem emitir som. Pessoas ao redor estão agitadas e tentando oferecer um copo de água.",
+        requiredServices: ["SAMU 192"],
+        initialFindings: ["Sinal universal de asfixia (mãos no pescoço)", "Incapacidade de falar ou tossir efetivamente"],
+        clues: [
+          {
+            id: "c1",
+            label: "Avaliar ambiente e afastar curiosos",
+            type: "risk",
+            text: "Risco identificado: Populares tentando oferecer água e aglomerados ao redor, podendo causar broncoaspiração e impedir espaço para manobra."
+          },
+          {
+            id: "c2",
+            label: "Interrogar testemunha próxima sobre o início",
+            type: "finding",
+            text: "Testemunha informa: 'Ele estava comendo um pedaço grande de carne, parou subitamente e não conseguiu mais falar há cerca de 40 segundos.'"
+          },
+          {
+            id: "c3",
+            label: "Verificar responsividade e padrão respiratório",
+            type: "finding",
+            text: "Avaliação primária: Vítima consciente, agitada, sem entrada de ar audível (obstrução grave/total de vias aéreas), ainda em pé."
+          }
+        ],
+        surpriseEvent: {
+          triggerStage: 1,
+          text: "Enquanto você inicia o atendimento, a vítima começa a apresentar palidez acentuada nos lábios (cianose perioral) e perde parte da força nas pernas, indicando agravamento rápido da hipóxia!",
+          addFinding: "Cianose perioral e início de fraqueza muscular por hipóxia."
+        },
+        stages: [
+          {
+            question: "Estágio 1 — Leitura Inicial e Controle de Cena: Qual é sua primeira conduta imediata diante da cena?",
+            options: [
+              {
+                text: "Impedir que ofereçam água, afastar curiosos garantindo espaço seguro, confirmar se ele consegue falar/tossir e designar alguém específico para ligar ao SAMU (192).",
+                impact: { seguranca: 20, gravidade: 20, ps: 15, decisao: 15, comunicacao: 15, priorizacao: 15 },
+                log: "Excelente controle inicial! Você evitou a ingestão de líquidos (risco grave de aspiração), reconheceu obstrução total e delegou o acionamento do 192.",
+                positive: "Impediu oferta de água, isolou a área imediata e delegou acionamento ao SAMU 192.",
+                negative: null
+              },
+              {
+                text: "Dar tapas fortes nas costas enquanto oferece pequenos goles de água para ajudar o alimento a descer.",
+                impact: { seguranca: -10, gravidade: -10, ps: -25, decisao: -15, comunicacao: 0, priorizacao: -10 },
+                log: "ALERTA CRÍTICO: Nunca ofereça líquidos a uma vítima engasgada! Isso agrava a obstrução e provoca aspiração pulmonar.",
+                positive: null,
+                negative: "Ofertou líquidos durante obstrução de vias aéreas, conduta contraindicada pelo risco de aspiração."
+              },
+              {
+                text: "Aguardar o SAMU chegar observando a vítima à distância para não interferir sem equipamentos médicos.",
+                impact: { seguranca: 10, gravidade: -15, ps: -20, decisao: -15, comunicacao: 0, priorizacao: -15 },
+                log: "Omissão crítica: Em obstrução total de vias aéreas, a parada cardiorrespiratória ocorre em poucos minutos se não houver desobstrução imediata.",
+                positive: null,
+                negative: "Não iniciou manobras básicas de desobstrução em obstrução grave, atrasando suporte vital."
+              }
+            ]
+          },
+          {
+            question: "Estágio 2 — Intervenção de Primeiros Socorros: Confirmada a obstrução grave em adulto consciente e com piora da oxigenação, como proceder?",
+            options: [
+              {
+                text: "Posicionar-se atrás da vítima, aplicar ciclos de compressões abdominais (Manobra de Heimlich) acima do umbigo e abaixo do esterno, mantendo-se atento caso ela perca a consciência.",
+                impact: { seguranca: 15, gravidade: 15, logica: 20, ps: 25, decisao: 20, priorizacao: 15 },
+                log: "Manobra executada corretamente! Na 4ª compressão abdominal, o fragmento sólido é expelido e a vítima volta a respirar com tosse vigorosa.",
+                positive: "Executou corretamente a Manobra de Heimlich em adulto consciente com obstrução grave.",
+                negative: null
+              },
+              {
+                text: "Introduzir os dedos na garganta da vítima às cegas para tentar puxar o pedaço de carne.",
+                impact: { seguranca: -5, gravidade: 0, logica: -10, ps: -25, decisao: -15, priorizacao: -10 },
+                log: "ERRO TÉCNICO: Varredura digital às cegas pode empurrar o objeto ainda mais profundamente na traqueia e causar trauma.",
+                positive: null,
+                negative: "Tentou varredura digital às cegas, podendo impactar o corpo estranho na via aérea."
+              },
+              {
+                text: "Deitar a vítima imediatamente de barriga para cima e iniciar massagem cardíaca mesmo com ela consciente e em pé.",
+                impact: { seguranca: 0, gravidade: -10, logica: -15, ps: -20, decisao: -10, priorizacao: -10 },
+                log: "Conduta inadequada: RCP só deve ser iniciada se a vítima ficar inconsciente e sem respiração normal.",
+                positive: null,
+                negative: "Iniciou RCP em vítima ainda consciente em vez de realizar manobra de desobstrução."
+              }
+            ]
+          },
+          {
+            question: "Estágio 3 — Pós-Desobstrução e Encaminhamento: O objeto foi expelido e a vítima voltou a respirar, mas está exausta e com dor abdominal leve. Qual a conduta final?",
+            options: [
+              {
+                text: "Manter a vítima sentada em repouso, monitorar respiração e consciência até a chegada do SAMU 192 para avaliação médica (lesões internas ou edema de via aérea) e repassar todo o histórico.",
+                impact: { seguranca: 15, gravidade: 15, logica: 15, ps: 15, decisao: 15, comunicacao: 20, priorizacao: 15 },
+                log: "Encerramento exemplar! Toda vítima submetida a compressões abdominais ou hipóxia grave requer avaliação médica.",
+                positive: "Manteve monitoramento contínuo e encaminhou para avaliação médica após manobra de Heimlich.",
+                negative: null
+              },
+              {
+                text: "Liberar a vítima para voltar a almoçar normalmente e dispensar o SAMU, pois o problema já foi resolvido.",
+                impact: { seguranca: 0, gravidade: -15, logica: -10, ps: -15, decisao: -15, comunicacao: -10, priorizacao: -10 },
+                log: "Falha de segurança pós-atendimento: Compressões abdominais podem causar lesões internas tardias e a via aérea pode sofrer edema.",
+                positive: null,
+                negative: "Dispensou avaliação médica após obstrução grave e compressões abdominais."
+              }
+            ]
+          }
+        ],
+        technicalSummary: "Na obstrução grave de vias aéreas (OVACE) em adulto consciente, o sinal universal de asfixia e a incapacidade de falar/tossir exigem ação imediata: acionar o SAMU (192), nunca oferecer líquidos ou fazer varredura às cegas, e aplicar compressões abdominais (Manobra de Heimlich). Caso a vítima fique inconsciente, deitá-la em superfície rígida e iniciar RCP. Após a desobstrução, a avaliação médica é obrigatória."
+      },
+
+      {
+        id: "N1_QUEDA_ESCADA",
+        level: 1,
+        category: "Quedas",
+        title: "Queda de Mesmo Nível em Corredor Escolar",
+        time: "10:15",
+        location: "Corredor interno da ala administrativa de uma escola",
+        victimsCount: "1 vítima",
+        ageApprox: "Mulher, ~58 anos",
+        dispatchText: "Funcionária de aproximadamente 58 anos escorregou no corredor recém-encerado e caiu sentada, batendo a região posterior da cabeça no piso. Ela está consciente, queixando-se de tontura e dor na nuca.",
+        requiredServices: ["SAMU 192"],
+        initialFindings: ["Vítima consciente no solo após queda com impacto craniano", "Queixa de tontura e dor occipital"],
+        clues: [
+          {
+            id: "c1",
+            label: "Inspecionar o piso e o entorno",
+            type: "risk",
+            text: "Risco identificado: Piso extremamente liso e molhado com produto de limpeza, sem sinalização de alerta."
+          },
+          {
+            id: "c2",
+            label: "Avaliar estado neurológico e sangramentos",
+            type: "finding",
+            text: "Avaliação: Sem sangramento externo visível, pupilas simétricas, orientada no tempo e espaço, mas refere náusea leve."
+          },
+          {
+            id: "c3",
+            label: "Perguntar sobre medicamentos e histórico",
+            type: "finding",
+            text: "Vítima relata: 'Tomo remédio para afinar o sangue (anticoagulante) por causa de arritmia cardíaca.'"
+          }
+        ],
+        surpriseEvent: {
+          triggerStage: 1,
+          text: "A vítima tenta se levantar sozinha apoiando-se na parede, dizendo que está com vergonha e quer voltar para sua sala de trabalho.",
+          addFinding: "Tentativa de deambulação precoce após trauma craniano."
+        },
+        stages: [
+          {
+            question: "Estágio 1 — Segurança e Abordagem Inicial: Como você inicia o atendimento?",
+            options: [
+              {
+                text: "Sinalizar e isolar o trecho molhado do corredor para evitar novas quedas, aproximar-se com cautela e orientar a vítima a permanecer imóvel no chão.",
+                impact: { seguranca: 25, gravidade: 15, logica: 15, ps: 15, decisao: 15, priorizacao: 20 },
+                log: "Segurança da cena garantida! Você preveniu quedas secundárias e evitou movimentação brusca da coluna cervical.",
+                positive: "Isolou o piso escorregadio e orientou imobilidade inicial da vítima.",
+                negative: null
+              },
+              {
+                text: "Ajudar a vítima a levantar imediatamente e levá-la caminhando até a cadeira da secretaria.",
+                impact: { seguranca: -10, gravidade: -15, logica: -15, ps: -20, decisao: -15, priorizacao: -15 },
+                log: "Erro grave: Mobilizar vítima com impacto na cabeça e dor na nuca antes de descartar trauma cervical pode agravar lesão medular.",
+                positive: null,
+                negative: "Mobilizou vítima com trauma craniano e cervical sem avaliação adequada."
+              }
+            ]
+          },
+          {
+            question: "Estágio 2 — Reconhecimento de Gravidade: Diante do relato de impacto na cabeça, náusea e uso de anticoagulante, qual sua decisão?",
+            options: [
+              {
+                text: "Reconhecer alto risco de hemorragia intracraniana (trauma craniano + anticoagulante), acionar o SAMU (192), manter estabilização manual suave da cabeça e monitorar nível de consciência.",
+                impact: { seguranca: 15, gravidade: 25, logica: 20, ps: 20, decisao: 20, comunicacao: 15, priorizacao: 20 },
+                log: "Raciocínio clínico impecável! Pacientes em uso de anticoagulantes têm risco elevado de sangramento intracraniano mesmo em quedas simples.",
+                positive: "Identificou sinal de gravidade (TCE + uso de anticoagulante) e acionou SAMU 192.",
+                negative: null
+              },
+              {
+                text: "Aplicar compressa fria na nuca e dizer que só precisa chamar o SAMU se ela desmaiar.",
+                impact: { seguranca: 5, gravidade: -20, logica: -15, ps: -15, decisao: -15, comunicacao: -10, priorizacao: -15 },
+                log: "Subestimação de risco: Náusea, tontura e uso de anticoagulante após impacto craniano são sinais de alerta que exigem avaliação imediata.",
+                positive: null,
+                negative: "Subestimou sinais de alerta neurológico e risco hemorrágico por anticoagulante."
+              }
+            ]
+          }
+        ],
+        technicalSummary: "Em quedas com impacto craniano e dor cervical, prioriza-se a segurança da cena (isolamento de piso escorregadio) e a restrição de movimento da coluna. Sinais como tontura, náusea e uso de anticoagulantes elevam significativamente o risco de hemorragia intracraniana, tornando obrigatório o acionamento imediato do SAMU (192)."
+      },
+
+      // -------------------- NÍVEL 2 (INTERMEDIÁRIO) --------------------
+      {
+        id: "N2_FRATURA_QUEDA",
+        level: 2,
+        category: "Fraturas decorrentes de quedas",
+        title: "Queda de Escada Doméstica com Deformidade em Membro",
+        time: "16:40",
+        location: "Quintal residencial durante poda de árvore",
+        victimsCount: "1 vítima",
+        ageApprox: "Homem, ~35 anos",
+        dispatchText: "Vizinhos acionam apoio após um homem de 35 anos cair de uma escada de alumínio de cerca de 2,5 metros de altura. Ele está caído no gramado próximo a galhos cortados, gemendo de dor intensa no antebraço direito e no tornozelo esquerdo.",
+        requiredServices: ["SAMU 192"],
+        initialFindings: ["Queda de altura (~2,5m)", "Dor intensa em antebraço direito e tornozelo esquerdo"],
+        clues: [
+          {
+            id: "c1",
+            label: "Verificar riscos ao redor da escada e árvore",
+            type: "risk",
+            text: "Risco identificado: Uma serra elétrica portátil desligada está no chão ao lado da vítima e há um galho parcialmente quebrado pendurado acima."
+          },
+          {
+            id: "c2",
+            label: "Examinar antebraço direito sem movimentar",
+            type: "finding",
+            text: "Avaliação: Deformidade visível no terço médio do antebraço direito, sem ferimento aberto (fratura fechada), pulso radial presente e dedos aquecidos."
+          },
+          {
+            id: "c3",
+            label: "Examinar tornozelo esquerdo e coluna",
+            type: "finding",
+            text: "Avaliação: Edema importante no tornozelo esquerdo. Vítima nega dor na coluna cervical/lombar, mas houve queda > 2m."
+          }
+        ],
+        surpriseEvent: {
+          triggerStage: 1,
+          text: "Um familiar pega uma madeira improvisada e tenta puxar o braço deformado da vítima para 'colocar o osso no lugar' antes da ambulância chegar!",
+          addFinding: "Tentativa de redução de fratura por leigo no local."
+        },
+        stages: [
+          {
+            question: "Estágio 1 — Gestão de Riscos e Priorização: Qual sua primeira ação ao chegar no quintal?",
+            options: [
+              {
+                text: "Afastar a serra elétrica do alcance, verificar a estabilidade do galho suspenso, orientar a vítima a não se mover e acionar o SAMU (192) informando queda de 2,5m.",
+                impact: { seguranca: 25, gravidade: 20, logica: 15, ps: 15, decisao: 20, comunicacao: 15, priorizacao: 20 },
+                log: "Excelente! Você neutralizou os riscos mecânicos do ambiente e reconheceu a cinemática relevante (queda de 2,5 metros).",
+                positive: "Neutralizou riscos ambientais (ferramenta e galho) e acionou SAMU 192 informando cinemática da queda.",
+                negative: null
+              },
+              {
+                text: "Imobilizar imediatamente o tornozelo antes de olhar o ambiente ou chamar o SAMU.",
+                impact: { seguranca: -15, gravidade: -10, logica: -10, ps: 5, decisao: -10, priorizacao: -15 },
+                log: "Falha de priorização: Você ignorou riscos ativos na cena (galho suspenso e ferramenta) e atrasou o acionamento do socorro.",
+                positive: null,
+                negative: "Iniciou procedimento local sem eliminar riscos ambientais nem acionar o SAMU."
+              }
+            ]
+          },
+          {
+            question: "Estágio 2 — Conduta na Fratura e Controle do Familiar: Como agir diante da fratura fechada com deformidade e da intervenção do familiar?",
+            options: [
+              {
+                text: "Impedir firmemente qualquer tentativa de alinhar/puxar o osso, manter o membro apoiado na posição encontrada (imobilização provisória sem tração) e monitorar perfusão/sensibilidade dos dedos.",
+                impact: { seguranca: 15, gravidade: 15, logica: 20, ps: 25, decisao: 20, comunicacao: 15, priorizacao: 15 },
+                log: "Conduta perfeita! Tentar reduzir fraturas no ambiente pré-hospitalar básico pode romper vasos sanguíneos e nervos.",
+                positive: "Impediu tração/redução indevida e manteve imobilização na posição encontrada com checagem neurovascular.",
+                negative: null
+              },
+              {
+                text: "Ajudar o familiar a puxar suavemente o punho para alinhar o antebraço e facilitar o encaixe de uma tala.",
+                impact: { seguranca: -5, gravidade: -10, logica: -15, ps: -25, decisao: -20, priorizacao: -10 },
+                log: "ERRO GRAVE: Socorristas não devem reduzir fraturas deformadas devido ao risco de lesão neurovascular e conversão em fratura exposta.",
+                positive: null,
+                negative: "Tentou realinhar/tracionar fratura com deformidade, conduta contraindicada no APH básico."
+              }
+            ]
+          }
+        ],
+        technicalSummary: "Em quedas de altura com suspeita de fraturas, a prioridade inicial é eliminar riscos ambientais (ferramentas, objetos suspensos) e acionar o SAMU (192). Fraturas fechadas com deformidade nunca devem ser tracionadas ou reduzidas por socorristas; devem ser imobilizadas na posição encontrada, avaliando pulso distal, temperatura e sensibilidade."
+      },
+
+      {
+        id: "N2_AFOGAMENTO",
+        level: 2,
+        category: "Afogamento",
+        title: "Incidente de Submersão em Piscina de Clube",
+        time: "15:10",
+        location: "Piscina semiolímpica de clube recreativo",
+        victimsCount: "1 vítima",
+        ageApprox: "Adolescente, ~16 anos",
+        dispatchText: "Um adolescente de 16 anos foi retirado da água por banhistas há menos de 1 minuto após submergir na parte funda da piscina. Ele está deitado na borda molhada, inconsciente, com espuma branca na boca e nariz.",
+        requiredServices: ["SAMU 192", "BOMBEIROS 193"],
+        initialFindings: ["Vítima retirada da água inconsciente", "Espuma na boca/nariz"],
+        clues: [
+          {
+            id: "c1",
+            label: "Checar respiração e pulso/sinais de circulação (até 10s)",
+            type: "finding",
+            text: "Avaliação primária: Vítima inconsciente, NÃO respira normalmente (apenas movimentos agônicos esporádicos / gasping)."
+          },
+          {
+            id: "c2",
+            label: "Perguntar aos banhistas se houve mergulho de cabeça",
+            type: "finding",
+            text: "Testemunha relata: 'Ele não bateu a cabeça, estava nadando e cansou no meio da piscina, afundando devagar.'"
+          },
+          {
+            id: "c3",
+            label: "Verificar disponibilidade de DEA e segurança da borda",
+            type: "risk",
+            text: "Cena segura para atendimento na borda; há uma caixa de DEA na portaria do clube a 40 metros."
+          }
+        ],
+        surpriseEvent: {
+          triggerStage: 1,
+          text: "Um banhista insiste para que você vire o adolescente de bruços e pressione as costas dele para 'tirar a água do pulmão' antes de qualquer outra coisa.",
+          addFinding: "Interferência de leigo sugerindo drenagem postural de água."
+        },
+        stages: [
+          {
+            question: "Estágio 1 — Reconhecimento de Gravidade e Acionamento: O adolescente está inconsciente e sem respiração normal após submersão. Qual a prioridade?",
+            options: [
+              {
+                text: "Reconhecer parada cardiorrespiratória por hipóxia, ordenar imediatamente que alguém ligue para o SAMU (192) / Bombeiros (193) e traga o DEA do clube, e iniciar suporte básico de vida.",
+                impact: { seguranca: 15, gravidade: 25, logica: 20, ps: 20, decisao: 20, comunicacao: 20, priorizacao: 25 },
+                log: "Resposta rápida e precisa! No afogamento, a parada ocorre por falta de oxigênio (hipóxia), exigindo acionamento imediato e suporte ventilatório/circulatório.",
+                positive: "Reconheceu PCR por afogamento, acionou 192/193 e solicitou DEA imediatamente.",
+                negative: null
+              },
+              {
+                text: "Virar a vítima de bruços e apertar o abdômen para drenar toda a água engolida antes de verificar respiração ou chamar ajuda.",
+                impact: { seguranca: 0, gravidade: -15, logica: -15, ps: -25, decisao: -20, priorizacao: -20 },
+                log: "ERRO CRÍTICO: Tentar drenar água dos pulmões é ineficaz, provoca vômito/aspiração e atrasa preciosos minutos de reanimação.",
+                positive: null,
+                negative: "Tentou drenar água pulmonar em vez de iniciar suporte básico de vida."
+              }
+            ]
+          },
+          {
+            question: "Estágio 2 — Sequência de Reanimação no Afogamento: De acordo com as diretrizes atuais para afogamento em parada respiratória/cardíaca, qual a conduta recomendada?",
+            options: [
+              {
+                text: "Priorizar a oxigenação iniciando com 5 ventilações de resgate (usando barreira de proteção se disponível) seguidas de ciclos de 30 compressões torácicas e 2 ventilações, aplicando o DEA assim que chegar (secando o tórax antes de colar as pás).",
+                impact: { seguranca: 20, gravidade: 20, logica: 20, ps: 25, decisao: 20, priorizacao: 20 },
+                log: "Protocolo padrão-ouro para afogamento! As 5 ventilações iniciais revertem a hipóxia, e secar o tórax garante segurança no uso do DEA.",
+                positive: "Aplicou protocolo específico de afogamento (5 ventilações iniciais + 30:2 + secagem do tórax para DEA).",
+                negative: null
+              },
+              {
+                text: "Colar as pás do DEA diretamente sobre o peito molhado sem secar e não realizar ventilações em hipótese alguma.",
+                impact: { seguranca: -20, gravidade: 0, logica: -10, ps: -15, decisao: -15, priorizacao: -10 },
+                log: "Risco elétrico e falha técnica: O tórax deve ser seco antes de aplicar as pás do DEA, e no afogamento a ventilação é crucial pois a causa da PCR é hipóxica.",
+                positive: null,
+                negative: "Não secou o tórax antes do DEA e ignorou necessidade ventilatória no afogamento."
+              }
+            ]
+          }
+        ],
+        technicalSummary: "No afogamento, a parada cardiorrespiratória decorre de hipóxia. Nunca se deve tentar drenar água dos pulmões. Acione imediatamente 192/193 e peça um DEA. Se treinado e com proteção, inicie com 5 ventilações de resgate seguidas de 30 compressões : 2 ventilações. Antes de utilizar o DEA, seque rapidamente o tórax da vítima."
+      },
+
+      // -------------------- NÍVEL 3 (AVANÇADO) --------------------
+      {
+        id: "N3_ACIDENTE_TRANSITO",
+        level: 3,
+        category: "Acidentes automobilísticos",
+        title: "Colisão Frontal em Rodovia Vicinal com Múltiplas Vítimas",
+        time: "18:05",
+        location: "Rodovia vicinal Km 12, curva sem iluminação pública, crepúsculo",
+        victimsCount: "2 vítimas identificadas inicialmente",
+        ageApprox: "Condutor ~48 anos; Passageira ~29 anos",
+        dispatchText: "Você se depara com uma colisão entre um automóvel de passeio e um barranco em uma curva de rodovia vicinal ao anoitecer. Há vazamento de líquido sob o motor, vidro estilhaçado e duas vítimas no interior do veículo.",
+        requiredServices: ["SAMU 192", "BOMBEIROS 193", "POLÍCIA 190"],
+        initialFindings: ["Colisão frontal contra barranco em curva", "Vazamento de fluido sob o capô", "2 vítimas no veículo"],
+        clues: [
+          {
+            id: "c1",
+            label: "Avaliar vazamento, bateria e fluxo de veículos na curva",
+            type: "risk",
+            text: "Riscos críticos: Cheiro forte de combustível vazando, motor quente e veículos passando em alta velocidade antes da curva sem sinalização."
+          },
+          {
+            id: "c2",
+            label: "Avaliar Vítima A (Condutor, 48 anos) à distância/janela",
+            type: "finding",
+            text: "Vítima A: Consciente, gritando de dor no braço esquerdo com corte sangrando moderadamente, preso pelo cinto, sem obstrução de vias aéreas."
+          },
+          {
+            id: "c3",
+            label: "Avaliar Vítima B (Passageira, 29 anos) no banco dianteiro",
+            type: "finding",
+            text: "Vítima B: Inconsciente, sem resposta verbal, respiração ruidosa/difícil, cabeça caída para frente, sem sinais de hemorragia externa maciça."
+          }
+        ],
+        surpriseEvent: {
+          triggerStage: 1,
+          text: "Uma testemunha em estado de choque revela: 'Havia uma criança pequena no banco de trás que saiu correndo assustada para o acostamento escuro logo após a batida!' — Uma 3ª vítima foi identificada!",
+          addFinding: "3ª vítima identificada: criança desorientada próxima ao acostamento da rodovia!"
+        },
+        stages: [
+          {
+            question: "Estágio 1 — Segurança da Cena e Acionamento Integrado: Qual sua primeira ordem de ações antes de tocar nas vítimas?",
+            options: [
+              {
+                text: "Garantir sinalização da rodovia a distância segura antes da curva (triângulo/galhos/lanterna), afastar fontes de ignição devido ao combustível, acionar simultaneamente Bombeiros (193), SAMU (192) e Polícia (190) informando múltiplas vítimas e risco de incêndio.",
+                impact: { seguranca: 25, gravidade: 20, logica: 20, ps: 15, decisao: 20, comunicacao: 20, priorizacao: 25 },
+                log: "Gestão exemplar de cena crítica! Sinalizar antes da curva evita engavetamentos secundários e o acionamento integrado mobiliza resgate veicular e suporte médico.",
+                positive: "Sinalizou a rodovia antes da curva, controlou risco de incêndio e acionou 193, 192 e 190.",
+                negative: null
+              },
+              {
+                text: "Entrar imediatamente no carro para puxar o condutor que está gritando mais alto pela porta emperrada.",
+                impact: { seguranca: -25, gravidade: -15, logica: -15, ps: -20, decisao: -20, priorizacao: -25 },
+                log: "ERRO GRAVÍSSIMO: Aproximar-se sem sinalizar a curva coloca você em risco mortal de atropelamento, e retirar vítima de veículo sem risco iminente de fogo/explosão pode causar lesão medular.",
+                positive: null,
+                negative: "Entrou na cena sem sinalizar a via e tentou extração intempestiva de vítima."
+              }
+            ]
+          },
+          {
+            question: "Estágio 2 — Repriorização após Evento Surpresa (3ª Vítima + Triagem): Com o condutor gritando (sangramento moderado no braço), a passageira inconsciente com respiração difícil e uma criança solta perto do acostamento escuro, como você organiza as prioridades?",
+            options: [
+              {
+                text: "1º Designar um adulto calmo para localizar e proteger a criança fora da pista; 2º Priorizar a passageira inconsciente (abrir via aérea com elevação do queixo/tração mandibular sem hiperextensão cervical e estabilizar cabeça); 3º Orientar o condutor consciente a comprimir o próprio ferimento no braço.",
+                impact: { seguranca: 20, gravidade: 25, logica: 25, ps: 20, decisao: 25, comunicacao: 15, priorizacao: 25 },
+                log: "Triagem e raciocínio lógico impecáveis! Você protegeu a vítima vulnerável exposta ao tráfego, tratou a ameaça imediata à via aérea da vítima inconsciente e empoderou a vítima consciente para autocontrole de sangramento.",
+                positive: "Executou triagem perfeita entre as 3 vítimas (proteção da criança na via, via aérea da inconsciente e compressão orientada no condutor).",
+                negative: null
+              },
+              {
+                text: "Atender primeiro o condutor que está gritando mais alto, depois fazer curativo no braço dele e só então procurar a criança e checar a passageira.",
+                impact: { seguranca: -10, gravidade: -20, logica: -20, ps: -15, decisao: -20, priorizacao: -25 },
+                log: "Falha grave de triagem: Em emergências com múltiplas vítimas, quem grita tem via aérea pérvia. Vítima inconsciente com respiração obstruída e criança solta na rodovia têm prioridade absoluta.",
+                positive: null,
+                negative: "Priorizou vítima consciente que gritava em detrimento de vítima inconsciente com obstrução de via aérea e criança em risco na pista."
+              }
+            ]
+          }
+        ],
+        technicalSummary: "Em acidentes automobilísticos em rodovia com múltiplas vítimas: 1) Sinalize a via antes da curva e identifique riscos (combustível, eletricidade); 2) Acione 193, 192 e 190; 3) Não retire vítimas do veículo a menos que haja risco iminente (incêndio/explosão); 4) Na triagem, priorize riscos imediatos à vida (criança exposta ao tráfego e vítima inconsciente com comprometimento respiratório) antes de vítimas conscientes com lesões não exsanguinantes."
+      },
+
+      // -------------------- NÍVEL 4 (ESPECIALISTA) --------------------
+      {
+        id: "N4_SIMULTANEO_COMPLEXO",
+        level: 4,
+        category: "Quedas / Fraturas / Afogamento (Integrado)",
+        title: "Colapso de Arquibancada Provisória Próxima a Lago Ornamental",
+        time: "17:30",
+        location: "Parque municipal durante evento esportivo ao ar livre",
+        victimsCount: "3 vítimas em cenários distintos",
+        ageApprox: "Vítima 1 (~65 anos); Vítima 2 (~22 anos); Vítima 3 (~9 anos)",
+        dispatchText: "Uma estrutura metálica lateral de arquibancada cedeu próximo à margem de um lago ornamental raso do parque. Há fios de iluminação decorativa caídos sobre a estrutura metálica, uma pessoa caída na grama, outra com sangramento intenso na perna e uma criança que caiu na água.",
+        requiredServices: ["SAMU 192", "BOMBEIROS 193", "DEFESA CIVIL / CONCESSIONÁRIA"],
+        initialFindings: ["Colapso estrutural metálico", "Fios elétricos energizados sobre metal", "3 vítimas com quadros distintos"],
+        clues: [
+          {
+            id: "c1",
+            label: "Avaliar rede elétrica e estabilidade da estrutura",
+            type: "risk",
+            text: "PERIGO MORTAL: Fio elétrico partido faiscando em contato com a estrutura metálica da arquibancada e próximo a poça d'água. Qualquer toque na ferragem causa eletrocussão."
+          },
+          {
+            id: "c2",
+            label: "Identificar quadro das 3 vítimas à distância segura",
+            type: "finding",
+            text: "Vítima 1 (65 anos): Presa sob ferro energizado, inconsciente. Vítima 2 (22 anos): Fora da área energizada, sangramento arterial pulsátil na coxa. Vítima 3 (9 anos): Na água rasa a 2m da margem seca (longe dos fios), debatendo-se."
+          },
+          {
+            id: "c3",
+            label: "Verificar recursos disponíveis no posto do parque",
+            type: "finding",
+            text: "Há um guarda-parque com vara de alcance longa (não condutora) e kit de controle de hemorragias no posto a 20 metros."
+          }
+        ],
+        surpriseEvent: {
+          triggerStage: 1,
+          text: "Duas pessoas do público correm em direção à arquibancada metálica para tentar erguer o ferro sobre a Vítima 1 (65 anos), sem perceber os fios faiscando!",
+          addFinding: "Civis prestes a tocar estrutura metálica energizada."
+        },
+        stages: [
+          {
+            question: "Estágio 1 — Controle Crítico de Risco Elétrico e Comando de Cena: Como você age nos primeiros 15 segundos?",
+            options: [
+              {
+                text: "Gritar comando firme impedindo que os civis toquem na estrutura metálica energizada, estabelecer perímetro de isolamento ao redor dos fios, acionar Bombeiros (193), SAMU (192) e Concessionária de Energia para corte imediato da rede.",
+                impact: { seguranca: 30, gravidade: 20, logica: 20, ps: 15, decisao: 25, comunicacao: 20, priorizacao: 25 },
+                log: "Decisão que salvou múltiplas vidas! Jamais se entra em área energizada antes do desligamento confirmado pela concessionária/bombeiros.",
+                positive: "Impediu eletrocussão de civis, isolou perímetro energizado e acionou 193, 192 e concessionária.",
+                negative: null
+              },
+              {
+                text: "Correr para puxar a Vítima 1 debaixo da estrutura metálica rapidamente antes que ela leve mais choque.",
+                impact: { seguranca: -35, gravidade: -10, logica: -20, ps: -20, decisao: -25, priorizacao: -25 },
+                log: "FALHA FATAL NA SIMULAÇÃO: Tocar em vítima ou estrutura energizada transforma o socorrista na próxima vítima fatal.",
+                positive: null,
+                negative: "Entrou em zona energizada sem corte de energia, violando regra absoluta de segurança."
+              }
+            ]
+          },
+          {
+            question: "Estágio 2 — Gestão Simultânea das Vítimas Fora da Zona Energizada: Enquanto aguarda o corte de energia para a Vítima 1, como atuar nas Vítimas 2 (hemorragia grave na coxa) e 3 (criança se afogando a 2m da margem seca)?",
+            options: [
+              {
+                text: "Orientar o guarda-parque a realizar resgate sem entrar na água usando a vara de alcance para puxar a criança (Vítima 3) para a margem segura, enquanto você aplica pressão direta firme (e torniquete se necessário/disponível) na hemorragia exsanguinante da Vítima 2.",
+                impact: { seguranca: 25, gravidade: 25, logica: 25, ps: 25, decisao: 25, comunicacao: 20, priorizacao: 25 },
+                log: "Execução de nível Especialista! Aplicação perfeita do lema 'Jogue, não vá' no resgate aquático + controle imediato de hemorragia exsanguinante (X-ABCDE).",
+                positive: "Coordenou resgate aquático seguro por alcance ('jogue, não vá') e controlou hemorragia grave simultaneamente.",
+                negative: null
+              },
+              {
+                text: "Pular no lago para nadar até a criança, deixando a Vítima 2 sangrando ativamente sozinha e sem delegar tarefas.",
+                impact: { seguranca: -15, gravidade: -15, logica: -15, ps: -15, decisao: -15, priorizacao: -20 },
+                log: "Falha de liderança e segurança: Entrar na água sem treinamento de salvamento aquático gera risco de duplo afogamento e abandona uma hemorragia grave controlável.",
+                positive: null,
+                negative: "Entrou na água ignorando técnica de alcance e deixou hemorragia exsanguinante sem controle."
+              }
+            ]
+          }
+        ],
+        technicalSummary: "Em ocorrências complexas com risco elétrico, estrutural, aquático e hemorrágico simultâneos: 1) Nunca entre em área energizada nem toque em vítimas sob tensão até o desligamento oficial; 2) Utilize técnicas de resgate aquático sem entrada na água ('alcance ou jogue'); 3) Controle imediatamente hemorragias exsanguinantes (X do X-ABCDE) com pressão direta vigorosa ou torniquete tático."
+      }
+    ];
+
+    // =========================================================================
+    // BANCO DE DESAFIOS DE RACIOCÍNIO (MATEMÁTICA, LÓGICA, CONHECIMENTOS GERAIS)
+    // =========================================================================
+    const CHALLENGES_DB = [
+      {
+        id: "CHAL_1",
+        minLevel: 1,
+        domain: "Conhecimentos Gerais & Defesa Civil",
+        title: "Protocolo de Emergência e Triagem de Serviços",
+        context: "Durante uma tempestade severa em área urbana, um poste de alta tensão cai sobre um carro com dois ocupantes conscientes no interior. Não há fogo, mas fios energizados estão em contato com a lataria metálica do veículo. Qual órgão deve ser acionado prioritariamente para neutralizar o risco antes de qualquer aproximação e qual orientação deve ser dada aos ocupantes?",
+        type: "choice",
+        options: [
+          { text: "Acionar Corpo de Bombeiros (193) e Concessionária de Energia; orientar os ocupantes a permanecerem dentro do veículo sem tocar em partes metálicas até o desligamento da rede.", correct: true },
+          { text: "Acionar apenas o SAMU (192) e pedir que os ocupantes abram a porta e saltem rapidamente tocando no carro e no chão ao mesmo tempo.", correct: false },
+          { text: "Usar um galho de árvore úmido para afastar os fios e retirar as vítimas imediatamente.", correct: false }
+        ],
+        explanation: "O interior do veículo funciona como uma Gaiola de Faraday, protegendo os ocupantes enquanto permanecerem lá dentro sem tocar na lataria e no solo simultaneamente. Somente o Corpo de Bombeiros (193) em conjunto com a concessionária de energia pode garantir a desenergização segura da cena."
+      },
+      {
+        id: "CHAL_2",
+        minLevel: 1,
+        domain: "Matemática Aplicada (Tempo e Distância)",
+        title: "Cálculo de Tempo-Resposta da Ambulância",
+        context: "Uma equipe de suporte avançado do SAMU está posicionada a 18 km do local de uma ocorrência em rodovia. Sabendo que a viatura manterá uma velocidade média operacional de 72 km/h em trecho livre, em quantos minutos exatos a equipe chegará à cena?",
+        type: "numeric",
+        unit: "minutos",
+        answer: 15,
+        tolerance: 0.1,
+        explanation: "Tempo = Distância / Velocidade → 18 km ÷ 72 km/h = 0,25 hora. Convertendo para minutos: 0,25 × 60 = 15 minutos."
+      },
+      {
+        id: "CHAL_3",
+        minLevel: 2,
+        domain: "Matemática & Biologia (Fisiologia Respiratória)",
+        title: "Frequência Ventilatória e Proporção de Ciclos",
+        context: "Em uma reanimação cardiopulmonar (RCP) de adulto realizada por socorrista treinado na relação padrão de 30 compressões para 2 ventilações, se a equipe executar exatamente 5 ciclos completos em 2 minutos, qual será o percentual aproximado de compressões em relação ao total de ações (compressões + ventilações) realizadas nesses 5 ciclos? (Arredonde para 1 casa decimal, ex: 93.8)",
+        type: "numeric",
+        unit: "%",
+        answer: 93.8,
+        tolerance: 0.3,
+        explanation: "Em 5 ciclos: 5 × 30 = 150 compressões e 5 × 2 = 10 ventilações. Total de ações = 160. Percentual de compressões = (150 ÷ 160) × 100 = 93,75% (≈ 93,8%). Isso demonstra por que minimizar interrupções nas compressões é vital."
+      },
+      {
+        id: "CHAL_4",
+        minLevel: 3,
+        domain: "Raciocínio Lógico & Priorização (START)",
+        title: "Dedução de Triagem com Múltiplas Vítimas",
+        context: "Você avalia 4 vítimas de um acidente coletivo usando lógica de priorização clínica:\n• Vítima Alfa: Caminha sozinha até a área segura, escoriações leves.\n• Vítima Beta: Não caminha, respira 36 vezes por minuto (taquipneia grave), pulso radial ausente.\n• Vítima Gama: Não caminha, respira 18 vezes por minuto, pulso radial presente, obedece comandos simples, fratura fechada na tíbia.\n• Vítima Delta: Não respira mesmo após manobra de abertura de vias aéreas.\n\nQual vítima exige atendimento imediato absoluto (Prioridade Vermelha) com maior chance de sobrevida por intervenção rápida?",
+        type: "choice",
+        options: [
+          { text: "Vítima Beta (alteração grave respiratória e circulatória com sinais vitais presentes).", correct: true },
+          { text: "Vítima Gama (fratura fechada com sinais vitais estáveis).", correct: false },
+          { text: "Vítima Alfa (deambulando com sangramento superficial).", correct: false }
+        ],
+        explanation: "Pelo método de triagem START: Alfa é Verde (deambula); Gama é Amarela (não deambula, mas FR < 30 rpm, perfusão adequada e estado mental preservado); Delta em cenário de múltiplas vítimas sem recursos simultâneos é classificada como Preta/Cinza se apneica após abertura de via aérea; Beta apresenta FR > 30 rpm e choque (pulso radial ausente), sendo Vermelha (Prioridade Imediata)."
+      }
+    ];
+
+    // =========================================================================
+    // FUNÇÕES DE CONTROLE DE INTERFACE E LOG
+    // =========================================================================
+    function addRadioLog(sender, message, type = "info") {
+      const logBox = document.getElementById("radio-log");
+      const styles = {
+        info: "bg-slate-950/80 border-slate-800 text-slate-300",
+        success: "bg-emerald-950/40 border-emerald-500/40 text-emerald-200",
+        danger: "bg-rose-950/45 border-rose-500/45 text-rose-200",
+        warning: "bg-amber-950/45 border-amber-500/45 text-amber-200",
+        clue: "bg-sky-950/40 border-sky-500/40 text-sky-200"
+      };
+      const senderColors = {
+        info: "text-sky-400",
+        success: "text-emerald-400",
+        danger: "text-rose-400",
+        warning: "text-amber-400",
+        clue: "text-sky-300"
+      };
+
+      const entry = document.createElement("div");
+      entry.className = `p-3 rounded-xl border ${styles[type] || styles.info} transition-all`;
+      entry.innerHTML = `<span class="font-mono-tech text-[10px] font-bold ${senderColors[type] || senderColors.info} block mb-0.5">[${sender}]</span>${message}`;
+      logBox.appendChild(entry);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function updateHUD() {
+      document.getElementById("hud-level").textContent = LEVEL_NAMES[gameState.level] || "4 — Especialista";
+      document.getElementById("hud-completed").textContent = gameState.completedIncidents;
+      if (gameState.scoresHistory.length > 0) {
+        const avg = Math.round(gameState.scoresHistory.reduce((a, b) => a + b, 0) / gameState.scoresHistory.length);
+        document.getElementById("hud-avg").textContent = `${avg}/100`;
+      } else {
+        document.getElementById("hud-avg").textContent = "--";
+      }
+    }
+
+    function showOnlyScreen(screenId) {
+      ["screen-intro", "screen-incident", "screen-challenge", "screen-evaluation"].forEach(id => {
+        const el = document.getElementById(id);
+        if (id === screenId) {
+          el.classList.remove("hidden");
+          if (id === "screen-incident") el.classList.add("flex");
+        } else {
+          el.classList.add("hidden");
+          el.classList.remove("flex");
+        }
+      });
+    }
+
+    function switchTab(tabName) {
+      const tabs = ["decisions", "investigate", "dispatch", "freeform"];
+      tabs.forEach(t => {
+        const content = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (t === tabName) {
+          content.classList.remove("hidden");
+          btn.classList.remove("bg-slate-800", "text-slate-300");
+          btn.classList.add("bg-sky-600", "text-white");
+        } else {
+          content.classList.add("hidden");
+          btn.classList.remove("bg-sky-600", "text-white");
+          btn.classList.add("bg-slate-800", "text-slate-300");
+        }
+      });
+    }
+
+    function openBriefingModal() {
+      document.getElementById("briefing-modal").classList.remove("hidden");
+    }
+    function closeBriefingModal() {
+      document.getElementById("briefing-modal").classList.add("hidden");
+    }
+
+    // =========================================================================
+    // INÍCIO E GESTÃO DE OCORRÊNCIAS
+    // =========================================================================
+    function startNewIncident(repeatSameLevel = false) {
+      // Seleciona ocorrência compatível com o nível atual
+      let pool = INCIDENTS_DB.filter(i => i.level === gameState.level && !gameState.usedIncidentIds.includes(i.id));
+      if (pool.length === 0) {
+        pool = INCIDENTS_DB.filter(i => i.level === gameState.level);
+      }
+      if (pool.length === 0) {
+        pool = INCIDENTS_DB;
+      }
+
+      const selected = pool[Math.floor(Math.random() * pool.length)];
+      if (!gameState.usedIncidentIds.includes(selected.id)) {
+        gameState.usedIncidentIds.push(selected.id);
+      }
+
+      // Reset de estado da ocorrência atual
+      gameState.currentIncident = selected;
+      gameState.currentStageIndex = 0;
+      gameState.revealedClues = [];
+      gameState.calledServices = [];
+      gameState.freeformSubmitted = false;
+      gameState.surpriseTriggered = false;
+      gameState.positives = [];
+      gameState.negatives = [];
+      gameState.criteriaScores = {
+        seguranca: 50,
+        gravidade: 50,
+        logica: 50,
+        ps: 50,
+        decisao: 50,
+        comunicacao: 50,
+        priorizacao: 50
+      };
+
+      // Atualiza UI da Ocorrência
+      const incidentNumber = String(gameState.completedIncidents + 1).padStart(2, "0");
+      document.getElementById("inc-badge-id").textContent = `OCORRÊNCIA #${incidentNumber} • NÍVEL ${selected.level}`;
+      document.getElementById("inc-badge-cat").textContent = selected.category;
+      document.getElementById("inc-time").textContent = selected.time;
+      document.getElementById("inc-title").textContent = selected.title;
+      document.getElementById("inc-dispatch").textContent = selected.dispatchText;
+      document.getElementById("surprise-banner").classList.add("hidden");
+
+      // Reseta botões de serviço
+      ["192", "193", "190", "199"].forEach(code => {
+        const btn = document.getElementById(`btn-call-${code}`);
+        if (btn) {
+          btn.disabled = false;
+          btn.classList.remove("opacity-50", "border-emerald-500");
+        }
+      });
+      document.getElementById("dispatch-status").textContent = "Nenhum serviço acionado nesta ocorrência ainda.";
+      document.getElementById("freeform-input").value = "";
+
+      // Preenche Prontuário de Campo
+      document.getElementById("dos-loc").textContent = `${selected.location} (${selected.time})`;
+      document.getElementById("dos-victims").textContent = selected.victimsCount;
+      document.getElementById("dos-age").textContent = selected.ageApprox;
+      document.getElementById("dos-services").textContent = "Nenhum";
+      document.getElementById("dos-risks").innerHTML = `<li class="text-slate-500 italic">Nenhum risco verificado ainda. Investigue a cena.</li>`;
+      document.getElementById("dos-findings").innerHTML = selected.initialFindings.map(f => `<li>${f}</li>`).join("");
+
+      renderInvestigateOptions();
+      renderCurrentStage();
+      switchTab("decisions");
+      showOnlyScreen("screen-incident");
+
+      addRadioLog(`DESPACHO #${incidentNumber}`, `Nova ocorrência atribuída: ${selected.title}. Analise a cena, investigue dados ocultos e tome suas decisões.`, "warning");
+    }
+
+    function renderInvestigateOptions() {
+      const inc = gameState.currentIncident;
+      const container = document.getElementById("investigate-options");
+      container.innerHTML = "";
+      let remaining = 0;
+
+      inc.clues.forEach(clue => {
+        const alreadyDone = gameState.revealedClues.includes(clue.id);
+        if (!alreadyDone) remaining++;
+
+        const btn = document.createElement("button");
+        btn.disabled = alreadyDone;
+        btn.className = `p-3 rounded-xl border text-left text-xs transition flex items-start gap-2.5 ${
+          alreadyDone
+            ? "bg-slate-900/40 border-slate-800 text-slate-500 cursor-not-allowed"
+            : "bg-slate-900 hover:bg-sky-950/40 border-slate-700 hover:border-sky-500/50 text-slate-200"
+        }`;
+        btn.innerHTML = `
+          <i class="fa-solid ${alreadyDone ? "fa-check text-emerald-500" : "fa-magnifying-glass text-sky-400"} mt-0.5"></i>
+          <span>${clue.label}</span>
+        `;
+        btn.onclick = () => investigateClue(clue);
+        container.appendChild(btn);
+      });
+
+      document.getElementById("clues-left-count").textContent = remaining;
+    }
+
+    function investigateClue(clue) {
+      if (gameState.revealedClues.includes(clue.id)) return;
+      gameState.revealedClues.push(clue.id);
+
+      // Bônus técnico por investigação ativa antes de agir
+      gameState.criteriaScores.logica += 6;
+      gameState.criteriaScores.gravidade += 5;
+      if (clue.type === "risk") {
+        gameState.criteriaScores.seguranca += 7;
+        const risksList = document.getElementById("dos-risks");
+        if (risksList.querySelector(".italic")) risksList.innerHTML = "";
+        const li = document.createElement("li");
+        li.textContent = clue.text;
+        risksList.appendChild(li);
+      } else {
+        const findingsList = document.getElementById("dos-findings");
+        const li = document.createElement("li");
+        li.textContent = clue.text;
+        findingsList.appendChild(li);
+      }
+
+      addRadioLog("INVESTIGAÇÃO DE CAMPO", clue.text, "clue");
+      renderInvestigateOptions();
+    }
+
+    function callEmergencyService(serviceName) {
+      if (gameState.calledServices.includes(serviceName)) return;
+      gameState.calledServices.push(serviceName);
+
+      const inc = gameState.currentIncident;
+      const isRequired = inc.requiredServices.includes(serviceName);
+
+      if (isRequired) {
+        gameState.criteriaScores.comunicacao += 12;
+        gameState.criteriaScores.priorizacao += 10;
+        gameState.criteriaScores.decisao += 8;
+        addRadioLog("RÁDIO OPERACIONAL", `Acionamento confirmado: ${serviceName}. Órgão pertinente despachado para apoio na cena.`, "success");
+      } else {
+        gameState.criteriaScores.comunicacao += 3;
+        addRadioLog("RÁDIO OPERACIONAL", `Contato registrado com ${serviceName}. Recurso colocado em sobreaviso.`, "info");
+      }
+
+      document.getElementById("dos-services").textContent = gameState.calledServices.join(", ");
+      document.getElementById("dispatch-status").textContent = `Acionados: ${gameState.calledServices.join(" • ")}`;
+
+      if (serviceName.includes("192")) markServiceButtonCalled("192");
+      if (serviceName.includes("193")) markServiceButtonCalled("193");
+      if (serviceName.includes("190")) markServiceButtonCalled("190");
+      if (serviceName.includes("DEFESA")) markServiceButtonCalled("199");
+    }
+
+    function markServiceButtonCalled(code) {
+      const btn = document.getElementById(`btn-call-${code}`);
+      if (btn) {
+        btn.disabled = true;
+        btn.classList.add("opacity-60", "border-emerald-500/60");
+      }
+    }
+
+    function submitFreeformReport() {
+      const text = document.getElementById("freeform-input").value.trim();
+      if (text.length < 15) {
+        addRadioLog("CENTRAL CTOE", "Boletim muito curto. Informe localização, condições da vítima e conduta adotada.", "warning");
+        return;
+      }
+      if (!gameState.freeformSubmitted) {
+        gameState.freeformSubmitted = true;
+        gameState.criteriaScores.comunicacao += 15;
+        gameState.criteriaScores.logica += 8;
+        gameState.positives.push("Transmitiu boletim técnico claro e estruturado à Central de Regulação.");
+      }
+      addRadioLog("BOLETIM DO SOCORRISTA", `"${text}" — Recebido e anexado ao prontuário.`, "success");
+      document.getElementById("freeform-input").value = "";
+    }
+
+    function renderCurrentStage() {
+      const inc = gameState.currentIncident;
+      const stageIdx = gameState.currentStageIndex;
+      const stage = inc.stages[stageIdx];
+
+      document.getElementById("inc-stage").textContent = `${stageIdx + 1}/${inc.stages.length}`;
+      document.getElementById("stage-question").textContent = stage.question;
+
+      // Dispara evento surpresa no estágio configurado
+      if (inc.surpriseEvent && inc.surpriseEvent.triggerStage === stageIdx && !gameState.surpriseTriggered) {
+        gameState.surpriseTriggered = true;
+        const banner = document.getElementById("surprise-banner");
+        document.getElementById("surprise-text").textContent = inc.surpriseEvent.text;
+        banner.classList.remove("hidden");
+
+        const findingsList = document.getElementById("dos-findings");
+        const li = document.createElement("li");
+        li.className = "text-amber-300 font-semibold";
+        li.textContent = `[SURPRESA] ${inc.surpriseEvent.addFinding}`;
+        findingsList.appendChild(li);
+
+        addRadioLog("EVENTO SURPRESA NA CENA", inc.surpriseEvent.text, "warning");
+      }
+
+      const optionsContainer = document.getElementById("stage-options");
+      optionsContainer.innerHTML = "";
+
+      stage.options.forEach((opt, index) => {
+        const btn = document.createElement("button");
+        btn.className = "p-4 rounded-xl bg-slate-900/95 hover:bg-slate-800 border border-slate-700 hover:border-sky-500 text-left text-xs sm:text-sm text-slate-200 leading-relaxed transition btn-tactical flex items-start gap-3";
+        btn.innerHTML = `
+          <span class="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-400 font-mono-tech font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">${String.fromCharCode(65 + index)}</span>
+          <span>${opt.text}</span>
+        `;
+        btn.onclick = () => handleStageDecision(opt);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function handleStageDecision(option) {
+      // Aplica impacto nos critérios
+      Object.entries(option.impact).forEach(([key, val]) => {
+        if (gameState.criteriaScores[key] !== undefined) {
+          gameState.criteriaScores[key] += val;
+        }
+      });
+
+      if (option.positive) gameState.positives.push(option.positive);
+      if (option.negative) gameState.negatives.push(option.negative);
+
+      const isGood = !option.negative;
+      addRadioLog(isGood ? "CONSEQUÊNCIA OPERACIONAL" : "ALERTA DO INSTRUTOR", option.log, isGood ? "success" : "danger");
+
+      gameState.currentStageIndex++;
+      if (gameState.currentStageIndex < gameState.currentIncident.stages.length) {
+        renderCurrentStage();
+      } else {
+        finalizeIncidentEvaluation();
+      }
+    }
+
+    // =========================================================================
+    // AVALIAÇÃO TÉCNICA FINAL DA OCORRÊNCIA
+    // =========================================================================
+    function finalizeIncidentEvaluation() {
+      const inc = gameState.currentIncident;
+
+      // Penalidade se serviços obrigatórios não foram acionados nem mencionados na conduta
+      inc.requiredServices.forEach(req => {
+        const wasCalled = gameState.calledServices.includes(req);
+        const mentionedInPositives = gameState.positives.some(p => p.includes(req.split(" ")[1]));
+        if (!wasCalled && !mentionedInPositives) {
+          gameState.criteriaScores.comunicacao -= 15;
+          gameState.criteriaScores.priorizacao -= 12;
+          gameState.negatives.push(`Não acionou formalmente o serviço essencial (${req}) pelo console de rádio.`);
+        } else if (wasCalled) {
+          gameState.positives.push(`Acionamento formal realizado para ${req}.`);
+        }
+      });
+
+      // Bônus se investigou pistas
+      if (gameState.revealedClues.length === 0) {
+        gameState.criteriaScores.logica -= 10;
+        gameState.negatives.push("Não utilizou a aba de investigação para coletar riscos ocultos ou relatos de testemunhas.");
+      } else if (gameState.revealedClues.length >= 2) {
+        gameState.positives.push(`Coletou ${gameState.revealedClues.length} evidências de campo antes/durante as decisões.`);
+      }
+
+      // Normaliza notas entre 0 e 100
+      const criteriaMeta = [
+        { key: "seguranca", label: "Segurança da Cena" },
+        { key: "gravidade", label: "Reconhecimento da Gravidade" },
+        { key: "logica", label: "Raciocínio Lógico" },
+        { key: "ps", label: "Conhecimento de Primeiros Socorros" },
+        { key: "decisao", label: "Tomada de Decisões" },
+        { key: "comunicacao", label: "Comunicação Operacional" },
+        { key: "priorizacao", label: "Capacidade de Priorização" }
+      ];
+
+      let totalSum = 0;
+      const grid = document.getElementById("eval-criteria-grid");
+      grid.innerHTML = "";
+
+      criteriaMeta.forEach(c => {
+        const raw = Math.max(0, Math.min(100, gameState.criteriaScores[c.key]));
+        totalSum += raw;
+        const barColor = raw >= 75 ? "bg-emerald-500" : raw >= 50 ? "bg-amber-500" : "bg-rose-500";
+        grid.innerHTML += `
+          <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+            <div class="flex justify-between text-xs mb-1.5">
+              <span class="text-slate-300 font-medium">${c.label}</span>
+              <span class="font-mono-tech font-bold text-white">${raw}/100</span>
+            </div>
+            <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+              <div class="h-full ${barColor} rounded-full" style="width: ${raw}%"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      const finalScore = Math.round(totalSum / criteriaMeta.length);
+      gameState.completedIncidents++;
+      gameState.scoresHistory.push(finalScore);
+
+      // Classificação de desempenho
+      let rank = "Insuficiente — Requer Revisão";
+      let scoreColor = "text-rose-400";
+      if (finalScore >= 85) {
+        rank = "Excelência Operacional (Apto)";
+        scoreColor = "text-emerald-400";
+      } else if (finalScore >= 70) {
+        rank = "Satisfatório — Aprovado no Nível";
+        scoreColor = "text-sky-400";
+      } else if (finalScore >= 50) {
+        rank = "Regular — Atenção a Protocolos";
+        scoreColor = "text-amber-400";
+      }
+
+      document.getElementById("eval-title").textContent = `Ocorrência: ${inc.title}`;
+      const scoreEl = document.getElementById("eval-score");
+      scoreEl.textContent = finalScore;
+      scoreEl.className = `text-3xl font-extrabold font-mono-tech ${scoreColor}`;
+      document.getElementById("eval-rank").textContent = rank;
+
+      const posList = document.getElementById("eval-positives");
+      posList.innerHTML = gameState.positives.length
+        ? [...new Set(gameState.positives)].map(p => `<li>${p}</li>`).join("")
+        : `<li>Nenhum acerto técnico relevante registrado nesta ocorrência.</li>`;
+
+      const negList = document.getElementById("eval-negatives");
+      negList.innerHTML = gameState.negatives.length
+        ? [...new Set(gameState.negatives)].map(n => `<li>${n}</li>`).join("")
+        : `<li>Nenhuma falha crítica identificada. Conduta alinhada às diretrizes.</li>`;
+
+      document.getElementById("eval-technical-summary").textContent = inc.technicalSummary;
+
+      // Progressão de Nível
+      const levelUpBanner = document.getElementById("eval-level-up-banner");
+      if (finalScore >= 70 && gameState.level < 4) {
+        gameState.level++;
+        levelUpBanner.classList.remove("hidden");
+        document.getElementById("eval-level-up-text").textContent = `PROMOÇÃO DE NÍVEL: Desempenho aprovado (${finalScore} pts)! Você avançou para o Nível ${LEVEL_NAMES[gameState.level]}.`;
+      } else {
+        levelUpBanner.classList.add("hidden");
+      }
+
+      updateHUD();
+      showOnlyScreen("screen-evaluation");
+      addRadioLog("AVALIAÇÃO CONCLUÍDA", `Relatório técnico gerado. Pontuação final: ${finalScore}/100 (${rank}).`, finalScore >= 70 ? "success" : "warning");
+    }
+
+    // =========================================================================
+    // DESAFIOS DE RACIOCÍNIO ENTRE OCORRÊNCIAS
+    // =========================================================================
+    let activeChallenge = null;
+
+    function launchChallengeBetweenIncidents() {
+      let pool = CHALLENGES_DB.filter(c => !gameState.usedChallengeIds.includes(c.id));
+      if (pool.length === 0) {
+        gameState.usedChallengeIds = [];
+        pool = CHALLENGES_DB;
+      }
+      activeChallenge = pool[Math.floor(Math.random() * pool.length)];
+      gameState.usedChallengeIds.push(activeChallenge.id);
+
+      document.getElementById("chal-domain").textContent = activeChallenge.domain;
+      document.getElementById("chal-title").textContent = activeChallenge.title;
+      document.getElementById("chal-context").innerText = activeChallenge.context;
+
+      const feedbackEl = document.getElementById("chal-feedback");
+      feedbackEl.classList.add("hidden");
+      document.getElementById("chal-next-btn").classList.add("hidden");
+
+      const area = document.getElementById("chal-input-area");
+      area.innerHTML = "";
+
+      if (activeChallenge.type === "choice") {
+        activeChallenge.options.forEach((opt, idx) => {
+          const btn = document.createElement("button");
+          btn.className = "w-full p-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-purple-500 text-left text-xs sm:text-sm text-slate-200 transition flex items-start gap-3";
+          btn.innerHTML = `<span class="font-mono-tech font-bold text-purple-400">${String.fromCharCode(65 + idx)}.</span><span>${opt.text}</span>`;
+          btn.onclick = () => evaluateChoiceChallenge(opt.correct, btn);
+          area.appendChild(btn);
+        });
+      } else {
+        area.innerHTML = `
+          <div class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+              <input id="chal-num-input" type="number" step="any" placeholder="Digite o valor numérico..." class="w-full p-3.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono-tech text-sm focus:outline-none focus:border-purple-500" />
+              <span class="absolute right-3.5 top-3.5 text-xs text-slate-400 font-mono-tech">${activeChallenge.unit}</span>
+            </div>
+            <button onclick="evaluateNumericChallenge()" class="px-6 py-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm transition">
+              Validar Cálculo
+            </button>
+          </div>
+        `;
+      }
+
+      showOnlyScreen("screen-challenge");
+      addRadioLog("DESAFIO DA CENTRAL", `Avaliação complementar iniciada: ${activeChallenge.domain}.`, "info");
+    }
+
+    function evaluateChoiceChallenge(isCorrect, clickedBtn) {
+      const buttons = document.querySelectorAll("#chal-input-area button");
+      buttons.forEach(b => b.disabled = true);
+
+      if (isCorrect) {
+        clickedBtn.classList.add("border-emerald-500", "bg-emerald-950/40");
+      } else {
+        clickedBtn.classList.add("border-rose-500", "bg-rose-950/40");
+      }
+
+      showChallengeFeedback(isCorrect);
+    }
+
+    function evaluateNumericChallenge() {
+      const input = document.getElementById("chal-num-input");
+      const val = parseFloat(input.value);
+      if (isNaN(val)) {
+        addRadioLog("CENTRAL CTOE", "Insira um valor numérico válido para responder ao desafio.", "warning");
+        return;
+      }
+      input.disabled = true;
+      const isCorrect = Math.abs(val - activeChallenge.answer) <= activeChallenge.tolerance;
+      showChallengeFeedback(isCorrect);
+    }
+
+    function showChallengeFeedback(isCorrect) {
+      const fb = document.getElementById("chal-feedback");
+      fb.classList.remove("hidden", "bg-emerald-950/40", "border-emerald-500/40", "text-emerald-200", "bg-rose-950/40", "border-rose-500/40", "text-rose-200");
+
+      if (isCorrect) {
+        fb.classList.add("bg-emerald-950/40", "border-emerald-500/40", "text-emerald-200");
+        fb.innerHTML = `<strong class="text-emerald-400 block mb-1"><i class="fa-solid fa-check-circle mr-1"></i>Raciocínio Correto!</strong>${activeChallenge.explanation}`;
+        addRadioLog("DESAFIO CONCLUÍDO", "Resposta validada pela Central. Você está liberado para a próxima ocorrência.", "success");
+      } else {
+        fb.classList.add("bg-rose-950/40", "border-rose-500/40", "text-rose-200");
+        fb.innerHTML = `<strong class="text-rose-400 block mb-1"><i class="fa-solid fa-xmark-circle mr-1"></i>Resposta Incorreta — Revisão Técnica:</strong>${activeChallenge.explanation}`;
+        addRadioLog("REVISÃO TÉCNICA", "Desafio respondido com incorreção. Leia a justificativa antes de prosseguir.", "danger");
+      }
+
+      document.getElementById("chal-next-btn").classList.remove("hidden");
+    }
+
+    function proceedAfterChallenge() {
+      startNewIncident();
+    }
+  </script>
+</body>
+</html>

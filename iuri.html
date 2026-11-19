@@ -1,0 +1,2108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>RESGATE ALPINO 3D: OPERAÇÃO NEVASCA</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --glass: rgba(10, 18, 30, 0.78);
+      --glass-border: rgba(148, 163, 184, 0.24);
+      --sar-red: #ef4444;
+      --sar-orange: #f97316;
+      --sar-amber: #fbbf24;
+      --sar-cyan: #38bdf8;
+      --sar-green: #22c55e;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #08111e;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+    }
+
+    #canvas-container {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Thermal Vision Overlay Scanlines */
+    #thermal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+      display: none;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(0, 255, 180, 0.04) 0px,
+          rgba(0, 255, 180, 0.04) 2px,
+          transparent 2px,
+          transparent 4px
+        ),
+        radial-gradient(circle at center, transparent 55%, rgba(2, 10, 28, 0.65) 100%);
+      border: 2px solid rgba(56, 189, 248, 0.45);
+    }
+
+    #thermal-badge {
+      position: absolute;
+      top: 104px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(2, 132, 199, 0.85);
+      border: 1px solid #7dd3fc;
+      color: #ffffff;
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+    }
+
+    /* HUD */
+    #hud {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    #hud.active {
+      opacity: 1;
+    }
+
+    .panel {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Top Left: Radar + Radio */
+    #top-left {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      pointer-events: auto;
+      max-width: 265px;
+    }
+
+    #radar-card {
+      padding: 8px;
+      width: fit-content;
+      position: relative;
+    }
+
+    #radarCanvas {
+      width: 154px;
+      height: 154px;
+      border-radius: 12px;
+      background: #071322;
+      display: block;
+    }
+
+    .radar-tag {
+      position: absolute;
+      bottom: 13px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(8, 17, 30, 0.9);
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--sar-cyan);
+      white-space: nowrap;
+    }
+
+    #radio-card {
+      padding: 10px 13px;
+      border-left: 3px solid var(--sar-red);
+    }
+
+    .radio-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.66rem;
+      font-weight: 800;
+      color: var(--sar-amber);
+      letter-spacing: 0.07em;
+      margin-bottom: 4px;
+    }
+
+    .eq-bars {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 10px;
+    }
+
+    .eq-bars span {
+      width: 2.5px;
+      background: var(--sar-green);
+      border-radius: 2px;
+      animation: eq 0.5s infinite alternate;
+    }
+    .eq-bars span:nth-child(2) { animation-delay: 0.16s; }
+    .eq-bars span:nth-child(3) { animation-delay: 0.32s; }
+
+    @keyframes eq {
+      0% { height: 3px; }
+      100% { height: 10px; }
+    }
+
+    #radio-text {
+      font-size: 0.76rem;
+      line-height: 1.36;
+      color: #e2e8f0;
+    }
+
+    /* Top Center: Mission Objective */
+    #mission-card {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 11px 20px;
+      min-width: 330px;
+      max-width: 90vw;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      pointer-events: auto;
+    }
+
+    .mission-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-sar {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--sar-amber);
+      text-transform: uppercase;
+    }
+
+    .blink-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--sar-red);
+      box-shadow: 0 0 8px var(--sar-red);
+      animation: blink 1.1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.4); }
+    }
+
+    #mission-dist {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--sar-cyan);
+    }
+
+    #mission-title {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 1.04rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    #mission-sub {
+      font-size: 0.78rem;
+      color: #cbd5e1;
+    }
+
+    /* Top Right: Flight Telemetry & Passengers */
+    #top-right {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    #telemetry-card {
+      padding: 11px 15px;
+      width: 242px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .telem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 7px 6px;
+      border-radius: 10px;
+    }
+
+    .t-lbl {
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .t-val {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .bar-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .bar-lbls {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    .bar-bg {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.12s ease;
+    }
+
+    #fuel-bar { background: linear-gradient(90deg, #f97316, #facc15); width: 100%; }
+    #hull-bar { background: linear-gradient(90deg, #ef4444, #22c55e); width: 100%; }
+
+    .top-btns {
+      display: flex;
+      gap: 6px;
+    }
+
+    .mini-btn {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      color: var(--text);
+      padding: 7px 11px;
+      border-radius: 11px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: all 0.15s ease;
+    }
+
+    .mini-btn:hover {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: var(--sar-cyan);
+    }
+
+    /* Bottom Dock: Winch Action & Systems */
+    #bottom-dock {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 9px;
+      pointer-events: auto;
+      max-width: 96vw;
+    }
+
+    #winch-btn {
+      background: linear-gradient(135deg, #ef4444, #ea580c);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      color: #ffffff;
+      padding: 11px 26px;
+      border-radius: 999px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.96rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      box-shadow: 0 8px 26px rgba(239, 68, 68, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      transition: transform 0.14s ease;
+    }
+
+    #winch-btn:hover {
+      transform: translateY(-2px) scale(1.03);
+    }
+
+    #winch-btn.ready-base {
+      background: linear-gradient(135deg, #16a34a, #0d9488);
+      box-shadow: 0 8px 26px rgba(34, 197, 94, 0.5);
+    }
+
+    .kbd {
+      background: rgba(0, 0, 0, 0.35);
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+    }
+
+    #sys-bar {
+      display: flex;
+      gap: 7px;
+      padding: 6px 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .sys-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+      padding: 7px 12px;
+      border-radius: 11px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .sys-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .sys-btn.active {
+      background: rgba(56, 189, 248, 0.28);
+      border-color: var(--sar-cyan);
+      color: #ffffff;
+    }
+
+    /* Altitude Buttons on Right Bottom for Easy Mouse/Touch Control */
+    #alt-controls {
+      position: absolute;
+      bottom: 18px;
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .alt-btn {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      color: #ffffff;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+      touch-action: manipulation;
+    }
+
+    .alt-btn:active {
+      background: rgba(249, 115, 22, 0.45);
+      border-color: var(--sar-orange);
+    }
+
+    /* Controls Hint Bottom Left */
+    #controls-hint {
+      position: absolute;
+      bottom: 16px;
+      left: 14px;
+      padding: 9px 13px;
+      font-size: 0.71rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    #controls-hint strong {
+      color: #ffffff;
+    }
+
+    /* Toast */
+    #toast {
+      position: absolute;
+      top: 132px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 18, 30, 0.92);
+      border: 1px solid var(--sar-amber);
+      color: #fef08a;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      text-align: center;
+      max-width: 92vw;
+    }
+
+    #toast.show { opacity: 1; }
+
+    /* Start Screen */
+    #start-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      background: linear-gradient(180deg, rgba(8, 17, 30, 0.32) 0%, rgba(8, 17, 30, 0.84) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      transition: opacity 0.4s ease;
+    }
+
+    #start-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .start-chip {
+      background: rgba(239, 68, 68, 0.26);
+      border: 1px solid rgba(248, 113, 113, 0.55);
+      color: #fecaca;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      backdrop-filter: blur(8px);
+    }
+
+    .main-title {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: clamp(2.2rem, 5.5vw, 4.1rem);
+      font-weight: 700;
+      line-height: 1.05;
+      color: #ffffff;
+      text-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+      margin-bottom: 10px;
+    }
+
+    .main-title span {
+      background: linear-gradient(135deg, #fde047, #f97316, #ef4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .start-desc {
+      max-width: 560px;
+      font-size: 0.96rem;
+      color: #e2e8f0;
+      line-height: 1.5;
+      margin-bottom: 26px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+    }
+
+    #btn-start {
+      background: linear-gradient(135deg, #ef4444, #ea580c);
+      color: #ffffff;
+      border: 2px solid rgba(255, 255, 255, 0.55);
+      padding: 15px 40px;
+      border-radius: 999px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 1.12rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      box-shadow: 0 12px 35px rgba(239, 68, 68, 0.55);
+      transition: transform 0.15s ease;
+    }
+
+    #btn-start:hover {
+      transform: translateY(-2px) scale(1.03);
+    }
+
+    /* Mobile Touch Joystick */
+    #touch-pad {
+      display: none;
+      position: absolute;
+      bottom: 86px;
+      left: 16px;
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      pointer-events: auto;
+      touch-action: none;
+    }
+
+    #touch-knob {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 40px;
+      height: 40px;
+      margin: -20px 0 0 -20px;
+      border-radius: 50%;
+      background: var(--sar-red);
+      border: 2px solid #fff;
+    }
+
+    @media (max-width: 860px) {
+      #controls-hint, #radio-card { display: none; }
+      #touch-pad { display: block; }
+      #radarCanvas { width: 106px; height: 106px; }
+      #telemetry-card { width: 195px; padding: 8px 10px; }
+      #mission-card { min-width: 240px; padding: 9px 14px; }
+      .sys-btn span.txt { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-container"></div>
+
+  <!-- Thermal Camera HUD Filter -->
+  <div id="thermal-overlay">
+    <div id="thermal-badge">🌡️ SENSOR TÉRMICO FLIR ATIVO</div>
+  </div>
+
+  <!-- Start Screen -->
+  <div id="start-screen">
+    <div class="start-chip">Esquadrão Aéreo de Busca e Salvamento</div>
+    <h1 class="main-title">RESGATE ALPINO 3D:<br/><span>OPERAÇÃO NEVASCA</span></h1>
+    <p class="start-desc">
+      Pilote o helicóptero SAR pelas montanhas nevadas. Use o <strong>Visor Térmico</strong> para localizar vítimas na nevasca, opere o <strong>Guincho de Içamento</strong> para resgatá-las e pouse na <strong>Base Médica Alpina</strong>.
+    </p>
+    <button id="btn-start">🚁 INICIAR OPERAÇÃO</button>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud">
+    <!-- Top Left: Topographic Radar & Radio -->
+    <div id="top-left">
+      <div id="radar-card" class="panel">
+        <canvas id="radarCanvas" width="160" height="160"></canvas>
+        <div class="radar-tag" id="wind-tag">VENTO: 14 KT NE</div>
+      </div>
+
+      <div id="radio-card" class="panel">
+        <div class="radio-hdr">
+          <span>📡 CENTRAL SAR ALPES • CH-04</span>
+          <div class="eq-bars"><span></span><span></span><span></span></div>
+        </div>
+        <div id="radio-text">Helicóptero SAR-01 pronto no heliponto da Base Médica Alpina.</div>
+      </div>
+    </div>
+
+    <!-- Top Center: Current Rescue Objective -->
+    <div id="mission-card" class="panel">
+      <div class="mission-top-row">
+        <span class="badge-sar"><span class="blink-dot"></span><span id="mission-type">CHAMADO DE EMERGÊNCIA</span></span>
+        <span id="mission-dist">-- m</span>
+      </div>
+      <div id="mission-title">Aguardando coordenadas de resgate...</div>
+      <div id="mission-sub">Decole da Base Médica Alpina</div>
+    </div>
+
+    <!-- Top Right: Altimeter, Speed, Passengers, Fuel & Integrity -->
+    <div id="top-right">
+      <div id="telemetry-card" class="panel">
+        <div class="telem-grid">
+          <div>
+            <div class="t-lbl">ALTITUDE</div>
+            <div class="t-val" id="val-alt">0 m</div>
+          </div>
+          <div>
+            <div class="t-lbl">VELOC.</div>
+            <div class="t-val" id="val-spd">0 kt</div>
+          </div>
+          <div>
+            <div class="t-lbl">A BORDO</div>
+            <div class="t-val" id="val-pax" style="color:#4ade80;">0 / 3</div>
+          </div>
+        </div>
+
+        <div class="bar-wrap">
+          <div class="bar-lbls">
+            <span>COMBUSTÍVEL</span>
+            <span id="fuel-txt">100%</span>
+          </div>
+          <div class="bar-bg"><div class="bar-fill" id="fuel-bar"></div></div>
+        </div>
+
+        <div class="bar-wrap">
+          <div class="bar-lbls">
+            <span>FUSELAGEM • PONTOS: <strong id="score-txt" style="color:#fbbf24;">0</strong></span>
+            <span id="hull-txt">100%</span>
+          </div>
+          <div class="bar-bg"><div class="bar-fill" id="hull-bar"></div></div>
+        </div>
+      </div>
+
+      <div class="top-btns">
+        <button class="mini-btn" id="btn-audio">🔊 Rádio & Rotores</button>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <!-- Left Bottom Controls Guide -->
+    <div id="controls-hint" class="panel">
+      <strong>W/S ou ↑/↓:</strong> Frente / Trás &nbsp;|&nbsp; <strong>A/D ou ←/→:</strong> Girar<br/>
+      <strong>Q / Z (ou Shift / Ctrl):</strong> Subir / Descer Altitude<br/>
+      <strong>E / Espaço:</strong> Guincho de Resgate &nbsp;|&nbsp; <strong>T:</strong> Térmica &nbsp;|&nbsp; <strong>L:</strong> Holofote &nbsp;|&nbsp; <strong>C:</strong> Câmera
+    </div>
+
+    <!-- Touch Joystick -->
+    <div id="touch-pad"><div id="touch-knob"></div></div>
+
+    <!-- Bottom Center: Winch & Tactical Systems -->
+    <div id="bottom-dock">
+      <button id="winch-btn">
+        <span class="kbd">E / ESPAÇO</span>
+        <span id="winch-label">Baixar Guincho de Resgate</span>
+      </button>
+
+      <div id="sys-bar" class="panel">
+        <button class="sys-btn" id="btn-thermal"><span class="kbd">T</span><span>🌡️</span><span class="txt">Visor Térmico</span></button>
+        <button class="sys-btn active" id="btn-light"><span class="kbd">L</span><span>🔦</span><span class="txt">Holofote</span></button>
+        <button class="sys-btn" id="btn-cam"><span class="kbd">C</span><span>🎥</span><span class="txt">Câmera Guincho</span></button>
+      </div>
+    </div>
+
+    <!-- Right Bottom Altitude Buttons -->
+    <div id="alt-controls">
+      <button class="alt-btn" id="btn-up">▲<br/>SUBIR [Q]</button>
+      <button class="alt-btn" id="btn-down">▼<br/>DESCER [Z]</button>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * RESGATE ALPINO 3D: OPERAÇÃO NEVASCA
+     * Simulador 3D de Resgate Aéreo com Helicóptero SAR, Guincho Dinâmico, Visão Térmica e Web Audio API
+     */
+
+    // =========================================================================
+    // 1. ÁUDIO PROCEDURAL (ROTORES, VENTO ALPINO, GUINCHO E RÁDIO SAR)
+    // =========================================================================
+    class AlpineAudioEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+        this.rotorGain = null;
+        this.rotorFilter = null;
+        this.windGain = null;
+        this.winchOsc = null;
+        this.winchGain = null;
+      }
+
+      init() {
+        if (this.ctx) return;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        this.ctx = new AudioCtx();
+
+        // 1) Som pulsante das pás do rotor principal do helicóptero
+        const rotorOsc = this.ctx.createOscillator();
+        rotorOsc.type = 'sawtooth';
+        rotorOsc.frequency.value = 26;
+
+        const lfo = this.ctx.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.value = 11.5; // Batida característica das pás
+        const lfoGain = this.ctx.createGain();
+        lfoGain.gain.value = 0.045;
+
+        this.rotorFilter = this.ctx.createBiquadFilter();
+        this.rotorFilter.type = 'lowpass';
+        this.rotorFilter.frequency.value = 135;
+
+        this.rotorGain = this.ctx.createGain();
+        this.rotorGain.gain.value = 0.06;
+
+        lfo.connect(lfoGain);
+        lfoGain.connect(this.rotorGain.gain);
+
+        rotorOsc.connect(this.rotorFilter);
+        this.rotorFilter.connect(this.rotorGain);
+        this.rotorGain.connect(this.ctx.destination);
+
+        rotorOsc.start();
+        lfo.start();
+
+        // 2) Vento gélido das montanhas (Ruído filtrado)
+        const bufSize = this.ctx.sampleRate * 2;
+        const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+
+        const windSrc = this.ctx.createBufferSource();
+        windSrc.buffer = buf;
+        windSrc.loop = true;
+
+        const windFilter = this.ctx.createBiquadFilter();
+        windFilter.type = 'bandpass';
+        windFilter.frequency.value = 340;
+        windFilter.Q.value = 1.4;
+
+        this.windGain = this.ctx.createGain();
+        this.windGain.gain.value = 0.04;
+
+        windSrc.connect(windFilter);
+        windFilter.connect(this.windGain);
+        this.windGain.connect(this.ctx.destination);
+        windSrc.start();
+
+        // 3) Motor elétrico do guincho de içamento
+        this.winchOsc = this.ctx.createOscillator();
+        this.winchOsc.type = 'triangle';
+        this.winchOsc.frequency.value = 240;
+        this.winchGain = this.ctx.createGain();
+        this.winchGain.gain.value = 0;
+        this.winchOsc.connect(this.winchGain);
+        this.winchGain.connect(this.ctx.destination);
+        this.winchOsc.start();
+      }
+
+      updateFlightAudio(throttleRatio, altitudeMeters, winchMoving) {
+        if (!this.ctx) return;
+        if (this.muted) {
+          this.rotorGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.05);
+          this.windGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.05);
+          this.winchGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.05);
+          return;
+        }
+        const targetRotor = 0.045 + throttleRatio * 0.055;
+        this.rotorGain.gain.setTargetAtTime(targetRotor, this.ctx.currentTime, 0.08);
+        this.rotorFilter.frequency.setTargetAtTime(115 + throttleRatio * 75, this.ctx.currentTime, 0.08);
+
+        const windStrength = Math.min(0.11, 0.03 + (altitudeMeters / 160) * 0.08);
+        this.windGain.gain.setTargetAtTime(windStrength, this.ctx.currentTime, 0.15);
+
+        this.winchGain.gain.setTargetAtTime(winchMoving ? 0.035 : 0, this.ctx.currentTime, 0.04);
+      }
+
+      toggleMute() {
+        this.muted = !this.muted;
+        return !this.muted;
+      }
+
+      playBeep(freq = 920, dur = 0.12) {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.06, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + dur + 0.02);
+      }
+
+      playRadioChime() {
+        this.playBeep(1046.5, 0.1);
+        setTimeout(() => this.playBeep(1318.5, 0.14), 110);
+      }
+
+      playRescueSuccess() {
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          setTimeout(() => this.playBeep(f, 0.22), i * 95);
+        });
+      }
+    }
+
+    const sfx = new AlpineAudioEngine();
+
+    // =========================================================================
+    // 2. CENA 3D, ILUMINAÇÃO INVERNAL E TERRENO MONTANHOSO PROCEDURAL
+    // =========================================================================
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    const normalSkyColor = new THREE.Color(0x93b7d4);
+    const thermalSkyColor = new THREE.Color(0x030b1c);
+    scene.background = normalSkyColor.clone();
+    scene.fog = new THREE.FogExp2(0xa5c4dc, 0.0021);
+
+    const camera = new THREE.PerspectiveCamera(56, window.innerWidth / window.innerHeight, 0.5, 950);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
+    container.appendChild(renderer.domElement);
+
+    const hemiLight = new THREE.HemisphereLight(0xe0f2fe, 0x334155, 0.9);
+    scene.add(hemiLight);
+
+    const sunLight = new THREE.DirectionalLight(0xfff7ed, 1.35);
+    sunLight.position.set(160, 240, 140);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.camera.near = 20;
+    sunLight.shadow.camera.far = 680;
+    const shD = 260;
+    sunLight.shadow.camera.left = -shD;
+    sunLight.shadow.camera.right = shD;
+    sunLight.shadow.camera.top = shD;
+    sunLight.shadow.camera.bottom = -shD;
+    sunLight.shadow.bias = -0.0005;
+    scene.add(sunLight);
+
+    const WORLD_SIZE = 720;
+    const HALF_WORLD = WORLD_SIZE / 2;
+    const BASE_POS = { x: -120, z: 120 };
+    const LAKE_POS = { x: 115, z: 95, radius: 52 };
+
+    // Função determinística de altitude do terreno alpino
+    function getTerrainHeight(x, z) {
+      // Planalto plano ao redor da Base Médica Alpina (-120, 120)
+      const distBase = Math.hypot(x - BASE_POS.x, z - BASE_POS.z);
+      if (distBase < 36) return 2.0;
+
+      // Lago congelado plano em (115, 95)
+      const distLake = Math.hypot(x - LAKE_POS.x, z - LAKE_POS.z);
+      if (distLake < LAKE_POS.radius) return 1.2;
+
+      // Cadeia de montanhas e vales
+      const nx = x * 0.0085;
+      const nz = z * 0.0085;
+      let h =
+        Math.sin(nx) * Math.cos(nz) * 28 +
+        Math.sin(nx * 2.1 + 0.7) * Math.cos(nz * 1.9 - 0.4) * 16 +
+        Math.abs(Math.sin(nx * 0.7 - nz * 0.8)) * 34;
+
+      // Picos altos nas bordas e no Norte
+      const peakNorth = Math.max(0, 1 - Math.hypot(x - 10, z + 175) / 135) * 68;
+      const peakEast = Math.max(0, 1 - Math.hypot(x - 195, z + 40) / 120) * 58;
+      const peakWest = Math.max(0, 1 - Math.hypot(x + 205, z - 60) / 125) * 52;
+
+      h = Math.max(1.5, h + 14 + peakNorth + peakEast + peakWest);
+
+      // Suaviza transição ao redor da Base e do Lago
+      if (distBase < 62) {
+        const t = (distBase - 36) / 26;
+        h = 2.0 * (1 - t) + h * t;
+      }
+      if (distLake < LAKE_POS.radius + 22) {
+        const t = (distLake - LAKE_POS.radius) / 22;
+        h = 1.2 * (1 - t) + h * t;
+      }
+
+      return h;
+    }
+
+    let terrainMesh = null;
+    let terrainNormalMat = null;
+    let terrainThermalMat = null;
+    const pineTrees = [];
+
+    function buildAlpineEnvironment() {
+      // 1. Malha 3D do Terreno Montanhoso com Cores por Altitude/Inclinação
+      const segs = 128;
+      const geo = new THREE.PlaneGeometry(WORLD_SIZE, WORLD_SIZE, segs, segs);
+      geo.rotateX(-Math.PI / 2);
+
+      const pos = geo.attributes.position;
+      const colors = new Float32Array(pos.count * 3);
+
+      for (let i = 0; i < pos.count; i++) {
+        const vx = pos.getX(i);
+        const vz = pos.getZ(i);
+        const vy = getTerrainHeight(vx, vz);
+        pos.setY(i, vy);
+
+        // Neve branca nas partes planas/altas e rocha cinza-ardósia nas encostas íngremes
+        const c = new THREE.Color();
+        if (vy > 48) {
+          c.setHex(0xf8fafc);
+        } else if (vy > 24) {
+          c.setHex(0xe2e8f0);
+        } else {
+          c.setHex(0xdbeafe);
+        }
+        colors[i * 3] = c.r;
+        colors[i * 3 + 1] = c.g;
+        colors[i * 3 + 2] = c.b;
+      }
+
+      geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      geo.computeVertexNormals();
+
+      terrainNormalMat = new THREE.MeshStandardMaterial({
+        vertexColors: true,
+        roughness: 0.85,
+        metalness: 0.05
+      });
+
+      terrainThermalMat = new THREE.MeshBasicMaterial({
+        color: 0x071a38,
+        wireframe: false
+      });
+
+      terrainMesh = new THREE.Mesh(geo, terrainNormalMat);
+      terrainMesh.receiveShadow = true;
+      scene.add(terrainMesh);
+
+      // 2. Lago Congelado Espelhado
+      const lakeMesh = new THREE.Mesh(
+        new THREE.CircleGeometry(LAKE_POS.radius + 2, 36),
+        new THREE.MeshStandardMaterial({
+          color: 0x7dd3fc,
+          roughness: 0.12,
+          metalness: 0.65
+        })
+      );
+      lakeMesh.rotation.x = -Math.PI / 2;
+      lakeMesh.position.set(LAKE_POS.x, 1.32, LAKE_POS.z);
+      lakeMesh.receiveShadow = true;
+      scene.add(lakeMesh);
+
+      // 3. Base Médica Alpina (Heliponto Iluminado, Hangar, Ambulância e Luzes)
+      buildAlpineMedicalBase();
+
+      // 4. Chalés Alpinos e Torres de Teleférico
+      buildChaletsAndCableCar();
+
+      // 5. Floresta de Pinheiros Cobertos de Neve
+      for (let i = 0; i < 165; i++) {
+        const tx = (Math.random() - 0.5) * (WORLD_SIZE - 80);
+        const tz = (Math.random() - 0.5) * (WORLD_SIZE - 80);
+        if (Math.hypot(tx - BASE_POS.x, tz - BASE_POS.z) < 55) continue;
+        if (Math.hypot(tx - LAKE_POS.x, tz - LAKE_POS.z) < LAKE_POS.radius + 12) continue;
+        const ty = getTerrainHeight(tx, tz);
+        if (ty > 42) continue; // Acima da linha das árvores
+        addSnowPine(tx, ty, tz);
+      }
+    }
+
+    function buildAlpineMedicalBase() {
+      const bx = BASE_POS.x;
+      const bz = BASE_POS.z;
+      const by = 2.0;
+
+      // Plataforma de Concreto da Base
+      const pad = new THREE.Mesh(
+        new THREE.BoxGeometry(54, 0.5, 54),
+        new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 })
+      );
+      pad.position.set(bx, by + 0.1, bz);
+      pad.receiveShadow = true;
+      scene.add(pad);
+
+      // Círculo e Letra "H" do Heliponto
+      const hpCircle = new THREE.Mesh(
+        new THREE.CylinderGeometry(12, 12, 0.55, 32),
+        new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 })
+      );
+      hpCircle.position.set(bx + 8, by + 0.15, bz + 6);
+      hpCircle.receiveShadow = true;
+      scene.add(hpCircle);
+
+      const hpRing = new THREE.Mesh(
+        new THREE.RingGeometry(10.2, 11.4, 32),
+        new THREE.MeshBasicMaterial({ color: 0xfacc15, side: THREE.DoubleSide })
+      );
+      hpRing.rotation.x = -Math.PI / 2;
+      hpRing.position.set(bx + 8, by + 0.45, bz + 6);
+      scene.add(hpRing);
+
+      // Letra H amarela
+      const hMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
+      const hLeft = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.1, 7.5), hMat);
+      hLeft.position.set(bx + 5.2, by + 0.45, bz + 6);
+      const hRight = hLeft.clone();
+      hRight.position.x = bx + 10.8;
+      const hMid = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.1, 1.4), hMat);
+      hMid.position.set(bx + 8, by + 0.45, bz + 6);
+      scene.add(hLeft, hRight, hMid);
+
+      // Luzes de balizamento ao redor do heliponto
+      for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
+        const lx = bx + 8 + Math.cos(a) * 12.4;
+        const lz = bz + 6 + Math.sin(a) * 12.4;
+        const beacon = new THREE.Mesh(
+          new THREE.SphereGeometry(0.35, 8, 8),
+          new THREE.MeshBasicMaterial({ color: 0x22c55e })
+        );
+        beacon.position.set(lx, by + 0.55, lz);
+        scene.add(beacon);
+      }
+
+      // Hangar / Hospital Alpino Vermelho e Branco
+      const hospital = new THREE.Mesh(
+        new THREE.BoxGeometry(18, 8.5, 22),
+        new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.5 })
+      );
+      hospital.position.set(bx - 15, by + 4.4, bz - 8);
+      hospital.castShadow = true;
+      scene.add(hospital);
+
+      const roof = new THREE.Mesh(
+        new THREE.BoxGeometry(19.5, 1.5, 23.5),
+        new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.45 })
+      );
+      roof.position.set(bx - 15, by + 9.2, bz - 8);
+      roof.castShadow = true;
+      scene.add(roof);
+
+      // Cruz Vermelha no teto do Hospital
+      const crossMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      const c1 = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.2, 7.5), crossMat);
+      c1.position.set(bx - 15, by + 10.0, bz - 8);
+      const c2 = new THREE.Mesh(new THREE.BoxGeometry(7.5, 0.2, 2.2), crossMat);
+      c2.position.set(bx - 15, by + 10.0, bz - 8);
+      scene.add(c1, c2);
+
+      // Ambulância de Emergência estacionada na Base
+      const amb = new THREE.Mesh(
+        new THREE.BoxGeometry(3.2, 2.6, 6.4),
+        new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35 })
+      );
+      amb.position.set(bx - 12, by + 1.5, bz + 14);
+      amb.castShadow = true;
+      scene.add(amb);
+
+      const ambStripe = new THREE.Mesh(
+        new THREE.BoxGeometry(3.3, 0.6, 6.5),
+        new THREE.MeshBasicMaterial({ color: 0xef4444 })
+      );
+      ambStripe.position.set(bx - 12, by + 1.6, bz + 14);
+      scene.add(ambStripe);
+    }
+
+    function buildChaletsAndCableCar() {
+      // Chalés de Madeira nas montanhas
+      const chaletSpots = [
+        { x: -165, z: -75 },
+        { x: 45, z: -40 },
+        { x: 165, z: -135 }
+      ];
+      chaletSpots.forEach(s => {
+        const y = getTerrainHeight(s.x, s.z);
+        const cabin = new THREE.Mesh(
+          new THREE.BoxGeometry(10, 5.5, 8.5),
+          new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.85 })
+        );
+        cabin.position.set(s.x, y + 2.5, s.z);
+        cabin.castShadow = true;
+        scene.add(cabin);
+
+        const roof = new THREE.Mesh(
+          new THREE.ConeGeometry(8.2, 3.6, 4),
+          new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.7 })
+        );
+        roof.position.set(s.x, y + 7.0, s.z);
+        roof.rotation.y = Math.PI / 4;
+        roof.castShadow = true;
+        scene.add(roof);
+      });
+
+      // Torres de Teleférico com Cabo Aéreo
+      const towerPoints = [
+        { x: -30, z: -15 },
+        { x: 10, z: -95 },
+        { x: 50, z: -175 }
+      ];
+      const steelMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.7, roughness: 0.3 });
+      const topCoords = [];
+
+      towerPoints.forEach(tp => {
+        const ty = getTerrainHeight(tp.x, tp.z);
+        const pylon = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 1.1, 18, 8), steelMat);
+        pylon.position.set(tp.x, ty + 8.5, tp.z);
+        pylon.castShadow = true;
+        scene.add(pylon);
+
+        const crossArm = new THREE.Mesh(new THREE.BoxGeometry(7.5, 0.7, 0.7), steelMat);
+        crossArm.position.set(tp.x, ty + 17, tp.z);
+        scene.add(crossArm);
+
+        topCoords.push(new THREE.Vector3(tp.x, ty + 17, tp.z));
+      });
+
+      // Cabo do teleférico conectando as torres
+      const cableCurve = new THREE.CatmullRomCurve3(topCoords);
+      const cableGeo = new THREE.TubeGeometry(cableCurve, 24, 0.14, 6, false);
+      const cableMesh = new THREE.Mesh(cableGeo, new THREE.MeshBasicMaterial({ color: 0x1e293b }));
+      scene.add(cableMesh);
+    }
+
+    function addSnowPine(x, y, z) {
+      const group = new THREE.Group();
+      group.position.set(x, y, z);
+
+      const trunk = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.35, 0.55, 3.2, 7),
+        new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.9 })
+      );
+      trunk.position.y = 1.5;
+      group.add(trunk);
+
+      const pineMat = new THREE.MeshStandardMaterial({ color: 0x14532d, roughness: 0.85 });
+      const snowMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.7 });
+
+      [3.5, 5.6, 7.5].forEach((cy, idx) => {
+        const rad = 2.8 - idx * 0.65;
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(rad, 3.2, 8), pineMat);
+        cone.position.y = cy;
+        cone.castShadow = true;
+        group.add(cone);
+
+        const snowCap = new THREE.Mesh(new THREE.ConeGeometry(rad * 0.72, 1.4, 8), snowMat);
+        snowCap.position.y = cy + 0.95;
+        group.add(snowCap);
+      });
+
+      scene.add(group);
+      pineTrees.push(group);
+    }
+
+    buildAlpineEnvironment();
+
+    // =========================================================================
+    // 3. HELICÓPTERO SAR 3D DETALHADO COM GUINCHO E HOLOFOTE DIRECIONAL
+    // =========================================================================
+    function createSARHelicopter() {
+      const root = new THREE.Group();
+      const bodyTiltGroup = new THREE.Group();
+      root.add(bodyTiltGroup);
+
+      const redMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.28, metalness: 0.25 });
+      const whiteMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.32 });
+      const glassMat = new THREE.MeshStandardMaterial({
+        color: 0x0f172a,
+        roughness: 0.1,
+        metalness: 0.85,
+        transparent: true,
+        opacity: 0.85
+      });
+      const darkMetal = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.75, roughness: 0.3 });
+
+      // Fuselagem principal aerodinâmica
+      const fuselage = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.1, 5.6), redMat);
+      fuselage.position.set(0, 1.65, 0.2);
+      fuselage.castShadow = true;
+      bodyTiltGroup.add(fuselage);
+
+      // Faixa branca lateral SAR
+      const stripe = new THREE.Mesh(new THREE.BoxGeometry(2.68, 0.55, 5.2), whiteMat);
+      stripe.position.set(0, 1.55, 0.2);
+      bodyTiltGroup.add(stripe);
+
+      // Nariz envidraçado panorâmico
+      const nose = new THREE.Mesh(new THREE.SphereGeometry(1.32, 18, 14), glassMat);
+      nose.scale.set(0.98, 0.82, 1.35);
+      nose.position.set(0, 1.58, 2.8);
+      bodyTiltGroup.add(nose);
+
+      // Carena superior dos motores
+      const engineCowling = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.75, 3.6), whiteMat);
+      engineCowling.position.set(0, 2.95, -0.1);
+      engineCowling.castShadow = true;
+      bodyTiltGroup.add(engineCowling);
+
+      // Cauda (Tail Boom) + Estabilizador Vertical + Rotor de Cauda
+      const tailBoom = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.58, 5.8, 12), redMat);
+      tailBoom.rotation.x = Math.PI / 2;
+      tailBoom.position.set(0, 2.05, -5.2);
+      tailBoom.castShadow = true;
+      bodyTiltGroup.add(tailBoom);
+
+      const tailFin = new THREE.Mesh(new THREE.BoxGeometry(0.22, 2.1, 1.2), whiteMat);
+      tailFin.position.set(0, 2.65, -7.8);
+      tailFin.rotation.x = -0.25;
+      bodyTiltGroup.add(tailFin);
+
+      const tailRotor = new THREE.Group();
+      tailRotor.position.set(0.28, 2.75, -7.8);
+      const trBlade1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.2, 0.22), darkMetal);
+      const trBlade2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.22, 2.2), darkMetal);
+      tailRotor.add(trBlade1, trBlade2);
+      bodyTiltGroup.add(tailRotor);
+
+      // Esquis de Pouso (Landing Skids)
+      [-1.15, 1.15].forEach(sx => {
+        const skid = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 5.4, 10), darkMetal);
+        skid.rotation.x = Math.PI / 2;
+        skid.position.set(sx, 0.12, 0.4);
+        skid.castShadow = true;
+        bodyTiltGroup.add(skid);
+
+        [-1.1, 1.4].forEach(sz => {
+          const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 1.1, 8), darkMetal);
+          strut.position.set(sx * 0.85, 0.62, sz);
+          strut.rotation.z = sx > 0 ? 0.35 : -0.35;
+          bodyTiltGroup.add(strut);
+        });
+      });
+
+      // Mastro e Rotor Principal (4 Pás)
+      const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.2, 0.8, 10), darkMetal);
+      mast.position.set(0, 3.55, 0.1);
+      bodyTiltGroup.add(mast);
+
+      const mainRotor = new THREE.Group();
+      mainRotor.position.set(0, 3.92, 0.1);
+      for (let b = 0; b < 4; b++) {
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(11.4, 0.06, 0.36), darkMetal);
+        blade.rotation.y = (b * Math.PI) / 2;
+        blade.castShadow = true;
+        mainRotor.add(blade);
+      }
+      bodyTiltGroup.add(mainRotor);
+
+      // Luzes Estroboscópicas de Navegação
+      const strobeRed = new THREE.Mesh(
+        new THREE.SphereGeometry(0.18, 8, 8),
+        new THREE.MeshBasicMaterial({ color: 0xff2222 })
+      );
+      strobeRed.position.set(0, 3.8, -7.8);
+      bodyTiltGroup.add(strobeRed);
+
+      // Braço Lateral do Guincho de Resgate
+      const winchArm = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.22, 0.28), darkMetal);
+      winchArm.position.set(1.55, 2.55, 0.5);
+      bodyTiltGroup.add(winchArm);
+
+      const winchAnchor = new THREE.Object3D();
+      winchAnchor.position.set(1.95, 2.45, 0.5);
+      bodyTiltGroup.add(winchAnchor);
+
+      // Holofote de Busca Tático (Cone luminoso + SpotLight)
+      const searchLightCone = new THREE.Mesh(
+        new THREE.ConeGeometry(7.5, 28, 20, 1, true),
+        new THREE.MeshBasicMaterial({
+          color: 0xfef9c3,
+          transparent: true,
+          opacity: 0.16,
+          side: THREE.DoubleSide,
+          depthWrite: false
+        })
+      );
+      searchLightCone.position.set(0, -13.2, 3.4);
+      searchLightCone.rotation.x = -0.18;
+      bodyTiltGroup.add(searchLightCone);
+
+      scene.add(root);
+
+      // Cabo de Aço Dinâmico e Cesto/Maca de Resgate
+      const cableGeo = new THREE.CylinderGeometry(0.04, 0.04, 1, 6);
+      const cableMesh = new THREE.Mesh(cableGeo, new THREE.MeshBasicMaterial({ color: 0x1e293b }));
+      scene.add(cableMesh);
+
+      const basketGroup = new THREE.Group();
+      const basketFrame = new THREE.Mesh(
+        new THREE.BoxGeometry(1.1, 0.55, 1.7),
+        new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.4 })
+      );
+      basketFrame.castShadow = true;
+      basketGroup.add(basketFrame);
+      scene.add(basketGroup);
+
+      return {
+        root,
+        bodyTiltGroup,
+        mainRotor,
+        tailRotor,
+        strobeRed,
+        winchAnchor,
+        searchLightCone,
+        cableMesh,
+        basketGroup
+      };
+    }
+
+    const heliRig = createSARHelicopter();
+
+    const heli = {
+      x: BASE_POS.x + 8,
+      y: 2.5,
+      z: BASE_POS.z + 6,
+      vx: 0,
+      vy: 0,
+      vz: 0,
+      yaw: Math.PI,
+      pitch: 0,
+      roll: 0,
+      fuel: 100,
+      hull: 100,
+      passengers: 0,
+      maxPassengers: 3,
+      score: 0,
+      spotlightOn: true,
+      thermalOn: false,
+      winchCam: false,
+      winchLength: 0.5,
+      winchTargetLength: 0.5,
+      hoistingVictim: null
+    };
+
+    // =========================================================================
+    // 4. NEVE 3D ATMOSFÉRICA E VENTO DE MONTANHA
+    // =========================================================================
+    const SNOW_COUNT = 1400;
+    const snowGeo = new THREE.BufferGeometry();
+    const snowPositions = new Float32Array(SNOW_COUNT * 3);
+    for (let i = 0; i < SNOW_COUNT; i++) {
+      snowPositions[i * 3] = (Math.random() - 0.5) * 180;
+      snowPositions[i * 3 + 1] = Math.random() * 90;
+      snowPositions[i * 3 + 2] = (Math.random() - 0.5) * 180;
+    }
+    snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPositions, 3));
+    const snowPoints = new THREE.Points(
+      snowGeo,
+      new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.45,
+        transparent: true,
+        opacity: 0.85
+      })
+    );
+    scene.add(snowPoints);
+
+    const wind = { vx: 1.8, vz: -1.4 };
+
+    // =========================================================================
+    // 5. MISSÕES VARIADAS DE RESGATE ALPINO
+    // =========================================================================
+    const MISSIONS = [
+      {
+        id: 0,
+        type: 'ALPINISTA ISOLADO NA ENCOSTA',
+        title: 'Alpinista Perdido no Vale Oeste',
+        sub: 'Paire sobre o sinalizador vermelho e acione o Guincho [E] para içá-lo',
+        radio: 'CENTRAL SAR: Alpinista ativou sinalizador de emergência na encosta oeste! Visibilidade reduzida.',
+        victims: [{ x: -165, z: -45 }],
+        reward: 500
+      },
+      {
+        id: 1,
+        type: 'ACIDENTE NO TELEFÉRICO',
+        title: 'Esquiadores Feridos Próximo à Torre',
+        sub: 'Use o Visor Térmico [T] para localizar os 2 esquiadores e içar com o Guincho [E]',
+        radio: 'CHAMADO URGENTE: Dois esquiadores sofreram queda perto da torre norte do teleférico!',
+        victims: [{ x: 14, z: -98 }, { x: 24, z: -108 }],
+        reward: 850
+      },
+      {
+        id: 2,
+        type: 'EMERGÊNCIA NO LAGO CONGELADO',
+        title: 'Expedição Presa no Lago Congelado',
+        sub: 'Resgate o explorador no centro do lago gelado e retorne à Base Médica',
+        radio: 'ALERTA DE GELO FINO: Explorador isolado no lago congelado a sudeste precisa de extração aérea imediata!',
+        victims: [{ x: 115, z: 95 }],
+        reward: 600
+      },
+      {
+        id: 3,
+        type: 'TEMPESTADE NO PICO NORTE',
+        title: 'Equipe de Pesquisa em Nevasca Severa',
+        sub: 'Ative o Visor Térmico [T] para achar os 3 pesquisadores no Pico Norte',
+        radio: 'CÓDIGO VERMELHO: Tempestade severa atingiu 3 pesquisadores no Pico Norte! Use visão térmica para localizá-los.',
+        victims: [{ x: 6, z: -168 }, { x: 18, z: -176 }, { x: -8, z: -180 }],
+        reward: 1200
+      }
+    ];
+
+    let activeMission = null;
+    let missionIdx = 0;
+    let missionVictims = [];
+
+    function createVictimEntity(vx, vz) {
+      const vy = getTerrainHeight(vx, vz);
+      const group = new THREE.Group();
+      group.position.set(vx, vy, vz);
+
+      // Corpo com jaqueta laranja de alta visibilidade
+      const body = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.28, 0.32, 1.35, 10),
+        new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.6 })
+      );
+      body.position.y = 0.7;
+      body.castShadow = true;
+
+      const head = new THREE.Mesh(
+        new THREE.SphereGeometry(0.24, 12, 12),
+        new THREE.MeshStandardMaterial({ color: 0xfed7aa })
+      );
+      head.position.y = 1.55;
+
+      // Braço direito acenando com bastão sinalizador
+      const armPivot = new THREE.Group();
+      armPivot.position.set(0.32, 1.25, 0);
+      const arm = new THREE.Mesh(
+        new THREE.BoxGeometry(0.14, 0.65, 0.14),
+        new THREE.MeshStandardMaterial({ color: 0xf97316 })
+      );
+      arm.position.y = 0.25;
+      armPivot.add(arm);
+
+      // Sinalizador luminoso vermelho no chão ao lado
+      const flareGlow = new THREE.Mesh(
+        new THREE.SphereGeometry(0.45, 10, 10),
+        new THREE.MeshBasicMaterial({ color: 0xff2a2a })
+      );
+      flareGlow.position.set(0.9, 0.25, 0.6);
+
+      // Anel térmico brilhante (super visível no modo FLIR)
+      const thermalMarker = new THREE.Mesh(
+        new THREE.SphereGeometry(1.15, 12, 12),
+        new THREE.MeshBasicMaterial({ color: 0xfacc15, transparent: true, opacity: 0.35 })
+      );
+      thermalMarker.position.y = 0.9;
+
+      group.add(body, head, armPivot, flareGlow, thermalMarker);
+      scene.add(group);
+
+      return {
+        group,
+        armPivot,
+        flareGlow,
+        thermalMarker,
+        x: vx,
+        y: vy,
+        z: vz,
+        rescued: false,
+        beingHoisted: false
+      };
+    }
+
+    function startMission(index) {
+      missionVictims.forEach(v => scene.remove(v.group));
+      missionVictims = [];
+
+      const template = MISSIONS[index % MISSIONS.length];
+      missionIdx = (index + 1) % MISSIONS.length;
+
+      activeMission = { ...template };
+      template.victims.forEach(pt => {
+        missionVictims.push(createVictimEntity(pt.x, pt.z));
+      });
+
+      document.getElementById('radio-text').textContent = template.radio;
+      sfx.playRadioChime();
+      showToast(`📡 ${template.type}: ${template.title}`);
+    }
+
+    // =========================================================================
+    // 6. CONTROLES, GUINCHO DE IÇAMENTO E VISOR TÉRMICO
+    // =========================================================================
+    const keys = {};
+    let started = false;
+    let clockTime = 0;
+    let camYawOffset = 0;
+    let draggingMouse = false;
+    let lastMouseX = 0;
+    const touchStick = { active: false, dx: 0, dz: 0 };
+    let touchUp = false;
+    let touchDown = false;
+
+    function showToast(msg, dur = 2600) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.remove('show'), dur);
+    }
+
+    function toggleThermalMode() {
+      heli.thermalOn = !heli.thermalOn;
+      document.getElementById('btn-thermal').classList.toggle('active', heli.thermalOn);
+      document.getElementById('thermal-overlay').style.display = heli.thermalOn ? 'block' : 'none';
+
+      if (heli.thermalOn) {
+        scene.background = thermalSkyColor;
+        scene.fog.color.copy(thermalSkyColor);
+        terrainMesh.material = terrainThermalMat;
+        sfx.playBeep(1240, 0.14);
+        showToast('🌡️ Visor Térmico FLIR ativado — fontes de calor destacadas!');
+      } else {
+        scene.background = normalSkyColor;
+        scene.fog.color.setHex(0xa5c4dc);
+        terrainMesh.material = terrainNormalMat;
+        sfx.playBeep(760, 0.12);
+      }
+    }
+
+    function toggleSpotlight() {
+      heli.spotlightOn = !heli.spotlightOn;
+      heliRig.searchLightCone.visible = heli.spotlightOn;
+      document.getElementById('btn-light').classList.toggle('active', heli.spotlightOn);
+      sfx.playBeep(880, 0.08);
+    }
+
+    function toggleWinchCamera() {
+      heli.winchCam = !heli.winchCam;
+      document.getElementById('btn-cam').classList.toggle('active', heli.winchCam);
+      showToast(heli.winchCam ? '🎥 Câmera de Precisão do Guincho' : '🎥 Câmera Externa de Voo', 1400);
+    }
+
+    function triggerWinchOrDeliver() {
+      if (!started) return;
+
+      // 1) Se estiver pousado na Base Médica Alpina com passageiros a bordo -> Desembarcar
+      const distBase = Math.hypot(heli.x - (BASE_POS.x + 8), heli.z - (BASE_POS.z + 6));
+      const groundH = getTerrainHeight(heli.x, heli.z);
+      const agl = heli.y - groundH;
+
+      if (distBase < 16 && agl < 2.2 && heli.passengers > 0) {
+        const saved = heli.passengers;
+        const pts = saved * 400;
+        heli.score += pts;
+        heli.passengers = 0;
+        heli.fuel = 100;
+        heli.hull = 100;
+        sfx.playRescueSuccess();
+        showToast(`🏥 ${saved} sobrevivente(s) entregues à equipe médica! (+${pts} PTS)`, 3400);
+
+        // Verifica se todas as vítimas da missão atual foram resgatadas
+        const remaining = missionVictims.filter(v => !v.rescued).length;
+        if (remaining === 0) {
+          const bonus = activeMission ? activeMission.reward : 500;
+          heli.score += bonus;
+          document.getElementById('radio-text').textContent = 'Missão concluída com excelência! Preparando próximo chamado...';
+          setTimeout(() => startMission(missionIdx), 2200);
+        }
+        return;
+      }
+
+      // 2) Se já está içando alguém, recolhe o cabo
+      if (heli.hoistingVictim) {
+        heli.winchTargetLength = 0.5;
+        return;
+      }
+
+      // 3) Alterna entre baixar o cabo do guincho (até 18m) e recolher
+      if (heli.winchTargetLength > 2.0) {
+        heli.winchTargetLength = 0.5;
+        showToast('🪝 Recolhendo cabo do guincho...', 1200);
+      } else {
+        if (heli.passengers >= heli.maxPassengers) {
+          showToast('🚁 Cabine lotada (3/3)! Pouse no Heliponto [H] da Base para desembarcar.');
+          return;
+        }
+        heli.winchTargetLength = Math.min(22, Math.max(6, agl + 1.5));
+        showToast('🪝 Baixando cesto de resgate — mantenha o helicóptero estável sobre a vítima!', 2200);
+      }
+    }
+
+    // =========================================================================
+    // 7. ATUALIZAÇÃO DE FÍSICA DE VOO, GUINCHO E RADAR TOPOGRÁFICO
+    // =========================================================================
+    const _anchorWorld = new THREE.Vector3();
+
+    function update(dt) {
+      clockTime += dt;
+
+      // Rotação das pás do rotor
+      const rotorSpeed = started ? (18 + Math.hypot(heli.vx, heli.vz) * 0.25) : 6;
+      heliRig.mainRotor.rotation.y += rotorSpeed * dt;
+      heliRig.tailRotor.rotation.x += rotorSpeed * 1.6 * dt;
+      heliRig.strobeRed.visible = Math.sin(clockTime * 9) > 0;
+
+      // Neve 3D caindo ao redor da câmera
+      const sPos = snowPoints.geometry.attributes.position;
+      for (let i = 0; i < SNOW_COUNT; i++) {
+        let sx = sPos.getX(i) + wind.vx * 3.2 * dt;
+        let sy = sPos.getY(i) - 11.5 * dt;
+        let sz = sPos.getZ(i) + wind.vz * 3.2 * dt;
+        if (sy < 0) sy = 90;
+        if (sx > 90) sx -= 180;
+        if (sx < -90) sx += 180;
+        if (sz > 90) sz -= 180;
+        if (sz < -90) sz += 180;
+        sPos.setXYZ(i, sx, sy, sz);
+      }
+      sPos.needsUpdate = true;
+      snowPoints.position.set(heli.x, Math.max(0, heli.y - 25), heli.z);
+
+      // Animação das vítimas acenando
+      missionVictims.forEach(v => {
+        if (!v.rescued && !v.beingHoisted) {
+          v.armPivot.rotation.z = 2.3 + Math.sin(clockTime * 8) * 0.45;
+          v.flareGlow.scale.setScalar(0.85 + Math.sin(clockTime * 18) * 0.25);
+          v.thermalMarker.visible = heli.thermalOn;
+        }
+      });
+
+      if (!started) {
+        const orbit = clockTime * 0.22;
+        camera.position.set(
+          heli.x + Math.cos(orbit) * 22,
+          heli.y + 9,
+          heli.z + Math.sin(orbit) * 22
+        );
+        camera.lookAt(heli.x, heli.y + 2, heli.z);
+        updateWinchVisuals();
+        return;
+      }
+
+      // Controles de Voo Responsivos e Intuitivos
+      let forward = 0;
+      let turn = 0;
+      let climb = 0;
+
+      if (keys['KeyW'] || keys['ArrowUp']) forward += 1;
+      if (keys['KeyS'] || keys['ArrowDown']) forward -= 1;
+      if (keys['KeyA'] || keys['ArrowLeft']) turn += 1;
+      if (keys['KeyD'] || keys['ArrowRight']) turn -= 1;
+
+      if (keys['KeyQ'] || keys['ShiftLeft'] || keys['ShiftRight'] || touchUp) climb += 1;
+      if (keys['KeyZ'] || keys['ControlLeft'] || keys['KeyF'] || touchDown) climb -= 1;
+
+      if (touchStick.active) {
+        forward += -touchStick.dz;
+        turn += -touchStick.dx;
+      }
+
+      // Rotação (Yaw)
+      heli.yaw += turn * 1.85 * dt;
+
+      // Empuxo horizontal relativo à proa do helicóptero
+      const sinY = Math.sin(heli.yaw);
+      const cosY = Math.cos(heli.yaw);
+      const thrustAcc = 34;
+
+      heli.vx += sinY * forward * thrustAcc * dt;
+      heli.vz += cosY * forward * thrustAcc * dt;
+
+      // Brisa alpina leve em altitude elevada
+      const groundH = getTerrainHeight(heli.x, heli.z);
+      const agl = Math.max(0, heli.y - groundH);
+      if (agl > 6) {
+        heli.vx += wind.vx * 0.45 * dt;
+        heli.vz += wind.vz * 0.45 * dt;
+      }
+
+      // Estabilização automática suave (amortecimento aerodinâmico)
+      const hDrag = Math.pow(0.28, dt);
+      heli.vx *= hDrag;
+      heli.vz *= hDrag;
+
+      // Subida e Descida vertical
+      heli.vy += climb * 26 * dt;
+      heli.vy *= Math.pow(0.16, dt);
+
+      heli.x += heli.vx * dt;
+      heli.y += heli.vy * dt;
+      heli.z += heli.vz * dt;
+
+      // Limites horizontais e teto de voo
+      heli.x = Math.max(-HALF_WORLD + 25, Math.min(HALF_WORLD - 25, heli.x));
+      heli.z = Math.max(-HALF_WORLD + 25, Math.min(HALF_WORLD - 25, heli.z));
+      heli.y = Math.min(165, heli.y);
+
+      // Colisão segura com o terreno / Pouso suave
+      const newGroundH = getTerrainHeight(heli.x, heli.z);
+      if (heli.y < newGroundH + 0.35) {
+        if (heli.vy < -14) {
+          heli.hull = Math.max(0, heli.hull - 12);
+          sfx.playBeep(220, 0.2);
+          showToast('⚠️ Pouso brusco! Reduza a velocidade vertical ao tocar o solo.');
+        }
+        heli.y = newGroundH + 0.35;
+        if (heli.vy < 0) heli.vy = 0;
+        // Atrito dos esquis no solo
+        heli.vx *= Math.pow(0.05, dt);
+        heli.vz *= Math.pow(0.05, dt);
+      }
+
+      // Inclinação visual natural (Pitch & Roll)
+      const targetPitch = forward * 0.22;
+      const targetRoll = -turn * 0.24;
+      heli.pitch += (targetPitch - heli.pitch) * Math.min(1, 8 * dt);
+      heli.roll += (targetRoll - heli.roll) * Math.min(1, 8 * dt);
+
+      heliRig.root.position.set(heli.x, heli.y, heli.z);
+      heliRig.root.rotation.y = heli.yaw;
+      heliRig.bodyTiltGroup.rotation.x = heli.pitch;
+      heliRig.bodyTiltGroup.rotation.z = heli.roll;
+
+      // Combustível e Reabastecimento na Base
+      const distBase = Math.hypot(heli.x - (BASE_POS.x + 8), heli.z - (BASE_POS.z + 6));
+      const landedAtBase = distBase < 16 && (heli.y - newGroundH) < 2.2;
+      if (landedAtBase) {
+        heli.fuel = Math.min(100, heli.fuel + 25 * dt);
+        heli.hull = Math.min(100, heli.hull + 18 * dt);
+      } else {
+        const burn = 0.38 + (Math.abs(forward) + Math.abs(climb)) * 0.25;
+        heli.fuel = Math.max(0, heli.fuel - burn * dt);
+      }
+
+      // Atualização do Guincho de Resgate
+      const winchDiff = heli.winchTargetLength - heli.winchLength;
+      const winchMoving = Math.abs(winchDiff) > 0.08;
+      if (winchMoving) {
+        heli.winchLength += Math.sign(winchDiff) * Math.min(Math.abs(winchDiff), 7.5 * dt);
+      }
+
+      heliRig.root.updateMatrixWorld(true);
+      heliRig.winchAnchor.getWorldPosition(_anchorWorld);
+      const basketX = _anchorWorld.x;
+      const basketZ = _anchorWorld.z;
+      const basketY = Math.max(getTerrainHeight(basketX, basketZ) + 0.4, _anchorWorld.y - heli.winchLength);
+
+      // Checar engate automático do cesto em vítima próxima
+      if (!heli.hoistingVictim && heli.winchLength > 2.2 && heli.passengers < heli.maxPassengers) {
+        for (const v of missionVictims) {
+          if (v.rescued || v.beingHoisted) continue;
+          const dBasket = Math.hypot(v.x - basketX, v.z - basketZ);
+          const dyBasket = Math.abs((v.y + 0.8) - basketY);
+          if (dBasket < 3.4 && dyBasket < 3.6) {
+            v.beingHoisted = true;
+            heli.hoistingVictim = v;
+            heli.winchTargetLength = 0.5;
+            sfx.playBeep(980, 0.16);
+            showToast('🪝 Sobrevivente preso ao cesto! Içando para o helicóptero...');
+            break;
+          }
+        }
+      }
+
+      // Se estiver içando uma vítima, move-a junto com o cesto até embarcar
+      if (heli.hoistingVictim) {
+        const hv = heli.hoistingVictim;
+        hv.group.position.set(basketX, basketY - 0.3, basketZ);
+        if (heli.winchLength <= 0.85) {
+          hv.rescued = true;
+          hv.beingHoisted = false;
+          hv.group.visible = false;
+          heli.hoistingVictim = null;
+          heli.passengers++;
+          heli.score += 250;
+          sfx.playRadioChime();
+          showToast(`✅ Sobrevivente embarcado (${heli.passengers}/${heli.maxPassengers})! Leve-o à Base Médica Alpina [H].`, 3200);
+        }
+      }
+
+      updateWinchVisuals(basketX, basketY, basketZ);
+
+      // Câmera Suave em 3ª Pessoa ou Visão do Guincho
+      if (heli.winchCam) {
+        camera.position.set(
+          heli.x + Math.sin(heli.yaw + 0.65) * 9.5,
+          heli.y + 2.2,
+          heli.z + Math.cos(heli.yaw + 0.65) * 9.5
+        );
+        camera.lookAt(basketX, (heli.y + basketY) * 0.5, basketZ);
+      } else {
+        const camAngle = heli.yaw + camYawOffset;
+        const desiredCamX = heli.x - Math.sin(camAngle) * 17.5;
+        const desiredCamY = heli.y + 7.2;
+        const desiredCamZ = heli.z - Math.cos(camAngle) * 17.5;
+
+        const smooth = 1 - Math.exp(-9 * dt);
+        camera.position.x += (desiredCamX - camera.position.x) * smooth;
+        camera.position.y += (desiredCamY - camera.position.y) * smooth;
+        camera.position.z += (desiredCamZ - camera.position.z) * smooth;
+        camera.lookAt(heli.x + Math.sin(heli.yaw) * 4, heli.y + 1.2, heli.z + Math.cos(heli.yaw) * 4);
+      }
+
+      const throttleRatio = Math.min(1, (Math.hypot(heli.vx, heli.vz) / 26) + Math.max(0, climb) * 0.35);
+      sfx.updateFlightAudio(throttleRatio, agl, winchMoving);
+
+      updateHUD(agl, landedAtBase);
+      renderRadar();
+    }
+
+    function updateWinchVisuals(bx = heli.x, by = heli.y, bz = heli.z) {
+      heliRig.root.updateMatrixWorld(true);
+      heliRig.winchAnchor.getWorldPosition(_anchorWorld);
+      const len = Math.max(0.2, _anchorWorld.y - by);
+      heliRig.cableMesh.position.set(_anchorWorld.x, _anchorWorld.y - len / 2, _anchorWorld.z);
+      heliRig.cableMesh.scale.set(1, len, 1);
+
+      heliRig.basketGroup.position.set(bx, by, bz);
+      heliRig.basketGroup.rotation.y = heli.yaw;
+      heliRig.basketGroup.visible = heli.winchLength > 0.75;
+    }
+
+    function updateHUD(agl, landedAtBase) {
+      const speedKt = Math.round(Math.hypot(heli.vx, heli.vz) * 3.1);
+      document.getElementById('val-alt').textContent = `${Math.round(agl)} m`;
+      document.getElementById('val-spd').textContent = `${speedKt} kt`;
+      document.getElementById('val-pax').textContent = `${heli.passengers} / ${heli.maxPassengers}`;
+
+      document.getElementById('fuel-txt').textContent = `${Math.ceil(heli.fuel)}%`;
+      document.getElementById('fuel-bar').style.width = `${heli.fuel}%`;
+      document.getElementById('hull-txt').textContent = `${Math.ceil(heli.hull)}%`;
+      document.getElementById('hull-bar').style.width = `${heli.hull}%`;
+      document.getElementById('score-txt').textContent = heli.score;
+
+      // Objetivo Atual & Distância
+      const nextVictim = missionVictims.find(v => !v.rescued);
+      const winchBtn = document.getElementById('winch-btn');
+      const winchLabel = document.getElementById('winch-label');
+
+      if (heli.passengers > 0 && (!nextVictim || heli.passengers >= heli.maxPassengers)) {
+        const dBase = Math.round(Math.hypot((BASE_POS.x + 8) - heli.x, (BASE_POS.z + 6) - heli.z));
+        document.getElementById('mission-type').textContent = 'EXTRAÇÃO MÉDICA';
+        document.getElementById('mission-dist').textContent = `${dBase} m`;
+        document.getElementById('mission-title').textContent = 'Retornar à Base Médica Alpina [H]';
+        document.getElementById('mission-sub').textContent = landedAtBase
+          ? 'Pressione [E] ou Espaço para desembarcar os sobreviventes!'
+          : 'Pouse no Heliponto iluminado para entregar os resgatados';
+
+        winchBtn.classList.add('ready-base');
+        winchLabel.textContent = landedAtBase ? 'Desembarcar Resgatados [E]' : 'Retornar à Base Médica [H]';
+      } else if (nextVictim && activeMission) {
+        const dVic = Math.round(Math.hypot(nextVictim.x - heli.x, nextVictim.z - heli.z));
+        document.getElementById('mission-type').textContent = activeMission.type;
+        document.getElementById('mission-dist').textContent = `${dVic} m`;
+        document.getElementById('mission-title').textContent = activeMission.title;
+        document.getElementById('mission-sub').textContent = activeMission.sub;
+
+        winchBtn.classList.remove('ready-base');
+        winchLabel.textContent = heli.winchTargetLength > 2 ? 'Recolher Guincho [E]' : 'Baixar Guincho de Resgate [E]';
+      }
+    }
+
+    // =========================================================================
+    // 8. RADAR TOPOGRÁFICO SAR EM TEMPO REAL
+    // =========================================================================
+    const radarCanvas = document.getElementById('radarCanvas');
+    const rCtx = radarCanvas.getContext('2d');
+
+    function renderRadar() {
+      const rw = radarCanvas.width;
+      const rh = radarCanvas.height;
+      const scale = rw / WORLD_SIZE;
+
+      rCtx.clearRect(0, 0, rw, rh);
+      rCtx.fillStyle = '#071322';
+      rCtx.fillRect(0, 0, rw, rh);
+
+      // Grade do radar
+      rCtx.strokeStyle = 'rgba(56, 189, 248, 0.14)';
+      rCtx.lineWidth = 1;
+      rCtx.beginPath();
+      rCtx.arc(rw / 2, rh / 2, rw * 0.25, 0, Math.PI * 2);
+      rCtx.arc(rw / 2, rh / 2, rw * 0.45, 0, Math.PI * 2);
+      rCtx.stroke();
+
+      // Lago Congelado
+      rCtx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+      rCtx.beginPath();
+      rCtx.arc((LAKE_POS.x + HALF_WORLD) * scale, (LAKE_POS.z + HALF_WORLD) * scale, LAKE_POS.radius * scale, 0, Math.PI * 2);
+      rCtx.fill();
+
+      // Base Médica Alpina (Cruz Verde)
+      const bx = (BASE_POS.x + 8 + HALF_WORLD) * scale;
+      const bz = (BASE_POS.z + 6 + HALF_WORLD) * scale;
+      rCtx.fillStyle = '#22c55e';
+      rCtx.fillRect(bx - 5, bz - 1.5, 10, 3);
+      rCtx.fillRect(bx - 1.5, bz - 5, 3, 10);
+
+      // Vítimas na montanha (Sinalizadores vermelhos pulsantes)
+      missionVictims.forEach(v => {
+        if (v.rescued) return;
+        const vx = (v.x + HALF_WORLD) * scale;
+        const vz = (v.z + HALF_WORLD) * scale;
+        rCtx.fillStyle = '#ef4444';
+        rCtx.beginPath();
+        rCtx.arc(vx, vz, 3.8 + Math.sin(clockTime * 8) * 1.2, 0, Math.PI * 2);
+        rCtx.fill();
+      });
+
+      // Helicóptero SAR (Triângulo direcional)
+      const hx = (heli.x + HALF_WORLD) * scale;
+      const hz = (heli.z + HALF_WORLD) * scale;
+      rCtx.save();
+      rCtx.translate(hx, hz);
+      rCtx.rotate(-heli.yaw);
+      rCtx.fillStyle = '#facc15';
+      rCtx.beginPath();
+      rCtx.moveTo(0, 6);
+      rCtx.lineTo(-4.5, -5);
+      rCtx.lineTo(4.5, -5);
+      rCtx.closePath();
+      rCtx.fill();
+      rCtx.restore();
+    }
+
+    // =========================================================================
+    // 9. EVENTOS DE ENTRADA E LOOP PRINCIPAL
+    // =========================================================================
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    window.addEventListener('keydown', e => {
+      keys[e.code] = true;
+      if (!started) return;
+
+      if ((e.code === 'KeyE' || e.code === 'Space') && !e.repeat) {
+        e.preventDefault();
+        triggerWinchOrDeliver();
+      }
+      if (e.code === 'KeyT' && !e.repeat) toggleThermalMode();
+      if (e.code === 'KeyL' && !e.repeat) toggleSpotlight();
+      if (e.code === 'KeyC' && !e.repeat) toggleWinchCamera();
+    });
+
+    window.addEventListener('keyup', e => { keys[e.code] = false; });
+    window.addEventListener('blur', () => {
+      for (const k in keys) keys[k] = false;
+      touchUp = false;
+      touchDown = false;
+    });
+
+    renderer.domElement.addEventListener('mousedown', e => {
+      draggingMouse = true;
+      lastMouseX = e.clientX;
+    });
+    window.addEventListener('mousemove', e => {
+      if (!draggingMouse) return;
+      const dx = e.clientX - lastMouseX;
+      lastMouseX = e.clientX;
+      camYawOffset -= dx * 0.006;
+    });
+    window.addEventListener('mouseup', () => { draggingMouse = false; });
+
+    document.getElementById('btn-start').addEventListener('click', () => {
+      sfx.init();
+      started = true;
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('hud').classList.add('active');
+      startMission(0);
+    });
+
+    document.getElementById('winch-btn').addEventListener('click', triggerWinchOrDeliver);
+    document.getElementById('btn-thermal').addEventListener('click', toggleThermalMode);
+    document.getElementById('btn-light').addEventListener('click', toggleSpotlight);
+    document.getElementById('btn-cam').addEventListener('click', toggleWinchCamera);
+
+    document.getElementById('btn-audio').addEventListener('click', () => {
+      sfx.init();
+      const on = sfx.toggleMute();
+      document.getElementById('btn-audio').textContent = on ? '🔊 Rádio & Rotores' : '🔇 Mudo';
+    });
+
+    // Botões de altitude para toque/mouse
+    const btnUp = document.getElementById('btn-up');
+    const btnDown = document.getElementById('btn-down');
+    btnUp.addEventListener('mousedown', () => { touchUp = true; });
+    btnUp.addEventListener('mouseup', () => { touchUp = false; });
+    btnUp.addEventListener('mouseleave', () => { touchUp = false; });
+    btnUp.addEventListener('touchstart', e => { e.preventDefault(); touchUp = true; });
+    btnUp.addEventListener('touchend', () => { touchUp = false; });
+
+    btnDown.addEventListener('mousedown', () => { touchDown = true; });
+    btnDown.addEventListener('mouseup', () => { touchDown = false; });
+    btnDown.addEventListener('mouseleave', () => { touchDown = false; });
+    btnDown.addEventListener('touchstart', e => { e.preventDefault(); touchDown = true; });
+    btnDown.addEventListener('touchend', () => { touchDown = false; });
+
+    // Joystick Touch
+    const tPad = document.getElementById('touch-pad');
+    const tKnob = document.getElementById('touch-knob');
+    function updateStick(cx, cy) {
+      const r = tPad.getBoundingClientRect();
+      const mx = r.left + r.width / 2;
+      const my = r.top + r.height / 2;
+      const max = r.width / 2 - 16;
+      let dx = cx - mx;
+      let dz = cy - my;
+      const d = Math.hypot(dx, dy = dz);
+      if (d > max) { dx = (dx / d) * max; dz = (dz / d) * max; }
+      tKnob.style.transform = `translate(${dx}px, ${dz}px)`;
+      touchStick.dx = dx / max;
+      touchStick.dz = dz / max;
+    }
+    tPad.addEventListener('touchstart', e => { e.preventDefault(); touchStick.active = true; updateStick(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+    tPad.addEventListener('touchmove', e => { e.preventDefault(); if (touchStick.active) updateStick(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+    const resetStick = () => { touchStick.active = false; touchStick.dx = 0; touchStick.dz = 0; tKnob.style.transform = 'translate(0,0)'; };
+    tPad.addEventListener('touchend', resetStick);
+    tPad.addEventListener('touchcancel', resetStick);
+
+    let prevTime = 0;
+    function animate(now) {
+      requestAnimationFrame(animate);
+      if (!prevTime) prevTime = now;
+      const dt = Math.min(0.05, (now - prevTime) / 1000);
+      prevTime = now;
+
+      update(dt);
+      renderer.render(scene, camera);
+    }
+
+    window.onload = function () {
+      requestAnimationFrame(animate);
+    };
+  </script>
+</body>
+</html>
