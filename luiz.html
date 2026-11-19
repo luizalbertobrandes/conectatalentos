@@ -2,10 +2,2321 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Minha Página</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>O Resgate no Castelo do Drácula</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        body {
+            background-color: #07060a;
+            color: #e6dfd5;
+            font-family: 'Crimson Text', Georgia, serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #0b0910;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Tipografia Gótica */
+        .gothic-title {
+            font-family: 'Cinzel Decorative', serif;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.9), 0 0 25px rgba(200, 25, 45, 0.65);
+            letter-spacing: 2px;
+        }
+
+        /* Overlays de Tela */
+        .screen-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(22, 14, 28, 0.88) 0%, rgba(6, 4, 10, 0.97) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 30;
+            text-align: center;
+            transition: opacity 0.4s ease;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .parchment-card {
+            background: linear-gradient(145deg, #1b1622 0%, #110d16 100%);
+            border: 2px solid #7a5c2e;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), inset 0 0 25px rgba(122, 92, 46, 0.2);
+            border-radius: 12px;
+            padding: 24px 30px;
+            max-width: 720px;
+            width: 100%;
+            max-height: 92vh;
+            overflow-y: auto;
+        }
+
+        .gothic-btn {
+            background: linear-gradient(180deg, #8b1624 0%, #520a13 100%);
+            color: #f7ead7;
+            font-family: 'Cinzel Decorative', serif;
+            font-weight: 700;
+            font-size: 1.15rem;
+            padding: 14px 34px;
+            border: 2px solid #c99a45;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+            margin-top: 16px;
+        }
+
+        .gothic-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.18);
+            box-shadow: 0 8px 25px rgba(180, 20, 40, 0.5);
+        }
+
+        .gothic-btn:active {
+            transform: translateY(1px);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(201, 154, 69, 0.3);
+        }
+
+        .key-badge {
+            display: inline-block;
+            background: #2b2335;
+            border: 1px solid #b5893e;
+            color: #ffd98e;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-right: 4px;
+        }
+
+        /* HUD Superior */
+        #hud-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 10px 14px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        .hud-panel {
+            background: rgba(14, 11, 19, 0.85);
+            border: 1px solid #75582b;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.75);
+            border-radius: 8px;
+            padding: 8px 12px;
+            pointer-events: auto;
+            backdrop-filter: blur(4px);
+        }
+
+        .youth-chips {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+
+        .youth-chip {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(30, 24, 38, 0.9);
+            border: 1px solid #4e3d5c;
+            border-radius: 6px;
+            padding: 4px 7px;
+            min-width: 58px;
+            font-size: 0.78rem;
+            transition: border-color 0.3s, background 0.3s;
+        }
+
+        .youth-chip.saved {
+            border-color: #39d98a;
+            background: rgba(18, 56, 40, 0.85);
+        }
+
+        .youth-chip.fallen {
+            border-color: #882222;
+            background: rgba(45, 12, 15, 0.85);
+            opacity: 0.65;
+        }
+
+        .mini-bar-bg {
+            width: 100%;
+            height: 5px;
+            background: #231b2b;
+            border-radius: 3px;
+            margin-top: 3px;
+            overflow: hidden;
+        }
+
+        .mini-bar-fill {
+            height: 100%;
+            transition: width 0.2s linear;
+        }
+
+        /* Barra de Sede / Proximidade do Drácula */
+        .dracula-meter-wrap {
+            width: 170px;
+        }
+
+        .dracula-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: #241118;
+            border: 1px solid #6e1c28;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        #dracula-proximity-fill {
+            height: 100%;
+            width: 15%;
+            background: linear-gradient(90deg, #7c1422, #ff2a44);
+            transition: width 0.15s ease;
+        }
+
+        /* Minimapa */
+        #minimap-canvas {
+            display: block;
+            width: 165px;
+            height: 82px;
+            border: 1px solid #634a24;
+            border-radius: 4px;
+            background: #09070c;
+        }
+
+        /* Botão de Som */
+        #mute-btn {
+            background: rgba(24, 18, 32, 0.9);
+            border: 1px solid #8a6832;
+            color: #f3dfb9;
+            border-radius: 8px;
+            padding: 7px 11px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-family: 'Crimson Text', serif;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #mute-btn:hover {
+            background: rgba(45, 34, 58, 0.95);
+        }
+
+        /* Mensagem Flutuante de Evento */
+        #event-banner {
+            position: absolute;
+            top: 108px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(22, 12, 26, 0.9);
+            border: 1px solid #c99a45;
+            color: #ffe8b8;
+            padding: 7px 18px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+            white-space: nowrap;
+        }
+
+        /* Controles Touch Virtuais */
+        #touch-controls {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            pointer-events: none;
+            z-index: 22;
+        }
+
+        .dpad-cluster {
+            display: grid;
+            grid-template-columns: repeat(3, 52px);
+            grid-template-rows: repeat(3, 52px);
+            gap: 4px;
+            pointer-events: auto;
+        }
+
+        .touch-btn {
+            background: rgba(26, 20, 34, 0.72);
+            border: 2px solid rgba(201, 154, 69, 0.55);
+            border-radius: 12px;
+            color: #f5e6cc;
+            font-size: 1.25rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+        }
+
+        .touch-btn:active, .touch-btn.active {
+            background: rgba(155, 32, 48, 0.85);
+            border-color: #ffd479;
+            transform: scale(0.95);
+        }
+
+        .action-cluster {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .action-btn {
+            padding: 12px 18px;
+            border-radius: 14px;
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 0.85rem;
+            min-width: 118px;
+        }
+
+        @media (min-width: 920px) and (pointer: fine) {
+            #touch-controls {
+                opacity: 0.45;
+            }
+            #touch-controls:hover {
+                opacity: 0.95;
+            }
+        }
+
+        @media (max-width: 680px) {
+            .hud-panel {
+                padding: 6px 8px;
+                font-size: 0.85rem;
+            }
+            #minimap-canvas {
+                width: 120px;
+                height: 60px;
+            }
+            .dracula-meter-wrap {
+                width: 130px;
+            }
+            .parchment-card {
+                padding: 18px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>"script.google.com/macros/s/AKfycbxFQ38M6n1hnk8aTJaJcwYBqXEBcvibwVKuUJyNnkED6Mm0w8oUP9PdxSGYqWReRm16/exec"</h1>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- HUD Superior -->
+        <div id="hud-top" class="hidden">
+            <!-- Status dos Jovens e Inventário -->
+            <div class="hud-panel">
+                <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                    <div>
+                        <span style="color:#d4af37; font-weight:bold;">✝ Resgatados:</span>
+                        <span id="saved-count" style="font-size:1.1rem; font-weight:bold; color:#4ee69c;">0 / 5</span>
+                    </div>
+                    <div>
+                        <span style="color:#69d2ff; font-weight:bold;">🧪 Poções:</span>
+                        <span id="potion-count" style="font-size:1.1rem; font-weight:bold; color:#fff;">3</span>
+                    </div>
+                    <div>
+                        <span style="color:#ffdf7d; font-weight:bold;">🧄 Alho/Luz:</span>
+                        <span id="garlic-count" style="font-size:1.1rem; font-weight:bold; color:#fff;">3</span>
+                    </div>
+                </div>
+                <div class="youth-chips" id="youth-chips-container"></div>
+            </div>
+
+            <!-- Radar / Sede do Drácula e Minimapa -->
+            <div style="display:flex; gap:8px; align-items:flex-start;">
+                <div class="hud-panel dracula-meter-wrap">
+                    <div style="display:flex; justify-content:space-between; font-size:0.82rem;">
+                        <span style="color:#ff6b7d; font-weight:bold;">🦇 Ameaça do Conde</span>
+                        <span id="dracula-status-text" style="color:#d9b8be;">Patrulhando</span>
+                    </div>
+                    <div class="dracula-bar-bg">
+                        <div id="dracula-proximity-fill"></div>
+                    </div>
+                    <div style="font-size:0.74rem; color:#b5a798; margin-top:4px;" id="objective-hint">
+                        Salve os 5 jovens e vá ao Portal!
+                    </div>
+                </div>
+
+                <div class="hud-panel" style="padding:5px;">
+                    <canvas id="minimap-canvas" width="165" height="82"></canvas>
+                </div>
+
+                <button id="mute-btn" title="Alternar Áudio">🔊 Som</button>
+            </div>
+        </div>
+
+        <!-- Banner de Aviso -->
+        <div id="event-banner"></div>
+
+        <!-- Controles Touch / Mobile -->
+        <div id="touch-controls" class="hidden">
+            <div class="dpad-cluster">
+                <div></div>
+                <button class="touch-btn" id="btn-up" aria-label="Subir Escada">▲</button>
+                <div></div>
+                <button class="touch-btn" id="btn-left" aria-label="Esquerda">◀</button>
+                <button class="touch-btn" id="btn-down" aria-label="Descer Escada">▼</button>
+                <button class="touch-btn" id="btn-right" aria-label="Direita">▶</button>
+            </div>
+            <div class="action-cluster">
+                <button class="touch-btn action-btn" id="btn-action" style="border-color:#4ee69c;">🧪 Poção / Ação</button>
+                <button class="touch-btn action-btn" id="btn-repel" style="border-color:#ff7b89;">🧄 Luz / Alho</button>
+            </div>
+        </div>
+
+        <!-- Tela Inicial -->
+        <div id="start-screen" class="screen-overlay">
+            <div class="parchment-card">
+                <div style="color:#c99a45; font-size:0.95rem; letter-spacing:3px; text-transform:uppercase; margin-bottom:4px;">
+                    Crônicas da Transilvânia • 1897
+                </div>
+                <h1 class="gothic-title" style="font-size: clamp(1.7rem, 4vw, 2.7rem); color:#e82c42; margin-bottom:12px;">
+                    O Resgate no Castelo do Drácula
+                </h1>
+                <p style="font-size:1.12rem; line-height:1.55; color:#dfd6c9; margin-bottom:14px;">
+                    Cinco jovens viajantes adentraram inadvertidamente as muralhas sombrias do Castelo de Drácula.
+                    Enfraquecidos pela névoa amaldiçoada, eles estão espalhados pelos salões góticos enquanto o Conde desperta com sede de sangue.
+                    Como <strong>Elena, a Alquimista Caçadora</strong>, explore os andares, ministre a <em>Poção Vital</em> em cada jovem e escolte-os em segurança até o <strong>Portal Sagrado</strong>!
+                </p>
+
+                <div class="controls-grid">
+                    <div>
+                        <div style="color:#ffd479; font-weight:bold; margin-bottom:4px;">🧭 Exploração e Escadas</div>
+                        <p style="font-size:0.95rem;"><span class="key-badge">A / D</span> ou <span class="key-badge">◀ / ▶</span> Mover<br>
+                        <span class="key-badge">W / S</span> ou <span class="key-badge">▲ / ▼</span> Subir/Descer escadarias</p>
+                    </div>
+                    <div>
+                        <div style="color:#4ee69c; font-weight:bold; margin-bottom:4px;">🧪 Curar e Resgatar</div>
+                        <p style="font-size:0.95rem;"><span class="key-badge">Espaço</span> ou <span class="key-badge">E</span> Ministrar poção ao jovem próximo e guiá-lo até o portal.</p>
+                    </div>
+                    <div>
+                        <div style="color:#ff7b89; font-weight:bold; margin-bottom:4px;">🧄 Repelir o Vampiro</div>
+                        <p style="font-size:0.95rem;"><span class="key-badge">F</span> ou <span class="key-badge">Shift</span> Liberar essência de alho e luz sagrada para atordoar Drácula!</p>
+                    </div>
+                </div>
+
+                <p style="font-size:0.92rem; color:#b3a492; font-style:italic;">
+                    Dica: Colete frascos de poção e bulbos de alho sobre mesas e estantes. Se Drácula se aproximar de um jovem caído, ele drenará sua energia rapidamente!
+                </p>
+
+                <button class="gothic-btn" id="start-btn">Adentrar o Castelo</button>
+            </div>
+        </div>
+
+        <!-- Tela de Vitória -->
+        <div id="victory-screen" class="screen-overlay hidden">
+            <div class="parchment-card">
+                <div style="font-size:2.6rem; margin-bottom:6px;">🌅✝️</div>
+                <h2 class="gothic-title" style="font-size: clamp(1.7rem, 3.8vw, 2.5rem); color:#4ee69c; margin-bottom:10px;">
+                    Amanhecer Triunfante!
+                </h2>
+                <p id="victory-summary" style="font-size:1.15rem; line-height:1.6; color:#e6dfd5; margin-bottom:16px;"></p>
+                <button class="gothic-btn" id="restart-victory-btn">Jogar Novamente</button>
+            </div>
+        </div>
+
+        <!-- Tela de Derrota -->
+        <div id="gameover-screen" class="screen-overlay hidden">
+            <div class="parchment-card" style="border-color:#9e1b2b;">
+                <div style="font-size:2.6rem; margin-bottom:6px;">🦇🩸</div>
+                <h2 class="gothic-title" style="font-size: clamp(1.7rem, 3.8vw, 2.5rem); color:#ff3b52; margin-bottom:10px;">
+                    As Trevas Prevaleceram
+                </h2>
+                <p id="gameover-reason" style="font-size:1.15rem; line-height:1.6; color:#e6dfd5; margin-bottom:16px;"></p>
+                <button class="gothic-btn" id="restart-gameover-btn">Tentar Novo Resgate</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    /**
+     * ============================================================================
+     * O RESGATE NO CASTELO DO DRÁCULA
+     * Jogo de Aventura Gótica 2D em HTML5 Canvas (Arquivo Único Autossuficiente)
+     * ============================================================================
+     */
+
+    // ============================================================================
+    // 1. SISTEMA DE ÁUDIO SINTETIZADO (WEB AUDIO API)
+    // ============================================================================
+    class GothicAudioEngine {
+        constructor() {
+            this.ctx = null;
+            this.muted = false;
+            this.bgmInterval = null;
+            this.stepTimer = 0;
+            this.noteIndex = 0;
+            // Progressão menor harmônica gótica (Ré menor / Lá7 / Sib / Sol menor)
+            this.melodyNotes = [
+                146.83, 174.61, 220.00, 233.08, 220.00, 174.61, 164.81, 138.59,
+                146.83, 220.00, 293.66, 277.18, 233.08, 220.00, 174.61, 164.81
+            ];
+        }
+
+        init() {
+            if (!this.ctx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioContext();
+            }
+            if (this.ctx.state === 'suspended') {
+                this.ctx.resume();
+            }
+            this.startBGM();
+        }
+
+        toggleMute() {
+            this.muted = !this.muted;
+            return this.muted;
+        }
+
+        startBGM() {
+            if (this.bgmInterval) clearInterval(this.bgmInterval);
+            this.bgmInterval = setInterval(() => {
+                if (this.muted || !this.ctx || this.ctx.state !== 'running') return;
+                const freq = this.melodyNotes[this.noteIndex % this.melodyNotes.length];
+                this.noteIndex++;
+                this.playOrganNote(freq, 0.55, 0.045);
+                if (this.noteIndex % 4 === 1) {
+                    this.playOrganNote(freq * 0.5, 1.1, 0.055);
+                }
+            }, 620);
+        }
+
+        playOrganNote(freq, duration, volume) {
+            try {
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                const filter = this.ctx.createBiquadFilter();
+
+                osc.type = 'triangle';
+                osc2.type = 'sine';
+                osc.frequency.setValueAtTime(freq, now);
+                osc2.frequency.setValueAtTime(freq * 2, now);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(650, now);
+
+                gain.gain.setValueAtTime(0.001, now);
+                gain.gain.linearRampToValueAtTime(volume, now + 0.08);
+                gain.gain.exponentialRampToValueAtTime(0.0008, now + duration);
+
+                osc.connect(filter);
+                osc2.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                osc.stop(now + duration + 0.05);
+                osc2.stop(now + duration + 0.05);
+            } catch (e) {}
+        }
+
+        playFootstep() {
+            if (this.muted || !this.ctx) return;
+            try {
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(110 + Math.random() * 25, now);
+                osc.frequency.exponentialRampToValueAtTime(42, now + 0.06);
+                gain.gain.setValueAtTime(0.06, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.07);
+            } catch (e) {}
+        }
+
+        playPotionSound() {
+            if (this.muted || !this.ctx) return;
+            try {
+                const now = this.ctx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((n, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(n, now + idx * 0.07);
+                    gain.gain.setValueAtTime(0.11, now + idx * 0.07);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.35);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.07);
+                    osc.stop(now + idx * 0.07 + 0.36);
+                });
+            } catch (e) {}
+        }
+
+        playPickupSound() {
+            if (this.muted || !this.ctx) return;
+            try {
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(587.33, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.14);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.17);
+            } catch (e) {}
+        }
+
+        playHolyRepel() {
+            if (this.muted || !this.ctx) return;
+            try {
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc2.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(1320, now + 0.35);
+                osc2.frequency.setValueAtTime(880, now);
+                osc2.frequency.exponentialRampToValueAtTime(1760, now + 0.35);
+
+                gain.gain.setValueAtTime(0.14, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                osc.connect(gain);
+                osc2.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc2.start(now);
+                osc.stop(now + 0.46);
+                osc2.stop(now + 0.46);
+            } catch (e) {}
+        }
+
+        playDraculaRoar() {
+            if (this.muted || !this.ctx) return;
+            try {
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(165, now);
+                osc.frequency.linearRampToValueAtTime(92, now + 0.25);
+                osc.frequency.linearRampToValueAtTime(130, now + 0.42);
+                osc.frequency.exponentialRampToValueAtTime(55, now + 0.75);
+
+                gain.gain.setValueAtTime(0.16, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.78);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.8);
+            } catch (e) {}
+        }
+
+        playThunder() {
+            if (this.muted || !this.ctx) return;
+            try {
+                const now = this.ctx.currentTime;
+                const bufferSize = this.ctx.sampleRate * 1.1;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.45));
+                }
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(220, now);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.22, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 1.05);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                noise.start(now);
+            } catch (e) {}
+        }
+    }
+
+    // ============================================================================
+    // 2. CONFIGURAÇÃO DO CASTELO MEDIEVAL E CONSTANTES DO MUNDO
+    // ============================================================================
+    const WORLD = {
+        width: 2800,
+        height: 1120,
+        floorCount: 4,
+        floorHeight: 245,
+        topMargin: 120,
+        wallThickness: 45
+    };
+
+    // Calcula a coordenada Y do chão de cada andar (0 = térreo/cripta inferior, 3 = torre superior)
+    function getFloorY(floorIndex) {
+        return WORLD.topMargin + (WORLD.floorCount - floorIndex) * WORLD.floorHeight;
+    }
+
+    // Escadarias de pedra conectando os andares
+    const STAIRCASES = [
+        { id: 'st_0_1_a', x: 520, fromFloor: 0, toFloor: 1 },
+        { id: 'st_0_1_b', x: 2240, fromFloor: 0, toFloor: 1 },
+        { id: 'st_1_2_a', x: 960, fromFloor: 1, toFloor: 2 },
+        { id: 'st_1_2_b', x: 1860, fromFloor: 1, toFloor: 2 },
+        { id: 'st_2_3_a', x: 640, fromFloor: 2, toFloor: 3 },
+        { id: 'st_2_3_b', x: 2150, fromFloor: 2, toFloor: 3 }
+    ];
+
+    // Portal Sagrado de Saída no térreo à esquerda
+    const PORTAL = {
+        x: 155,
+        floor: 0,
+        width: 76,
+        height: 125
+    };
+
+    // ============================================================================
+    // 3. CLASSE PRINCIPAL DO JOGO
+    // ============================================================================
+    class DraculaCastleGame {
+        constructor() {
+            this.canvas = document.getElementById('gameCanvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.minimapCanvas = document.getElementById('minimap-canvas');
+            this.minimapCtx = this.minimapCanvas.getContext('2d');
+            this.audio = new GothicAudioEngine();
+
+            this.state = 'MENU'; // MENU, PLAYING, VICTORY, GAMEOVER
+            this.lastTime = 0;
+            this.globalTime = 0;
+            this.lightningAlpha = 0;
+            this.nextThunderTimer = 8;
+
+            this.camera = { x: 0, y: 0, shake: 0 };
+            this.keys = {};
+            this.particles = [];
+            this.floatingTexts = [];
+
+            // Elementos arquitetônicos gerados proceduralmente
+            this.decorations = [];
+            this.torches = [];
+            this.chandeliers = [];
+            this.pickups = [];
+
+            // Entidades
+            this.hero = null;
+            this.youths = [];
+            this.dracula = null;
+
+            this.bindEvents();
+            this.handleResize();
+        }
+
+        handleResize() {
+            const rect = this.canvas.parentElement.getBoundingClientRect();
+            this.canvas.width = rect.width;
+            this.canvas.height = rect.height;
+        }
+
+        bindEvents() {
+            window.addEventListener('resize', () => this.handleResize());
+
+            window.addEventListener('keydown', (e) => {
+                this.keys[e.code] = true;
+                if (this.state === 'PLAYING') {
+                    if (e.code === 'Space' || e.code === 'KeyE') {
+                        e.preventDefault();
+                        this.triggerHeroAction();
+                    }
+                    if (e.code === 'KeyF' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+                        e.preventDefault();
+                        this.triggerHolyRepel();
+                    }
+                }
+            });
+
+            window.addEventListener('keyup', (e) => {
+                this.keys[e.code] = false;
+            });
+
+            // Botões UI
+            document.getElementById('start-btn').addEventListener('click', () => {
+                this.audio.init();
+                this.startNewGame();
+            });
+
+            document.getElementById('restart-victory-btn').addEventListener('click', () => {
+                this.startNewGame();
+            });
+
+            document.getElementById('restart-gameover-btn').addEventListener('click', () => {
+                this.startNewGame();
+            });
+
+            document.getElementById('mute-btn').addEventListener('click', () => {
+                const muted = this.audio.toggleMute();
+                document.getElementById('mute-btn').textContent = muted ? '🔇 Mudo' : '🔊 Som';
+            });
+
+            // Controles Touch Virtuais
+            this.bindTouchHold('btn-left', 'ArrowLeft');
+            this.bindTouchHold('btn-right', 'ArrowRight');
+            this.bindTouchHold('btn-up', 'ArrowUp');
+            this.bindTouchHold('btn-down', 'ArrowDown');
+
+            const btnAction = document.getElementById('btn-action');
+            btnAction.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (this.state === 'PLAYING') this.triggerHeroAction();
+            });
+            btnAction.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                if (this.state === 'PLAYING') this.triggerHeroAction();
+            });
+
+            const btnRepel = document.getElementById('btn-repel');
+            btnRepel.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (this.state === 'PLAYING') this.triggerHolyRepel();
+            });
+            btnRepel.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                if (this.state === 'PLAYING') this.triggerHolyRepel();
+            });
+        }
+
+        bindTouchHold(elementId, keyCode) {
+            const el = document.getElementById(elementId);
+            const setActive = (val) => {
+                this.keys[keyCode] = val;
+                if (val) el.classList.add('active');
+                else el.classList.remove('active');
+            };
+            el.addEventListener('touchstart', (e) => { e.preventDefault(); setActive(true); });
+            el.addEventListener('touchend', (e) => { e.preventDefault(); setActive(false); });
+            el.addEventListener('touchcancel', (e) => { e.preventDefault(); setActive(false); });
+            el.addEventListener('mousedown', (e) => { e.preventDefault(); setActive(true); });
+            el.addEventListener('mouseup', (e) => { e.preventDefault(); setActive(false); });
+            el.addEventListener('mouseleave', () => setActive(false));
+        }
+
+        showBanner(text, duration = 2600) {
+            const banner = document.getElementById('event-banner');
+            banner.textContent = text;
+            banner.style.opacity = '1';
+            clearTimeout(this.bannerTimeout);
+            this.bannerTimeout = setTimeout(() => {
+                banner.style.opacity = '0';
+            }, duration);
+        }
+
+        startNewGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('victory-screen').classList.add('hidden');
+            document.getElementById('gameover-screen').classList.add('hidden');
+            document.getElementById('hud-top').classList.remove('hidden');
+            document.getElementById('touch-controls').classList.remove('hidden');
+
+            this.particles = [];
+            this.floatingTexts = [];
+            this.buildCastleDetails();
+            this.initEntities();
+            this.buildYouthHUD();
+
+            this.state = 'PLAYING';
+            this.showBanner('Encontre os 5 jovens e ministre a poção vital!', 3400);
+            this.audio.playThunder();
+            this.lightningAlpha = 0.45;
+        }
+
+        // ========================================================================
+        // 4. CONSTRUÇÃO DO CENÁRIO MEDIEVAL DETALHADO
+        // ========================================================================
+        buildCastleDetails() {
+            this.decorations = [];
+            this.torches = [];
+            this.chandeliers = [];
+            this.pickups = [];
+
+            for (let f = 0; f < WORLD.floorCount; f++) {
+                const floorY = getFloorY(f);
+                const ceilingY = floorY - WORLD.floorHeight + 22;
+
+                // Tochas nas paredes a cada ~340px
+                for (let x = 280; x < WORLD.width - 180; x += 340) {
+                    this.torches.push({
+                        x: x,
+                        y: floorY - 125,
+                        phase: Math.random() * Math.PI * 2
+                    });
+                }
+
+                // Candelabros de velas pendurados no teto
+                for (let x = 440; x < WORLD.width - 260; x += 520) {
+                    this.chandeliers.push({
+                        x: x,
+                        y: ceilingY,
+                        candles: 5,
+                        swayPhase: Math.random() * Math.PI * 2
+                    });
+                }
+
+                // Decorações temáticas por corredor/andar
+                const roomThemes = ['armor', 'painting', 'stained_glass', 'bookshelf', 'sarcophagus', 'carpet'];
+                let slotIndex = 0;
+                for (let x = 350; x < WORLD.width - 220; x += 260) {
+                    // Evitar sobrepor escadarias diretamente
+                    const nearStair = STAIRCASES.some(st =>
+                        (st.fromFloor === f || st.toFloor === f) && Math.abs(st.x - x) < 95
+                    );
+                    if (nearStair) continue;
+
+                    const type = roomThemes[(f * 2 + slotIndex) % roomThemes.length];
+                    slotIndex++;
+                    this.decorations.push({
+                        type,
+                        x,
+                        y: floorY,
+                        floor: f,
+                        variant: (f + slotIndex) % 3
+                    });
+                }
+            }
+
+            // Frascos de Poção e Bulbos de Alho espalhados pelo castelo
+            const pickupSpots = [
+                { x: 750, floor: 0, kind: 'potion' },
+                { x: 1450, floor: 0, kind: 'garlic' },
+                { x: 2520, floor: 0, kind: 'potion' },
+                { x: 340, floor: 1, kind: 'garlic' },
+                { x: 1380, floor: 1, kind: 'potion' },
+                { x: 2480, floor: 1, kind: 'potion' },
+                { x: 420, floor: 2, kind: 'potion' },
+                { x: 1420, floor: 2, kind: 'garlic' },
+                { x: 2450, floor: 2, kind: 'potion' },
+                { x: 1120, floor: 3, kind: 'potion' },
+                { x: 1750, floor: 3, kind: 'garlic' }
+            ];
+
+            pickupSpots.forEach((p, idx) => {
+                this.pickups.push({
+                    id: idx,
+                    x: p.x,
+                    y: getFloorY(p.floor) - 24,
+                    floor: p.floor,
+                    kind: p.kind,
+                    collected: false,
+                    bobPhase: idx * 1.1
+                });
+            });
+        }
+
+        // ========================================================================
+        // 5. INICIALIZAÇÃO DAS ENTIDADES (HEROÍNA, 5 JOVENS E CONDE DRÁCULA)
+        // ========================================================================
+        initEntities() {
+            // Heroína Elena começa perto do Portal Sagrado
+            this.hero = {
+                x: 270,
+                y: getFloorY(0),
+                floor: 0,
+                vx: 0,
+                speed: 235,
+                climbSpeed: 165,
+                facing: 1,
+                potions: 3,
+                garlics: 3,
+                hp: 100,
+                maxHp: 100,
+                invulnTimer: 0,
+                repelWaveTimer: 0,
+                animTime: 0,
+                climbingStair: null
+            };
+
+            // Os 5 jovens espalhados pelos diferentes andares do castelo
+            const youthConfigs = [
+                { name: 'Lucas', floor: 0, x: 2540, color: '#5dade2' },
+                { name: 'Clara', floor: 1, x: 420, color: '#f5b041' },
+                { name: 'Mateus', floor: 2, x: 2460, color: '#58d68d' },
+                { name: 'Sofia', floor: 2, x: 1320, color: '#eb984e' },
+                { name: 'Arthur', floor: 3, x: 1420, color: '#af7ac5' }
+            ];
+
+            this.youths = youthConfigs.map((cfg, i) => ({
+                id: i,
+                name: cfg.name,
+                x: cfg.x,
+                y: getFloorY(cfg.floor),
+                floor: cfg.floor,
+                color: cfg.color,
+                vitality: 100,
+                maxVitality: 100,
+                // Estados: 'WEAK' (caído/fraco), 'FOLLOWING' (curado e seguindo a heroína), 'RESCUED' (salvo no portal), 'FALLEN' (capturado)
+                status: 'WEAK',
+                facing: -1,
+                animTime: i * 0.7,
+                climbingStair: null
+            }));
+
+            // Conde Drácula começa na torre superior caçando
+            this.dracula = {
+                x: 2350,
+                y: getFloorY(3),
+                floor: 3,
+                facing: -1,
+                speed: 148,
+                chaseSpeed: 192,
+                batSpeed: 290,
+                state: 'PATROL', // PATROL, CHASE, BAT_FORM, STUNNED, FEEDING
+                stateTimer: 0,
+                targetX: 450,
+                targetFloor: 2,
+                animTime: 0,
+                cloakWave: 0
+            };
+        }
+
+        buildYouthHUD() {
+            const container = document.getElementById('youth-chips-container');
+            container.innerHTML = '';
+            this.youths.forEach(y => {
+                const chip = document.createElement('div');
+                chip.className = 'youth-chip';
+                chip.id = `youth-chip-${y.id}`;
+                chip.innerHTML = `
+                    <span style="font-weight:bold; color:${y.color};">${y.name}</span>
+                    <span id="youth-state-${y.id}" style="font-size:0.68rem; color:#d8cfc4;">Fraco</span>
+                    <div class="mini-bar-bg">
+                        <div class="mini-bar-fill" id="youth-bar-${y.id}" style="width:100%; background:#e74c3c;"></div>
+                    </div>
+                `;
+                container.appendChild(chip);
+            });
+        }
+
+        // ========================================================================
+        // 6. AÇÕES DA HEROÍNA (POÇÃO / RESGATE E LUZ SAGRADA / ALHO)
+        // ========================================================================
+        triggerHeroAction() {
+            // 1. Verificar se há um jovem fraco próximo para ministrar a poção
+            let nearestWeak = null;
+            let bestDist = 78;
+
+            for (const y of this.youths) {
+                if (y.status === 'WEAK' && y.floor === this.hero.floor) {
+                    const d = Math.abs(y.x - this.hero.x);
+                    if (d < bestDist) {
+                        bestDist = d;
+                        nearestWeak = y;
+                    }
+                }
+            }
+
+            if (nearestWeak) {
+                if (this.hero.potions > 0) {
+                    this.hero.potions--;
+                    nearestWeak.status = 'FOLLOWING';
+                    nearestWeak.vitality = Math.min(100, nearestWeak.vitality + 45);
+                    this.audio.playPotionSound();
+                    this.spawnParticles(nearestWeak.x, nearestWeak.y - 35, '#4ee69c', 26);
+                    this.addFloatingText(nearestWeak.x, nearestWeak.y - 65, `✨ ${nearestWeak.name} curado(a)!`, '#4ee69c');
+                    this.showBanner(`${nearestWeak.name} recuperou as forças! Leve-o(a) ao Portal Sagrado!`);
+                } else {
+                    this.addFloatingText(this.hero.x, this.hero.y - 65, 'Sem poções! Procure um frasco!', '#ff6b7d');
+                }
+                return;
+            }
+
+            // 2. Verificar se está próximo de um frasco/item para coleta manual imediata
+            for (const p of this.pickups) {
+                if (!p.collected && p.floor === this.hero.floor && Math.abs(p.x - this.hero.x) < 60) {
+                    this.collectPickup(p);
+                    return;
+                }
+            }
+
+            this.addFloatingText(this.hero.x, this.hero.y - 60, 'Nenhum jovem caído por perto', '#cfc3b2');
+        }
+
+        triggerHolyRepel() {
+            if (this.hero.garlics <= 0) {
+                this.addFloatingText(this.hero.x, this.hero.y - 65, 'Sem essência de alho!', '#ff7b89');
+                return;
+            }
+
+            this.hero.garlics--;
+            this.hero.repelWaveTimer = 0.75;
+            this.audio.playHolyRepel();
+            this.spawnParticles(this.hero.x, this.hero.y - 35, '#ffe07d', 36);
+            this.addFloatingText(this.hero.x, this.hero.y - 72, '✝ LUZ E ALHO SAGRADO!', '#ffe07d');
+
+            // Verifica se Drácula está no raio de efeito
+            const dx = this.dracula.x - this.hero.x;
+            const dy = this.dracula.y - this.hero.y;
+            const dist = Math.hypot(dx, dy);
+
+            if (dist < 290) {
+                this.dracula.state = 'STUNNED';
+                this.dracula.stateTimer = 4.5;
+                this.dracula.x += (dx >= 0 ? 1 : -1) * 75;
+                this.dracula.x = Math.max(90, Math.min(WORLD.width - 90, this.dracula.x));
+                this.camera.shake = 10;
+                this.audio.playDraculaRoar();
+                this.spawnParticles(this.dracula.x, this.dracula.y - 45, '#ff3852', 30);
+                this.showBanner('O Conde Drácula recuou queimado pela Luz Sagrada!');
+            }
+        }
+
+        collectPickup(p) {
+            p.collected = true;
+            this.audio.playPickupSound();
+            if (p.kind === 'potion') {
+                this.hero.potions++;
+                this.spawnParticles(p.x, p.y, '#5ce1e6', 18);
+                this.addFloatingText(p.x, p.y - 25, '+1 Poção Vital', '#5ce1e6');
+            } else {
+                this.hero.garlics++;
+                this.spawnParticles(p.x, p.y, '#ffe07d', 18);
+                this.addFloatingText(p.x, p.y - 25, '+1 Alho Sagrado', '#ffe07d');
+            }
+        }
+
+        // ========================================================================
+        // 7. ATUALIZAÇÃO LÓGICA (FÍSICA, IA DO DRÁCULA E JOVENS)
+        // ========================================================================
+        update(dt) {
+            this.globalTime += dt;
+
+            // Trovões atmosféricos aleatórios
+            this.nextThunderTimer -= dt;
+            if (this.nextThunderTimer <= 0) {
+                this.nextThunderTimer = 14 + Math.random() * 16;
+                this.lightningAlpha = 0.35;
+                this.audio.playThunder();
+            }
+            if (this.lightningAlpha > 0) {
+                this.lightningAlpha = Math.max(0, this.lightningAlpha - dt * 1.4);
+            }
+
+            if (this.state !== 'PLAYING') return;
+
+            this.updateHero(dt);
+            this.updateYouths(dt);
+            this.updateDracula(dt);
+            this.updateParticles(dt);
+            this.updateCamera(dt);
+            this.updateHUD();
+            this.checkEndConditions();
+        }
+
+        updateHero(dt) {
+            const h = this.hero;
+            h.animTime += dt;
+            if (h.invulnTimer > 0) h.invulnTimer -= dt;
+            if (h.repelWaveTimer > 0) h.repelWaveTimer -= dt;
+
+            const moveLeft = this.keys['ArrowLeft'] || this.keys['KeyA'];
+            const moveRight = this.keys['ArrowRight'] || this.keys['KeyD'];
+            const moveUp = this.keys['ArrowUp'] || this.keys['KeyW'];
+            const moveDown = this.keys['ArrowDown'] || this.keys['KeyS'];
+
+            // Movimento em escadas
+            if (h.climbingStair) {
+                const st = h.climbingStair;
+                const bottomY = getFloorY(st.fromFloor);
+                const topY = getFloorY(st.toFloor);
+
+                // Alinha suavemente ao eixo da escada
+                h.x += (st.x - h.x) * Math.min(1, dt * 12);
+
+                if (moveUp) {
+                    h.y -= h.climbSpeed * dt;
+                    if (h.y <= topY) {
+                        h.y = topY;
+                        h.floor = st.toFloor;
+                        h.climbingStair = null;
+                    }
+                } else if (moveDown) {
+                    h.y += h.climbSpeed * dt;
+                    if (h.y >= bottomY) {
+                        h.y = bottomY;
+                        h.floor = st.fromFloor;
+                        h.climbingStair = null;
+                    }
+                }
+            } else {
+                // Movimento horizontal nos corredores
+                let dir = 0;
+                if (moveLeft) dir -= 1;
+                if (moveRight) dir += 1;
+
+                if (dir !== 0) {
+                    h.facing = dir;
+                    h.x += dir * h.speed * dt;
+                    h.x = Math.max(70, Math.min(WORLD.width - 70, h.x));
+
+                    this.audio.stepTimer -= dt;
+                    if (this.audio.stepTimer <= 0) {
+                        this.audio.stepTimer = 0.32;
+                        this.audio.playFootstep();
+                    }
+                }
+
+                // Verificar entrada em escada
+                if (moveUp) {
+                    const stairUp = STAIRCASES.find(st => st.fromFloor === h.floor && Math.abs(st.x - h.x) < 42);
+                    if (stairUp) {
+                        h.climbingStair = stairUp;
+                    }
+                } else if (moveDown) {
+                    const stairDown = STAIRCASES.find(st => st.toFloor === h.floor && Math.abs(st.x - h.x) < 42);
+                    if (stairDown) {
+                        h.climbingStair = stairDown;
+                    }
+                }
+            }
+
+            // Coleta automática ao passar sobre itens
+            for (const p of this.pickups) {
+                if (!p.collected && p.floor === h.floor && !h.climbingStair && Math.abs(p.x - h.x) < 36) {
+                    this.collectPickup(p);
+                }
+            }
+        }
+
+        updateYouths(dt) {
+            const h = this.hero;
+
+            this.youths.forEach((y, idx) => {
+                y.animTime += dt;
+
+                if (y.status === 'WEAK') {
+                    // Perde energia bem devagar devido à névoa do castelo
+                    y.vitality = Math.max(0, y.vitality - dt * 0.65);
+                    if (y.vitality <= 0) {
+                        y.status = 'FALLEN';
+                        this.showBanner(`Oh não! ${y.name} sucumbiu às trevas do castelo!`);
+                    }
+                } else if (y.status === 'FOLLOWING') {
+                    // Segue a heroína através dos andares e escadas
+                    const followOffset = (idx + 1) * 34;
+                    const desiredX = h.x - h.facing * followOffset;
+
+                    if (y.floor === h.floor && !h.climbingStair) {
+                        const dx = desiredX - y.x;
+                        if (Math.abs(dx) > 12) {
+                            y.facing = dx > 0 ? 1 : -1;
+                            y.x += Math.sign(dx) * Math.min(Math.abs(dx), 215 * dt);
+                        }
+                        y.y = getFloorY(y.floor);
+                    } else {
+                        // Navega até a escada mais próxima do andar da heroína
+                        const targetFloor = h.climbingStair ? h.climbingStair.toFloor : h.floor;
+                        if (targetFloor > y.floor) {
+                            const st = STAIRCASES.find(s => s.fromFloor === y.floor);
+                            if (st) this.moveYouthAlongStair(y, st, 1, dt);
+                        } else if (targetFloor < y.floor) {
+                            const st = STAIRCASES.find(s => s.toFloor === y.floor);
+                            if (st) this.moveYouthAlongStair(y, st, -1, dt);
+                        }
+                    }
+
+                    // Verifica se chegou ao Portal Sagrado no térreo
+                    if (y.floor === PORTAL.floor && Math.abs(y.x - PORTAL.x) < 62) {
+                        y.status = 'RESCUED';
+                        this.audio.playPotionSound();
+                        this.spawnParticles(PORTAL.x, getFloorY(0) - 55, '#ffd700', 32);
+                        this.addFloatingText(PORTAL.x, getFloorY(0) - 95, `✝ ${y.name} ESTÁ A SALVO!`, '#ffd700');
+                        this.showBanner(`${y.name} atravessou o Portal Sagrado em segurança!`);
+                    }
+                }
+            });
+        }
+
+        moveYouthAlongStair(youth, stair, dir, dt) {
+            if (Math.abs(youth.x - stair.x) > 10) {
+                youth.facing = stair.x > youth.x ? 1 : -1;
+                youth.x += youth.facing * 210 * dt;
+            } else {
+                youth.x = stair.x;
+                youth.y -= dir * 175 * dt;
+                if (dir > 0 && youth.y <= getFloorY(stair.toFloor)) {
+                    youth.y = getFloorY(stair.toFloor);
+                    youth.floor = stair.toFloor;
+                } else if (dir < 0 && youth.y >= getFloorY(stair.fromFloor)) {
+                    youth.y = getFloorY(stair.fromFloor);
+                    youth.floor = stair.fromFloor;
+                }
+            }
+        }
+
+        updateDracula(dt) {
+            const d = this.dracula;
+            const h = this.hero;
+            d.animTime += dt;
+            d.cloakWave += dt * 5;
+
+            if (d.state === 'STUNNED') {
+                d.stateTimer -= dt;
+                if (d.stateTimer <= 0) {
+                    d.state = 'PATROL';
+                }
+                return;
+            }
+
+            // Detecta alvo prioritário (heroína no mesmo andar ou jovem próximo/vulnerável)
+            let detectedTarget = null;
+
+            // 1. Verifica heroína no mesmo andar
+            if (d.floor === h.floor && Math.abs(d.x - h.x) < 520) {
+                detectedTarget = { x: h.x, floor: h.floor, type: 'hero' };
+            }
+
+            // 2. Verifica jovens não resgatados no mesmo andar
+            if (!detectedTarget) {
+                for (const y of this.youths) {
+                    if ((y.status === 'WEAK' || y.status === 'FOLLOWING') && y.floor === d.floor && Math.abs(d.x - y.x) < 460) {
+                        detectedTarget = { x: y.x, floor: y.floor, type: 'youth', entity: y };
+                        break;
+                    }
+                }
+            }
+
+            if (detectedTarget) {
+                if (d.state === 'PATROL') {
+                    this.audio.playDraculaRoar();
+                }
+                d.state = 'CHASE';
+                const dx = detectedTarget.x - d.x;
+                d.facing = dx >= 0 ? 1 : -1;
+                d.x += d.facing * d.chaseSpeed * dt;
+            } else if (d.state === 'BAT_FORM') {
+                // Voa em forma de morcego até o andar alvo
+                const targetY = getFloorY(d.targetFloor);
+                const dx = d.targetX - d.x;
+                const dy = targetY - d.y;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist < 18) {
+                    d.x = d.targetX;
+                    d.y = targetY;
+                    d.floor = d.targetFloor;
+                    d.state = 'PATROL';
+                    this.spawnParticles(d.x, d.y - 40, '#8e1b2e', 18);
+                } else {
+                    d.facing = dx >= 0 ? 1 : -1;
+                    d.x += (dx / dist) * d.batSpeed * dt;
+                    d.y += (dy / dist) * d.batSpeed * dt;
+                }
+            } else {
+                // Patrulha pelo corredor atual
+                d.state = 'PATROL';
+                const dx = d.targetX - d.x;
+                if (Math.abs(dx) < 25) {
+                    // Decide patrulhar outro ponto ou virar morcego para caçar em outro andar
+                    if (Math.random() < 0.62) {
+                        const activeYouths = this.youths.filter(y => y.status === 'WEAK' || y.status === 'FOLLOWING');
+                        if (activeYouths.length > 0 && Math.random() < 0.7) {
+                            const chosen = activeYouths[Math.floor(Math.random() * activeYouths.length)];
+                            d.targetFloor = chosen.floor;
+                            d.targetX = Math.max(250, Math.min(WORLD.width - 250, chosen.x + (Math.random() * 300 - 150)));
+                        } else {
+                            d.targetFloor = Math.floor(Math.random() * WORLD.floorCount);
+                            d.targetX = 320 + Math.random() * (WORLD.width - 640);
+                        }
+                        if (d.targetFloor !== d.floor) {
+                            d.state = 'BAT_FORM';
+                            this.spawnParticles(d.x, d.y - 40, '#5a0e1c', 16);
+                        }
+                    } else {
+                        d.targetX = 280 + Math.random() * (WORLD.width - 560);
+                    }
+                } else {
+                    d.facing = dx >= 0 ? 1 : -1;
+                    d.x += d.facing * d.speed * dt;
+                }
+            }
+
+            // Interação de ataque / drenagem de sangue do Drácula
+            if (d.state !== 'BAT_FORM') {
+                // Contra a heroína
+                if (d.floor === h.floor && Math.abs(d.x - h.x) < 42 && h.invulnTimer <= 0) {
+                    h.hp -= 28;
+                    h.invulnTimer = 1.4;
+                    this.camera.shake = 12;
+                    this.audio.playDraculaRoar();
+                    this.spawnParticles(h.x, h.y - 40, '#e81c34', 24);
+                    this.addFloatingText(h.x, h.y - 70, '-28 Vitalidade!', '#ff3b52');
+                    h.x += (h.x >= d.x ? 1 : -1) * 65;
+                    h.x = Math.max(70, Math.min(WORLD.width - 70, h.x));
+                }
+
+                // Contra os jovens
+                for (const y of this.youths) {
+                    if ((y.status === 'WEAK' || y.status === 'FOLLOWING') && y.floor === d.floor && Math.abs(d.x - y.x) < 46) {
+                        y.vitality -= dt * 24;
+                        if (Math.random() < 0.25) {
+                            this.spawnParticles(y.x, y.y - 30, '#d9162d', 3);
+                        }
+                        if (y.vitality <= 0) {
+                            y.vitality = 0;
+                            y.status = 'FALLEN';
+                            this.camera.shake = 10;
+                            this.audio.playDraculaRoar();
+                            this.showBanner(`O Conde Drácula drenou toda a energia de ${y.name}!`);
+                        }
+                    }
+                }
+            }
+        }
+
+        updateParticles(dt) {
+            for (let i = this.particles.length - 1; i >= 0; i--) {
+                const p = this.particles[i];
+                p.x += p.vx * dt;
+                p.y += p.vy * dt;
+                p.life -= dt;
+                if (p.life <= 0) this.particles.splice(i, 1);
+            }
+
+            for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+                const ft = this.floatingTexts[i];
+                ft.y -= 28 * dt;
+                ft.life -= dt;
+                if (ft.life <= 0) this.floatingTexts.splice(i, 1);
+            }
+        }
+
+        spawnParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 30 + Math.random() * 110;
+                this.particles.push({
+                    x,
+                    y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - 20,
+                    color,
+                    size: 2 + Math.random() * 3.5,
+                    life: 0.45 + Math.random() * 0.45,
+                    maxLife: 0.9
+                });
+            }
+        }
+
+        addFloatingText(x, y, text, color) {
+            this.floatingTexts.push({
+                x, y, text, color, life: 1.5
+            });
+        }
+
+        updateCamera(dt) {
+            const targetX = this.hero.x - this.canvas.width * 0.5;
+            const targetY = (this.hero.y - 60) - this.canvas.height * 0.55;
+
+            const maxCamX = Math.max(0, WORLD.width - this.canvas.width);
+            const maxCamY = Math.max(0, WORLD.height - this.canvas.height);
+
+            const clampedX = Math.max(0, Math.min(maxCamX, targetX));
+            const clampedY = Math.max(0, Math.min(maxCamY, targetY));
+
+            this.camera.x += (clampedX - this.camera.x) * Math.min(1, dt * 7);
+            this.camera.y += (clampedY - this.camera.y) * Math.min(1, dt * 7);
+
+            if (this.camera.shake > 0) {
+                this.camera.shake = Math.max(0, this.camera.shake - dt * 28);
+            }
+        }
+
+        updateHUD() {
+            const rescuedCount = this.youths.filter(y => y.status === 'RESCUED').length;
+            document.getElementById('saved-count').textContent = `${rescuedCount} / 5`;
+            document.getElementById('potion-count').textContent = this.hero.potions;
+            document.getElementById('garlic-count').textContent = this.hero.garlics;
+
+            this.youths.forEach(y => {
+                const chip = document.getElementById(`youth-chip-${y.id}`);
+                const stateLabel = document.getElementById(`youth-state-${y.id}`);
+                const bar = document.getElementById(`youth-bar-${y.id}`);
+
+                if (!chip) return;
+                chip.className = 'youth-chip';
+                if (y.status === 'RESCUED') {
+                    chip.classList.add('saved');
+                    stateLabel.textContent = 'Salvo ✓';
+                    bar.style.width = '100%';
+                    bar.style.background = '#39d98a';
+                } else if (y.status === 'FALLEN') {
+                    chip.classList.add('fallen');
+                    stateLabel.textContent = 'Perdido';
+                    bar.style.width = '0%';
+                } else if (y.status === 'FOLLOWING') {
+                    stateLabel.textContent = 'Seguindo';
+                    bar.style.width = `${Math.max(0, y.vitality)}%`;
+                    bar.style.background = '#4ee69c';
+                } else {
+                    stateLabel.textContent = `Andar ${y.floor + 1}`;
+                    bar.style.width = `${Math.max(0, y.vitality)}%`;
+                    bar.style.background = y.vitality > 35 ? '#f39c12' : '#e74c3c';
+                }
+            });
+
+            // Proximidade e estado do Drácula
+            const dist = Math.hypot(this.dracula.x - this.hero.x, this.dracula.y - this.hero.y);
+            const proximityPct = Math.max(8, Math.min(100, Math.round((1 - dist / 1400) * 100)));
+            document.getElementById('dracula-proximity-fill').style.width = `${proximityPct}%`;
+
+            const statusMap = {
+                'PATROL': 'Patrulhando',
+                'CHASE': 'CAÇANDO!',
+                'BAT_FORM': 'Voo de Morcego',
+                'STUNNED': 'Atordoado',
+                'FEEDING': 'Drenando!'
+            };
+            document.getElementById('dracula-status-text').textContent = statusMap[this.dracula.state] || 'À espreita';
+        }
+
+        checkEndConditions() {
+            const rescued = this.youths.filter(y => y.status === 'RESCUED').length;
+            const fallen = this.youths.filter(y => y.status === 'FALLEN').length;
+
+            if (this.hero.hp <= 0) {
+                this.state = 'GAMEOVER';
+                document.getElementById('gameover-reason').textContent =
+                    `Elena foi subjugada pelo poder sombrio do Conde Drácula antes de concluir o resgate (${rescued} de 5 jovens salvos).`;
+                document.getElementById('gameover-screen').classList.remove('hidden');
+                return;
+            }
+
+            if (fallen > 0) {
+                this.state = 'GAMEOVER';
+                const lostNames = this.youths.filter(y => y.status === 'FALLEN').map(y => y.name).join(', ');
+                document.getElementById('gameover-reason').textContent =
+                    `Não foi possível salvar todos a tempo. ${lostNames} caiu nas garras das trevas do castelo.`;
+                document.getElementById('gameover-screen').classList.remove('hidden');
+                return;
+            }
+
+            if (rescued === 5) {
+                this.state = 'VICTORY';
+                document.getElementById('victory-summary').textContent =
+                    `Com coragem e maestria alquímica, Elena curau e guiou todos os 5 jovens (Lucas, Clara, Mateus, Sofia e Arthur) através do Portal Sagrado antes que o Conde Drácula pudesse saciar sua sede!`;
+                document.getElementById('victory-screen').classList.remove('hidden');
+            }
+        }
+
+        // ========================================================================
+        // 8. RENDERIZAÇÃO DO CASTELO MEDIEVAL E ILUMINAÇÃO DINÂMICA
+        // ========================================================================
+        render() {
+            const ctx = this.ctx;
+            const w = this.canvas.width;
+            const h = this.canvas.height;
+
+            ctx.fillStyle = '#09070d';
+            ctx.fillRect(0, 0, w, h);
+
+            if (this.state === 'MENU') {
+                this.renderMenuBackdrop(ctx, w, h);
+                return;
+            }
+
+            ctx.save();
+            const shakeX = (Math.random() - 0.5) * this.camera.shake;
+            const shakeY = (Math.random() - 0.5) * this.camera.shake;
+            ctx.translate(-this.camera.x + shakeX, -this.camera.y + shakeY);
+
+            // 1. Céu noturno tempestuoso visto pelas frestas / vitrais
+            this.renderNightSky(ctx);
+
+            // 2. Estrutura de Pedra do Castelo (Paredes, Pisos, Tetos e Colunas)
+            this.renderCastleArchitecture(ctx);
+
+            // 3. Decorações Góticas (Vitrais, Quadros, Armaduras, Estantes, Sarcófagos, Tapetes)
+            this.renderDecorations(ctx);
+
+            // 4. Escadarias de Pedra Góticas
+            this.renderStaircases(ctx);
+
+            // 5. Portal Sagrado de Saída
+            this.renderSacredPortal(ctx);
+
+            // 6. Tochas e Candelabros de Velas
+            this.renderLightFixtures(ctx);
+
+            // 7. Itens Coletáveis (Poções e Alho)
+            this.renderPickups(ctx);
+
+            // 8. Jovens em Perigo / Seguindo
+            this.renderYouths(ctx);
+
+            // 9. Heroína Elena
+            this.renderHero(ctx);
+
+            // 10. Conde Drácula
+            this.renderDracula(ctx);
+
+            // 11. Partículas e Textos Flutuantes
+            this.renderEffects(ctx);
+
+            // 12. Atmosfera de Sombras e Aura de Luz da Heroína / Tochas
+            this.renderAtmosphericLighting(ctx);
+
+            ctx.restore();
+
+            // Flash de relâmpago
+            if (this.lightningAlpha > 0) {
+                ctx.fillStyle = `rgba(210, 225, 255, ${this.lightningAlpha})`;
+                ctx.fillRect(0, 0, w, h);
+            }
+
+            // Renderizar Minimapa
+            this.renderMinimap();
+        }
+
+        renderMenuBackdrop(ctx, w, h) {
+            const grad = ctx.createRadialGradient(w * 0.5, h * 0.35, 30, w * 0.5, h * 0.5, Math.max(w, h) * 0.7);
+            grad.addColorStop(0, '#261429');
+            grad.addColorStop(1, '#07050a');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, w, h);
+
+            // Lua cheia carmesim
+            ctx.fillStyle = 'rgba(210, 35, 55, 0.22)';
+            ctx.beginPath();
+            ctx.arc(w * 0.5, h * 0.28, 120, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        renderNightSky(ctx) {
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, WORLD.height);
+            skyGrad.addColorStop(0, '#0c0b18');
+            skyGrad.addColorStop(1, '#191122');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, WORLD.width, WORLD.height);
+
+            // Lua cheia visível atrás dos vitrais superiores
+            ctx.fillStyle = 'rgba(225, 65, 80, 0.25)';
+            ctx.beginPath();
+            ctx.arc(1400, 210, 95, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        renderCastleArchitecture(ctx) {
+            // Fundo interno de blocos de pedra escura
+            ctx.fillStyle = '#15121c';
+            ctx.fillRect(40, WORLD.topMargin - 20, WORLD.width - 80, WORLD.height - WORLD.topMargin);
+
+            // Textura sutil de tijolos de pedra
+            ctx.strokeStyle = 'rgba(42, 36, 54, 0.45)';
+            ctx.lineWidth = 1;
+            const brickW = 64;
+            const brickH = 32;
+            for (let y = WORLD.topMargin; y < WORLD.height - 20; y += brickH) {
+                const offset = (Math.floor(y / brickH) % 2) * (brickW / 2);
+                for (let x = 45; x < WORLD.width - 45; x += brickW) {
+                    ctx.strokeRect(x + offset, y, brickW, brickH);
+                }
+            }
+
+            // Colunas góticas verticais de sustentação
+            for (let x = 220; x < WORLD.width - 150; x += 460) {
+                const colGrad = ctx.createLinearGradient(x - 18, 0, x + 18, 0);
+                colGrad.addColorStop(0, '#1c1824');
+                colGrad.addColorStop(0.5, '#2e283b');
+                colGrad.addColorStop(1, '#14111a');
+                ctx.fillStyle = colGrad;
+                ctx.fillRect(x - 18, WORLD.topMargin, 36, WORLD.height - WORLD.topMargin - 18);
+            }
+
+            // Lajes de pedra de cada andar
+            for (let f = 0; f < WORLD.floorCount; f++) {
+                const floorY = getFloorY(f);
+                const slabGrad = ctx.createLinearGradient(0, floorY, 0, floorY + 24);
+                slabGrad.addColorStop(0, '#3a3247');
+                slabGrad.addColorStop(0.4, '#241e2e');
+                slabGrad.addColorStop(1, '#120e17');
+                ctx.fillStyle = slabGrad;
+                ctx.fillRect(40, floorY, WORLD.width - 80, 24);
+
+                // Friso dourado/pedra esculpida na borda do piso
+                ctx.fillStyle = '#4e4361';
+                ctx.fillRect(40, floorY, WORLD.width - 80, 3);
+            }
+
+            // Teto superior e muralhas externas
+            ctx.fillStyle = '#1f1a29';
+            ctx.fillRect(0, 0, 45, WORLD.height);
+            ctx.fillRect(WORLD.width - 45, 0, 45, WORLD.height);
+            ctx.fillRect(0, WORLD.topMargin - 28, WORLD.width, 28);
+        }
+
+        renderDecorations(ctx) {
+            for (const dec of this.decorations) {
+                const { type, x, y, variant } = dec;
+
+                if (type === 'carpet') {
+                    // Tapete vermelho real com bordas douradas
+                    ctx.fillStyle = '#5c111d';
+                    ctx.fillRect(x - 95, y - 3, 190, 5);
+                    ctx.fillStyle = '#c99a45';
+                    ctx.fillRect(x - 95, y - 3, 10, 5);
+                    ctx.fillRect(x + 85, y - 3, 10, 5);
+                } else if (type === 'armor') {
+                    // Armadura Medieval sobre pedestal
+                    ctx.fillStyle = '#2b2436';
+                    ctx.fillRect(x - 16, y - 12, 32, 12);
+                    // Pernas e tronco metálico
+                    ctx.fillStyle = '#7c8594';
+                    ctx.fillRect(x - 10, y - 44, 8, 32);
+                    ctx.fillRect(x + 2, y - 44, 8, 32);
+                    ctx.beginPath();
+                    ctx.roundRect(x - 14, y - 76, 28, 34, 6);
+                    ctx.fill();
+                    // Ombreiras e elmo com pluma
+                    ctx.fillStyle = '#9aa3b2';
+                    ctx.beginPath();
+                    ctx.arc(x - 15, y - 70, 7, 0, Math.PI * 2);
+                    ctx.arc(x + 15, y - 70, 7, 0, Math.PI * 2);
+                    ctx.arc(x, y - 86, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Viseira e alabarda
+                    ctx.fillStyle = '#1a1d24';
+                    ctx.fillRect(x - 6, y - 88, 12, 3);
+                    ctx.strokeStyle = '#5c4028';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(x + 20, y);
+                    ctx.lineTo(x + 20, y - 108);
+                    ctx.stroke();
+                    ctx.fillStyle = '#b4bcc9';
+                    ctx.beginPath();
+                    ctx.moveTo(x + 20, y - 118);
+                    ctx.lineTo(x + 14, y - 102);
+                    ctx.lineTo(x + 26, y - 102);
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (type === 'painting') {
+                    // Quadro antigo em moldura dourada ornamentada
+                    ctx.fillStyle = '#8c6628';
+                    ctx.fillRect(x - 28, y - 135, 56, 72);
+                    ctx.strokeStyle = '#d4af37';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(x - 28, y - 135, 56, 72);
+                    // Tela interna
+                    ctx.fillStyle = variant === 0 ? '#241421' : (variant === 1 ? '#17222b' : '#2b1b14');
+                    ctx.fillRect(x - 22, y - 129, 44, 60);
+                    // Silhueta retratada
+                    ctx.fillStyle = '#6e5a4f';
+                    ctx.beginPath();
+                    ctx.arc(x, y - 106, 9, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#4a1822';
+                    ctx.beginPath();
+                    ctx.moveTo(x - 14, y - 72);
+                    ctx.lineTo(x + 14, y - 72);
+                    ctx.lineTo(x + 9, y - 95);
+                    ctx.lineTo(x - 9, y - 95);
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (type === 'stained_glass') {
+                    // Vitral Gótico em arco ogival
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(x - 26, y - 45);
+                    ctx.lineTo(x - 26, y - 125);
+                    ctx.quadraticCurveTo(x, y - 165, x + 26, y - 125);
+                    ctx.lineTo(x + 26, y - 45);
+                    ctx.closePath();
+                    const vitralGrad = ctx.createLinearGradient(x, y - 160, x, y - 45);
+                    vitralGrad.addColorStop(0, variant === 0 ? '#7a1935' : '#1d3b70');
+                    vitralGrad.addColorStop(0.5, '#592569');
+                    vitralGrad.addColorStop(1, '#9e3824');
+                    ctx.fillStyle = vitralGrad;
+                    ctx.fill();
+                    ctx.strokeStyle = '#3d354a';
+                    ctx.lineWidth = 4;
+                    ctx.stroke();
+                    // Nervuras de chumbo do vitral
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y - 152);
+                    ctx.lineTo(x, y - 45);
+                    ctx.moveTo(x - 26, y - 95);
+                    ctx.lineTo(x + 26, y - 95);
+                    ctx.stroke();
+                    ctx.restore();
+                } else if (type === 'bookshelf') {
+                    // Estante de livros antigos
+                    ctx.fillStyle = '#2e1d14';
+                    ctx.fillRect(x - 34, y - 110, 68, 110);
+                    ctx.strokeStyle = '#4a3020';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(x - 34, y - 110, 68, 110);
+                    const bookColors = ['#7a1c24', '#1f4e5f', '#6b5324', '#432854', '#2e5936'];
+                    for (let shelf = 0; shelf < 3; shelf++) {
+                        const sy = y - 82 + shelf * 32;
+                        ctx.fillStyle = '#1c100a';
+                        ctx.fillRect(x - 30, sy, 60, 4);
+                        for (let b = 0; b < 8; b++) {
+                            ctx.fillStyle = bookColors[(b + shelf) % bookColors.length];
+                            ctx.fillRect(x - 28 + b * 7, sy - 22, 6, 22);
+                        }
+                    }
+                } else if (type === 'sarcophagus') {
+                    // Sarcófago / Caixão de pedra ornamentado
+                    ctx.fillStyle = '#2a2533';
+                    ctx.beginPath();
+                    ctx.moveTo(x - 38, y);
+                    ctx.lineTo(x - 32, y - 26);
+                    ctx.lineTo(x + 32, y - 26);
+                    ctx.lineTo(x + 38, y);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = '#635675';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    // Cruz gravada
+                    ctx.fillStyle = '#755c32';
+                    ctx.fillRect(x - 2, y - 20, 4, 14);
+                    ctx.fillRect(x - 7, y - 16, 14, 3);
+                }
+            }
+        }
+
+        renderStaircases(ctx) {
+            for (const st of STAIRCASES) {
+                const bottomY = getFloorY(st.fromFloor);
+                const topY = getFloorY(st.toFloor);
+                const steps = 14;
+                const stepH = (bottomY - topY) / steps;
+
+                // Fundo da caixa de escada
+                ctx.fillStyle = 'rgba(10, 8, 15, 0.65)';
+                ctx.fillRect(st.x - 32, topY, 64, bottomY - topY);
+
+                // Degraus de pedra e corrimão lateral
+                for (let i = 0; i < steps; i++) {
+                    const sy = bottomY - (i + 1) * stepH;
+                    ctx.fillStyle = i % 2 === 0 ? '#473e57' : '#3a3247';
+                    ctx.fillRect(st.x - 28, sy, 56, stepH - 2);
+                    ctx.fillStyle = '#665a7a';
+                    ctx.fillRect(st.x - 28, sy, 56, 2);
+                }
+
+                // Pilares laterais da escada
+                ctx.fillStyle = '#292233';
+                ctx.fillRect(st.x - 32, topY, 5, bottomY - topY);
+                ctx.fillRect(st.x + 27, topY, 5, bottomY - topY);
+            }
+        }
+
+        renderSacredPortal(ctx) {
+            const py = getFloorY(PORTAL.floor);
+            const px = PORTAL.x;
+            const pulse = 0.75 + Math.sin(this.globalTime * 3.5) * 0.25;
+
+            // Arco de pedra sagrado
+            ctx.fillStyle = '#332d40';
+            ctx.beginPath();
+            ctx.arc(px, py - 75, 42, Math.PI, 0);
+            ctx.lineTo(px + 42, py);
+            ctx.lineTo(px - 42, py);
+            ctx.closePath();
+            ctx.fill();
+
+            // Vórtice de luz celestial
+            const portalGrad = ctx.createRadialGradient(px, py - 58, 6, px, py - 58, 44);
+            portalGrad.addColorStop(0, `rgba(255, 250, 210, ${0.95 * pulse})`);
+            portalGrad.addColorStop(0.55, `rgba(110, 220, 255, ${0.65 * pulse})`);
+            portalGrad.addColorStop(1, 'rgba(60, 140, 255, 0)');
+            ctx.fillStyle = portalGrad;
+            ctx.beginPath();
+            ctx.arc(px, py - 58, 44, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Placa indicativa
+            ctx.fillStyle = '#ffe599';
+            ctx.font = 'bold 12px "Crimson Text", serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('✝ PORTAL SAGRADO', px, py - 126);
+        }
+
+        renderLightFixtures(ctx) {
+            // Tochas de parede
+            for (const t of this.torches) {
+                const flicker = Math.sin(this.globalTime * 14 + t.phase) * 2.5;
+                // Suporte de ferro
+                ctx.fillStyle = '#3b3342';
+                ctx.fillRect(t.x - 3, t.y, 6, 22);
+                ctx.fillStyle = '#6e4726';
+                ctx.fillRect(t.x - 4, t.y - 6, 8, 8);
+
+                // Chama animada
+                const flameGrad = ctx.createRadialGradient(t.x, t.y - 14, 2, t.x, t.y - 14, 18 + flicker);
+                flameGrad.addColorStop(0, '#fff7cc');
+                flameGrad.addColorStop(0.45, '#ff9922');
+                flameGrad.addColorStop(1, 'rgba(255, 60, 0, 0)');
+                ctx.fillStyle = flameGrad;
+                ctx.beginPath();
+                ctx.arc(t.x, t.y - 14, 18 + flicker, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Candelabros de velas no teto
+            for (const c of this.chandeliers) {
+                const sway = Math.sin(this.globalTime * 1.8 + c.swayPhase) * 3;
+                const cx = c.x + sway;
+                const cy = c.y + 34;
+
+                // Corrente do teto
+                ctx.strokeStyle = '#4a4154';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(c.x, c.y);
+                ctx.lineTo(cx, cy);
+                ctx.stroke();
+
+                // Haste dourada do candelabro
+                ctx.strokeStyle = '#c99a45';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(cx - 28, cy);
+                ctx.quadraticCurveTo(cx, cy + 10, cx + 28, cy);
+                ctx.stroke();
+
+                // Velas acesas
+                const offsets = [-26, -13, 0, 13, 26];
+                offsets.forEach((ox, idx) => {
+                    const vx = cx + ox;
+                    const vy = cy - 8;
+                    ctx.fillStyle = '#f2e8d5';
+                    ctx.fillRect(vx - 2, vy, 4, 9);
+
+                    const fSize = 5 + Math.sin(this.globalTime * 16 + idx) * 1.3;
+                    ctx.fillStyle = '#ffbe44';
+                    ctx.beginPath();
+                    ctx.arc(vx, vy - 3, fSize, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+        }
+
+        renderPickups(ctx) {
+            for (const p of this.pickups) {
+                if (p.collected) continue;
+                const bob = Math.sin(this.globalTime * 3.5 + p.bobPhase) * 4;
+                const py = p.y + bob;
+
+                if (p.kind === 'potion') {
+                    // Aura azul esverdeada
+                    ctx.fillStyle = 'rgba(80, 230, 210, 0.22)';
+                    ctx.beginPath();
+                    ctx.arc(p.x, py, 16, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Frasco de poção
+                    ctx.fillStyle = '#38d9c0';
+                    ctx.beginPath();
+                    ctx.arc(p.x, py + 3, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#d4c5b0';
+                    ctx.fillRect(p.x - 3, py - 8, 6, 5);
+                } else {
+                    // Aura dourada
+                    ctx.fillStyle = 'rgba(255, 220, 110, 0.22)';
+                    ctx.beginPath();
+                    ctx.arc(p.x, py, 16, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Bulbo de alho sagrado
+                    ctx.fillStyle = '#f7eedc';
+                    ctx.beginPath();
+                    ctx.arc(p.x, py + 2, 7.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#c9a66b';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        renderYouths(ctx) {
+            for (const y of this.youths) {
+                if (y.status === 'RESCUED' || y.status === 'FALLEN') continue;
+
+                const isWeak = y.status === 'WEAK';
+                const bob = isWeak ? Math.sin(y.animTime * 3) * 1.5 : Math.abs(Math.sin(y.animTime * 9)) * 3;
+
+                ctx.save();
+                ctx.translate(y.x, y.y - bob);
+
+                if (isWeak) {
+                    // Jovem ajoelhado / enfraquecido
+                    ctx.fillStyle = y.color;
+                    ctx.beginPath();
+                    ctx.roundRect(-11, -24, 22, 24, 6);
+                    ctx.fill();
+
+                    // Cabeça inclinada
+                    ctx.fillStyle = '#f2cbb0';
+                    ctx.beginPath();
+                    ctx.arc(4, -30, 8, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Indicador de socorro acima da cabeça
+                    const distToHero = Math.hypot(this.hero.x - y.x, this.hero.y - y.y);
+                    ctx.fillStyle = distToHero < 78 ? '#4ee69c' : '#ffcf66';
+                    ctx.font = 'bold 12px "Crimson Text", serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(
+                        distToHero < 78 ? '[ESPAÇO / E] Ministrar Poção' : `❗ ${y.name} (${Math.ceil(y.vitality)}%)`,
+                        0, -48
+                    );
+                } else {
+                    // Jovem curado seguindo de pé
+                    ctx.fillStyle = y.color;
+                    ctx.beginPath();
+                    ctx.roundRect(-9, -38, 18, 28, 5);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#f2cbb0';
+                    ctx.beginPath();
+                    ctx.arc(0, -45, 7.5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#9ff5c8';
+                    ctx.font = 'bold 11px "Crimson Text", serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(y.name, 0, -58);
+                }
+
+                ctx.restore();
+            }
+        }
+
+        renderHero(ctx) {
+            const h = this.hero;
+            const walkBob = (this.keys['ArrowLeft'] || this.keys['ArrowRight'] || this.keys['KeyA'] || this.keys['KeyD'])
+                ? Math.abs(Math.sin(h.animTime * 11)) * 3.5 : 0;
+
+            ctx.save();
+            ctx.translate(h.x, h.y - walkBob);
+
+            // Onda de Luz Sagrada / Alho ao ativar
+            if (h.repelWaveTimer > 0) {
+                const progress = 1 - (h.repelWaveTimer / 0.75);
+                ctx.strokeStyle = `rgba(255, 230, 120, ${1 - progress})`;
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(0, -32, 30 + progress * 250, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            if (h.invulnTimer > 0 && Math.floor(h.invulnTimer * 14) % 2 === 0) {
+                ctx.globalAlpha = 0.5;
+            }
+
+            ctx.scale(h.facing, 1);
+
+            // Capa de caçadora escarlate escura
+            ctx.fillStyle = '#7d1424';
+            ctx.beginPath();
+            ctx.moveTo(-6, -44);
+            ctx.lineTo(-18, -4);
+            ctx.lineTo(8, -4);
+            ctx.closePath();
+            ctx.fill();
+
+            // Traje / túnica
+            ctx.fillStyle = '#252130';
+            ctx.beginPath();
+            ctx.roundRect(-9, -44, 18, 32, 4);
+            ctx.fill();
+
+            // Cabeça e cabelos castanhos
+            ctx.fillStyle = '#f5d0b5';
+            ctx.beginPath();
+            ctx.arc(1, -52, 8.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#4a2518';
+            ctx.beginPath();
+            ctx.arc(-2, -53, 8.5, Math.PI * 0.6, Math.PI * 1.9);
+            ctx.fill();
+
+            // Chapéu de caçadora de vampiros com aba
+            ctx.fillStyle = '#1b1724';
+            ctx.fillRect(-13, -59, 28, 3);
+            ctx.beginPath();
+            ctx.moveTo(-8, -59);
+            ctx.lineTo(0, -71);
+            ctx.lineTo(8, -59);
+            ctx.closePath();
+            ctx.fill();
+
+            // Lanterna alquímica brilhante na mão
+            ctx.fillStyle = '#ffe999';
+            ctx.beginPath();
+            ctx.arc(13, -30, 4.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        renderDracula(ctx) {
+            const d = this.dracula;
+            ctx.save();
+            ctx.translate(d.x, d.y);
+
+            if (d.state === 'BAT_FORM') {
+                // Forma de Morcego Gigante Vampírico
+                const wingFlap = Math.sin(d.animTime * 22) * 14;
+                ctx.fillStyle = '#1a0b12';
+                ctx.beginPath();
+                ctx.moveTo(0, -35);
+                ctx.quadraticCurveTo(-24, -55 + wingFlap, -38, -28 + wingFlap);
+                ctx.lineTo(-12, -25);
+                ctx.lineTo(0, -18);
+                ctx.lineTo(12, -25);
+                ctx.lineTo(38, -28 + wingFlap);
+                ctx.quadraticCurveTo(24, -55 + wingFlap, 0, -35);
+                ctx.fill();
+
+                // Olhos vermelhos brilhantes
+                ctx.fillStyle = '#ff1e38';
+                ctx.fillRect(-4, -36, 3, 3);
+                ctx.fillRect(2, -36, 3, 3);
+                ctx.restore();
+                return;
+            }
+
+            ctx.scale(d.facing, 1);
+
+            if (d.state === 'STUNNED') {
+                ctx.globalAlpha = 0.7;
+            }
+
+            // Capa longa negra e carmesim esvoaçante
+            const wave = Math.sin(d.cloakWave) * 5;
+            ctx.fillStyle = '#140c14';
+            ctx.beginPath();
+            ctx.moveTo(-8, -62);
+            ctx.lineTo(-24 + wave, -2);
+            ctx.lineTo(16, -2);
+            ctx.lineTo(10, -62);
+            ctx.closePath();
+            ctx.fill();
+
+            // Gola alta vampírica vermelha
+            ctx.fillStyle = '#8f1122';
+            ctx.beginPath();
+            ctx.moveTo(-12, -62);
+            ctx.lineTo(-16, -76);
+            ctx.lineTo(-2, -66);
+            ctx.closePath();
+            ctx.fill();
+
+            // Traje aristocrático
+            ctx.fillStyle = '#24141d';
+            ctx.fillRect(-9, -60, 18, 44);
+            ctx.fillStyle = '#b81d33';
+            ctx.fillRect(-2, -56, 4, 24);
+
+            // Rosto pálido do Conde Drácula
+            ctx.fillStyle = '#dcd7e0';
+            ctx.beginPath();
+            ctx.arc(1, -69, 9, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cabelo escuro penteado para trás e olhos carmesim
+            ctx.fillStyle = '#120d14';
+            ctx.beginPath();
+            ctx.arc(-1, -71, 9, Math.PI * 0.85, Math.PI * 2.05);
+            ctx.fill();
+
+            ctx.fillStyle = '#ff1736';
+            ctx.fillRect(3, -71, 4, 3);
+
+            ctx.restore();
+
+            if (d.state === 'STUNNED') {
+                ctx.fillStyle = '#ffe07d';
+                ctx.font = 'bold 12px "Crimson Text", serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('💫 Atordoado!', d.x, d.y - 86);
+            }
+        }
+
+        renderEffects(ctx) {
+            for (const p of this.particles) {
+                ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+
+            for (const ft of this.floatingTexts) {
+                ctx.globalAlpha = Math.min(1, ft.life);
+                ctx.fillStyle = ft.color;
+                ctx.font = 'bold 15px "Crimson Text", serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(ft.text, ft.x, ft.y);
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        renderAtmosphericLighting(ctx) {
+            // Vinheta gótica e aura cálida em torno da lanterna da heroína
+            const heroLight = ctx.createRadialGradient(
+                this.hero.x, this.hero.y - 35, 35,
+                this.hero.x, this.hero.y - 35, 360
+            );
+            heroLight.addColorStop(0, 'rgba(255, 225, 160, 0.11)');
+            heroLight.addColorStop(0.5, 'rgba(255, 180, 100, 0.04)');
+            heroLight.addColorStop(1, 'rgba(5, 4, 10, 0.42)');
+
+            ctx.fillStyle = heroLight;
+            ctx.fillRect(this.camera.x, this.camera.y, this.canvas.width, this.canvas.height);
+        }
+
+        renderMinimap() {
+            const mctx = this.minimapCtx;
+            const mw = this.minimapCanvas.width;
+            const mh = this.minimapCanvas.height;
+            const sx = mw / WORLD.width;
+            const sy = mh / WORLD.height;
+
+            mctx.fillStyle = '#0a0810';
+            mctx.fillRect(0, 0, mw, mh);
+
+            // Linhas dos andares
+            mctx.strokeStyle = '#473a59';
+            mctx.lineWidth = 1;
+            for (let f = 0; f < WORLD.floorCount; f++) {
+                const fy = getFloorY(f) * sy;
+                mctx.beginPath();
+                mctx.moveTo(2, fy);
+                mctx.lineTo(mw - 2, fy);
+                mctx.stroke();
+            }
+
+            // Portal Sagrado (Dourado/Ciano)
+            mctx.fillStyle = '#5ce1e6';
+            mctx.fillRect(PORTAL.x * sx - 2, getFloorY(0) * sy - 7, 4, 7);
+
+            // Jovens (Amarelo = fraco, Verde = seguindo)
+            for (const y of this.youths) {
+                if (y.status === 'RESCUED' || y.status === 'FALLEN') continue;
+                mctx.fillStyle = y.status === 'WEAK' ? '#ffbe2e' : '#39d98a';
+                mctx.beginPath();
+                mctx.arc(y.x * sx, y.y * sy - 3, 2.5, 0, Math.PI * 2);
+                mctx.fill();
+            }
+
+            // Heroína (Branco/Azul claro)
+            mctx.fillStyle = '#ffffff';
+            mctx.beginPath();
+            mctx.arc(this.hero.x * sx, this.hero.y * sy - 3, 3, 0, Math.PI * 2);
+            mctx.fill();
+
+            // Conde Drácula (Vermelho pulsante)
+            mctx.fillStyle = '#ff2442';
+            mctx.beginPath();
+            mctx.arc(this.dracula.x * sx, this.dracula.y * sy - 4, 3.5, 0, Math.PI * 2);
+            mctx.fill();
+        }
+    }
+
+    // ============================================================================
+    // 9. INICIALIZAÇÃO DO LOOP PRINCIPAL
+    // ============================================================================
+    window.onload = function () {
+        const game = new DraculaCastleGame();
+
+        function loop(timestamp) {
+            if (!game.lastTime) game.lastTime = timestamp;
+            const dt = Math.min(0.05, (timestamp - game.lastTime) / 1000);
+            game.lastTime = timestamp;
+
+            game.update(dt);
+            game.render();
+
+            requestAnimationFrame(loop);
+        }
+
+        requestAnimationFrame(loop);
+    };
+    </script>
 </body>
 </html>
-
