@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A Fuga da Sapinha</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:18px;background:#e8f5ed;color:#244638;font-family:system-ui,Arial,sans-serif}
+main{max-width:900px;margin:auto}.hud{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-weight:800}
+.pill{background:white;border:1px solid #c8dfd2;border-radius:20px;padding:8px 12px}
+.scene{position:relative;border-radius:17px;overflow:hidden;box-shadow:0 8px 25px #174b4230;background:#68c7b5}
+canvas{display:block;width:100%;height:auto;touch-action:none}
+.controls{display:flex;justify-content:center;gap:15px;margin:12px}
+button{background:#26785e;color:white;border:0;border-radius:12px;padding:11px 20px;font-weight:850;cursor:pointer}
+.controls button{font-size:24px;width:90px}
+.overlay{position:absolute;inset:0;background:#123d36bb;display:grid;place-items:center;padding:12px}
+.modal{background:#fff8e8;color:#294638;border-radius:18px;padding:20px;text-align:center;width:min(350px,95%)}
+.modal h2{font-size:25px;margin:4px}.modal p{font-size:14px}.modal button{margin:5px}
+.modal .start{width:100%;margin-top:12px}
+.note{text-align:center;background:white;border-radius:12px;padding:10px}
+</style>
+</head>
+<body>
+<main>
+<div class="hud"><span class="pill" id="phase">🌿 Fase 1/3</span><span class="pill" id="life">💚💚💚</span><span class="pill" id="score">⭐ 0</span></div>
+<div class="scene">
+<canvas id="game" width="900" height="600"></canvas>
+<div class="overlay" id="overlay"><div class="modal">
+<div style="font-size:48px">🐸🦎</div><h2 id="title">A Fuga da Sapinha</h2>
+<p id="desc">Desvie dos obstáculos, pegue curativos e fuja da lagartixa gigante!</p>
+<p><b>Escolha a dificuldade</b></p>
+<div><button data-d="easy">Fácil</button><button data-d="normal">Normal</button><button data-d="hard">Difícil</button></div>
+<button class="start" id="start">Começar aventura!</button>
+</div></div></div>
+<div class="controls"><button id="left">←</button><button id="right">→</button></div>
+<div class="note">Use ← → ou A/D para mover. Pegue os curativos 🩹: cada um acrescenta um coração, mesmo que você já tenha muitos!</div>
+</main>
+<script>
+(()=>{
+const c=document.getElementById('game'),g=c.getContext('2d'),$=id=>document.getElementById(id);
+let px=450,phase=1,lives=3,score=0,objects=[],bandages=[],keys={},running=false,raf=0,last=0,elapsed=0,inv=0,diff='easy',spawn=0,heal=0;
+const cfg={easy:[235,.8],normal:[300,.62],hard:[370,.47]};
+function oval(x,y,rx,ry,color){g.fillStyle=color;g.beginPath();g.ellipse(x,y,rx,ry,0,0,Math.PI*2);g.fill()}
+function draw(){
+let bg=g.createLinearGradient(0,0,0,600);bg.addColorStop(0,'#b3ecdc');bg.addColorStop(1,'#40a89a');g.fillStyle=bg;g.fillRect(0,0,900,600);
+g.fillStyle='#65b77b';g.fillRect(0,0,85,600);g.fillRect(815,0,85,600);
+for(let i=0;i<20;i++)oval((i*151+elapsed*28)%900,(i*97)%600,10,2,'#ffffff45');
+// Lagartixa bem visível, sempre abaixo da sapinha, com a boca aberta para cima.
+g.strokeStyle='#347a49';g.lineWidth=35;g.lineCap='round';g.beginPath();g.moveTo(570,548);g.quadraticCurveTo(730,590,860,530);g.stroke();
+oval(460,555,255,52,'#397e4b');
+for(let xx of [300,610]){g.strokeStyle='#397e4b';g.lineWidth=20;g.beginPath();g.moveTo(xx,540);g.lineTo(xx-28,580);g.lineTo(xx-55,581);g.stroke()}
+oval(450,477,180,105,'#65ad59');
+oval(450,425,122,76,'#401b29');oval(450,449,92,39,'#ee8993');
+g.strokeStyle='#a8d875';g.lineWidth=15;g.beginPath();g.arc(450,425,119,.08,Math.PI-.08);g.stroke();
+g.fillStyle='#fff1d1';for(let xx of [365,395,425,475,505,535]){g.beginPath();g.moveTo(xx-8,390);g.lineTo(xx,414);g.lineTo(xx+8,390);g.fill()}
+for(let xx of [330,570]){oval(xx,385,29,29,'#418a4c');oval(xx,380,17,17,'#ffe49b');oval(xx+2,380,7,10,'#172e21')}
+objects.forEach(o=>{if(o.type==='rock')oval(o.x,o.y,29,24,'#778e89');else{g.fillStyle='#865735';g.beginPath();g.roundRect(o.x-45,o.y-15,90,30,12);g.fill()}});
+bandages.forEach(b=>{g.save();g.translate(b.x,b.y);g.rotate(-.3);g.fillStyle='#fff0d9';g.beginPath();g.roundRect(-22,-11,44,22,6);g.fill();g.fillStyle='#e8a4a0';g.fillRect(-6,-8,12,16);g.restore()});
+// Sapinha e barco desenhados por último, acima da lagartixa.
+g.save();g.translate(px,240);
+g.fillStyle='#80502e';g.beginPath();g.moveTo(-62,15);g.quadraticCurveTo(0,53,62,15);g.lineTo(45,35);g.quadraticCurveTo(0,50,-45,35);g.fill();
+g.strokeStyle='#e0a66c';g.lineWidth=5;g.beginPath();g.moveTo(-50,17);g.quadraticCurveTo(0,40,50,17);g.stroke();
+oval(0,-9,30,29,'#64b94d');oval(-20,-26,13,15,'#8bd66b');oval(20,-26,13,15,'#8bd66b');
+oval(-12,-29,9,10,'white');oval(12,-29,9,10,'white');oval(-10,-28,4,5,'#182e22');oval(14,-28,4,5,'#182e22');
+g.strokeStyle='#315b36';g.lineWidth=3;g.beginPath();g.arc(0,-8,10,.2,2.8);g.stroke();oval(-24,-8,5,4,'#f49b9b');oval(24,-8,5,4,'#f49b9b');g.restore();
+g.fillStyle='#fff';g.font='bold 18px system-ui';g.textAlign='center';g.fillText('A LAGARTIXA ESTÁ LOGO ABAIXO!',450,32);
+}
+function hud(){$('phase').textContent=`🌿 Fase ${phase}/3`;$('life').textContent='💚'.repeat(lives);$('score').textContent='⭐ '+score}
+function start(){lives=3;score=0;phase=1;px=450;objects=[];bandages=[];elapsed=0;inv=1;spawn=0;heal=3;running=true;$('overlay').style.display='none';last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);hud()}
+function end(win){running=false;cancelAnimationFrame(raf);$('title').textContent=win?'Você venceu! 🏆':'Fim de jogo!';$('desc').textContent=win?'A sapinha escapou da lagartixa! Pontuação: '+score:'A aventura terminou. Tente novamente e pegue os curativos!';$('start').textContent='Jogar novamente';$('overlay').style.display='grid'}
+function hurt(){if(inv>0)return;lives--;inv=1.3;hud();if(lives<=0)end(false)}
+function loop(now){
+if(!running)return;let dt=Math.min((now-last)/1000,.04);last=now;elapsed+=dt;inv=Math.max(0,inv-dt);
+let dir=(keys.r?1:0)-(keys.l?1:0);px=Math.max(150,Math.min(750,px+dir*450*dt));
+let [speed,rate]=cfg[diff];spawn-=dt;heal-=dt;
+if(spawn<=0){objects.push({x:150+Math.random()*600,y:-30,type:Math.random()<.5?'rock':'log'});spawn=rate*(.7+Math.random()*.6)}
+if(heal<=0){bandages.push({x:180+Math.random()*540,y:-20});heal=7+Math.random()*3}
+objects.forEach(o=>{o.y+=speed*dt;if(Math.abs(o.x-px)<62&&Math.abs(o.y-240)<36){o.y=700;hurt()}});
+bandages.forEach(b=>{b.y+=speed*.85*dt;if(Math.abs(b.x-px)<48&&Math.abs(b.y-240)<42){b.y=700;lives++;hud()}});
+objects=objects.filter(o=>o.y<650);bandages=bandages.filter(b=>b.y<650);
+if(elapsed>(phase===1?35:phase===2?70:105)){if(phase<3){phase++;elapsed=phase===2?35:70;objects=[];bandages=[]}else{end(true);return}}
+score+=Math.floor(dt*5);hud();draw();raf=requestAnimationFrame(loop)
+}
+$('start').onclick=start;
+document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{diff=b.dataset.d;document.querySelectorAll('[data-d]').forEach(a=>a.style.outline=a===b?'3px solid #e6a844':'none')});
+function hold(id,k){let b=$(id);b.onpointerdown=e=>{e.preventDefault();keys[k]=true};['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>keys[k]=false))}
+hold('left','l');hold('right','r');
+window.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key.toLowerCase()==='a')keys.l=true;if(e.key==='ArrowRight'||e.key.toLowerCase()==='d')keys.r=true});
+window.addEventListener('keyup',e=>{if(e.key==='ArrowLeft'||e.key.toLowerCase()==='a')keys.l=false;if(e.key==='ArrowRight'||e.key.toLowerCase()==='d')keys.r=false});
+draw();hud();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aventura da Sapinha Socorrista</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(#c8f2d5,#fdf2d9);font-family:system-ui,sans-serif;color:#244638;display:flex;justify-content:center;padding:14px}
+.wrap{width:min(960px,100%);background:#fff;border:5px solid #fff;border-radius:25px;box-shadow:0 12px 35px #326b4930;overflow:hidden}
+header{padding:14px 20px;background:#a8e6b9;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}h1{font-size:clamp(20px,4vw,30px);margin:0}.hud{display:flex;gap:8px;flex-wrap:wrap}.pill{background:#fff;padding:7px 12px;border-radius:20px;font-weight:800}
+#screen{padding:16px}.intro{text-align:center;padding:18px}.bigfrog{font-size:85px;animation:bob 1.8s infinite}@keyframes bob{50%{transform:translateY(-8px)}}
+button{border:0;border-radius:13px;padding:11px 16px;background:#dff5e5;color:#244638;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 3px 0 #b9ddc2}button:hover{filter:brightness(.97);transform:translateY(-1px)}button:disabled{opacity:.55;cursor:default}.go{background:#54b779;color:white;box-shadow:0 3px 0 #348958}
+#gameArea{display:none}canvas{width:100%;height:auto;display:block;background:#bdecc7;border:3px solid #a0d8ac;border-radius:18px;touch-action:none}
+.controls{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0}.pad{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,42px);gap:5px}.pad button{padding:4px;font-size:19px}.pad .up{grid-column:2}.pad .left{grid-column:1;grid-row:2}.pad .down{grid-column:2;grid-row:2}.pad .right{grid-column:3;grid-row:2}
+.tip{background:#fff6d9;border-radius:14px;padding:12px;line-height:1.45}.modal{background:#fff8e8;border:3px solid #f0dca6;border-radius:18px;padding:18px;margin-top:12px}.answers{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.answers button{text-align:left}.hidden{display:none!important}.bar{height:10px;background:#e7eee8;border-radius:20px;overflow:hidden;flex:1;min-width:100px}.bar span{display:block;height:100%;background:#60bd7f;width:100%}
+@media(max-width:600px){.answers{grid-template-columns:1fr}.controls{justify-content:center}.controls .tip{width:100%}}
+</style>
+</head>
+<body><div class="wrap">
+<header><h1>🐸 Aventura da Sapinha Socorrista</h1><div class="hud"><span class="pill" id="life">❤️❤️❤️</span><span class="pill" id="points">⭐ 0</span><span class="pill" id="level">Missão 1/4</span></div></header>
+<div id="screen">
+ <section id="intro" class="intro"><div class="bigfrog">🐸🩹</div><h2>Oi! Eu sou a Lili!</h2><p>Explore o parque, desvie dos obstáculos e encontre pessoas que precisam de ajuda. Pegue corações para recuperar vida e kits de primeiros socorros para desbloquear missões!</p><p><b>Como jogar:</b> use as setas do teclado ou os botões. No celular, toque nos controles.</p><button class="go" onclick="startGame()">COMEÇAR A AVENTURA ▶</button></section>
+ <section id="gameArea"><canvas id="c" width="900" height="470" aria-label="Jogo de plataforma da sapinha"></canvas>
+ <div class="controls"><div class="pad"><button class="up" data-key="up">⬆️</button><button class="left" data-key="left">⬅️</button><button class="down" data-key="down">⬇️</button><button class="right" data-key="right">➡️</button></div><div class="tip">🎯 Pegue os kits 🩹 e evite os espinhos 🌵 e poças 💧. Encoste nas pessoas para iniciar uma missão de socorro.</div><button id="pause" onclick="togglePause()">⏸ Pausar</button></div>
+ <div id="quiz" class="modal hidden"><h2 id="qtitle"></h2><p id="qstory"></p><b>Qual é a atitude mais segura?</b><div class="answers" id="answers"></div><p id="qfeedback"></p><button id="continue" class="go hidden" onclick="closeQuiz()">Continuar aventura →</button></div>
+ <div id="pausebox" class="modal hidden"><b>Jogo pausado.</b> <button onclick="togglePause()">Continuar</button></div>
+ </section>
+ <section id="finish" class="intro hidden"><div class="bigfrog">🏆🐸</div><h2>Parabéns, socorrista!</h2><p id="finaltext"></p><button class="go" onclick="startGame()">JOGAR NOVAMENTE ↻</button></section>
+</div></div>
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const W=900,H=470,keys={up:false,down:false,left:false,right:false};
+let frog,items,obstacles,people,score,lives,stage,paused,quizOpen,raf,frame,invuln;
+const missions=[
+{title:'🩹 O joelho ralado',story:'Nina caiu brincando e ralou o joelho. O que Lili deve fazer?',opts:['Chamar um adulto, lavar as mãos e limpar delicadamente com água limpa.','Esfregar o machucado com força.'],correct:0,explain:'Muito bem! Um adulto pode ajudar a limpar com água limpa e cobrir com curativo.'},
+{title:'🔥 Uma queimadura',story:'Beto encostou em algo quente e queimou a mão. O que fazer?',opts:['Passar manteiga na queimadura.','Chamar um adulto e resfriar em água corrente fresca por 20 minutos.'],correct:1,explain:'Correto! Não use gelo ou receitas caseiras. Queimaduras graves precisam de atendimento.'},
+{title:'🩸 Nariz sangrando',story:'Lia está com sangramento no nariz. Como ajudar?',opts:['Sentar, inclinar um pouco para frente e apertar a parte macia do nariz.','Inclinar a cabeça para trás.'],correct:0,explain:'Isso! Um adulto deve ajudar. Se o sangramento for intenso ou persistente, procure atendimento.'},
+{title:'🚲 Queda e dor no pescoço',story:'Caio caiu da bicicleta e sente muita dor no pescoço. O que fazer?',opts:['Puxá-lo para ficar de pé.','Não mover, chamar um adulto e ligar 192.'],correct:1,explain:'Muito bem! Não mova alguém com possível lesão no pescoço. Aguarde ajuda especializada.'}
+];
+function updateHud(){document.getElementById('life').textContent='❤️'.repeat(lives)+'🖤'.repeat(3-lives);document.getElementById('points').textContent='⭐ '+score;document.getElementById('level').textContent=`Missão ${Math.min(stage+1,4)}/4`}
+function startGame(){cancelAnimationFrame(raf);document.getElementById('intro').classList.add('hidden');document.getElementById('finish').classList.add('hidden');document.getElementById('gameArea').style.display='block';document.getElementById('quiz').classList.add('hidden');document.getElementById('pausebox').classList.add('hidden');frog={x:55,y:350,r:20,speed:3.8};score=0;lives=3;stage=0;paused=false;quizOpen=false;frame=0;invuln=0;keys.up=keys.down=keys.left=keys.right=false;makeWorld();updateHud();document.getElementById('pause').textContent='⏸ Pausar';loop()}
+function makeWorld(){items=[];obstacles=[];people=[];for(let i=0;i<13;i++){items.push({x:180+i*52+(i%3)*9,y:100+(i*71)%290,type:i%4===0?'heart':'kit',got:false})}for(let i=0;i<10;i++)obstacles.push({x:250+i*75,y:75+(i*97)%320,r:18+(i%2)*4,type:i%2?'🌵':'💧'});people=[{x:440,y:100,done:false},{x:710,y:350,done:false},{x:790,y:135,done:false},{x:555,y:275,done:false}]}
+function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#bdecc7';ctx.fillRect(0,0,W,H);ctx.strokeStyle='#a1d9ad';ctx.lineWidth=2;for(let x=0;x<W;x+=45){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}for(let y=0;y<H;y+=45){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+ctx.font='25px serif';ctx.fillText('🌳',20,45);ctx.fillText('🌳',835,440);ctx.fillText('🌼',120,440);ctx.fillText('🌼',800,55);
+items.forEach(o=>{if(!o.got){ctx.font='27px serif';ctx.fillText(o.type==='kit'?'🩹':'💚',o.x-13,o.y+10)}});
+obstacles.forEach(o=>{ctx.font='30px serif';ctx.fillText(o.type,o.x-15,o.y+10)});
+people.forEach((p,i)=>{if(!p.done){ctx.font='34px serif';ctx.fillText(['🧒','👧','🧑','👦'][i],p.x-16,p.y+12);ctx.font='15px sans-serif';ctx.fillStyle='#244638';ctx.fillText('AJUDA!',p.x-23,p.y-18)}});
+ctx.font='42px serif';ctx.fillText('🐸',frog.x-23,frog.y+14);if(invuln>0){ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.beginPath();ctx.arc(frog.x,frog.y,28,0,Math.PI*2);ctx.stroke()}
+ctx.fillStyle='#315c42';ctx.font='bold 16px sans-serif';ctx.fillText('ENCONTRE AS PESSOAS E AJUDE!',18,25)}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function loop(){if(paused||quizOpen)return;frame++;let dx=(keys.right?1:0)-(keys.left?1:0),dy=(keys.down?1:0)-(keys.up?1:0);if(dx&&dy){dx*=.707;dy*=.707}frog.x=Math.max(22,Math.min(W-22,frog.x+dx*frog.speed));frog.y=Math.max(45,Math.min(H-22,frog.y+dy*frog.speed));if(invuln>0)invuln--;
+items.forEach(o=>{if(!o.got&&dist(frog,o)<31){o.got=true;if(o.type==='kit'){score+=5}else{lives=Math.min(3,lives+1);score+=2}updateHud()}});
+obstacles.forEach(o=>{if(invuln===0&&dist(frog,o)<34){lives--;invuln=75;updateHud();if(lives<=0){endGame(false)}}});
+people.forEach((p,i)=>{if(!p.done&&dist(frog,p)<43){p.done=true;quizOpen=true;showQuiz(i)}});
+draw();if(!quizOpen&&lives>0&&people.every(p=>p.done)){endGame(true);return}raf=requestAnimationFrame(loop)}
+function showQuiz(i){const m=missions[i];document.getElementById('qtitle').textContent=m.title;document.getElementById('qstory').textContent=m.story;document.getElementById('qfeedback').textContent='';document.getElementById('continue').classList.add('hidden');const a=document.getElementById('answers');a.innerHTML='';m.opts.forEach((opt,n)=>{let b=document.createElement('button');b.textContent=opt;b.onclick=()=>{[...a.children].forEach(x=>x.disabled=true);if(n===m.correct){score+=20;document.getElementById('qfeedback').textContent='🌟 '+m.explain}else{document.getElementById('qfeedback').textContent='💚 '+m.explain+' Vamos aprender juntos!'}updateHud();document.getElementById('continue').classList.remove('hidden')};a.appendChild(b)});document.getElementById('quiz').classList.remove('hidden')}
+function closeQuiz(){document.getElementById('quiz').classList.add('hidden');quizOpen=false;if(people.every(p=>p.done)){endGame(true)}else loop()}
+function endGame(win){cancelAnimationFrame(raf);quizOpen=true;document.getElementById('gameArea').style.display='none';document.getElementById('finish').classList.remove('hidden');document.getElementById('finaltext').textContent=win?`Você ajudou todo mundo e fez ${score} pontos!`: `A aventura terminou! Você fez ${score} pontos. Tente novamente e desvie dos obstáculos para salvar todas as vidas.`}
+function togglePause(){if(quizOpen)return;paused=!paused;document.getElementById('pausebox').classList.toggle('hidden',!paused);document.getElementById('pause').textContent=paused?'▶ Continuar':'⏸ Pausar';if(!paused)loop();else cancelAnimationFrame(raf)}
+document.addEventListener('keydown',e=>{let map={ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'};if(map[e.key]){keys[map[e.key]]=true;e.preventDefault()}});
+document.addEventListener('keyup',e=>{let map={ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'};if(map[e.key])keys[map[e.key]]=false});
+document.querySelectorAll('[data-key]').forEach(b=>{let k=b.dataset.key;b.addEventListener('pointerdown',e=>{e.preventDefault();keys[k]=true});['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>keys[k]=false))});
+</script>
+</body></html>

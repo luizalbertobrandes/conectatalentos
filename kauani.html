@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sapinhas Cuidadosas</title>
+<style>
+:root{--blue:#c9e8ff;--pink:#ffd7e7;--purple:#e5d5ff;--ink:#51456d;--white:#fffaff}
+*{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:system-ui,Segoe UI,sans-serif;color:var(--ink);background:linear-gradient(135deg,var(--blue),var(--pink),var(--purple));display:grid;place-items:center;padding:20px}
+main{width:min(760px,100%);background:#fffaffed;border:3px solid white;border-radius:28px;padding:clamp(20px,4vw,38px);box-shadow:0 12px 35px #78659a30}
+header{text-align:center} .frog{font-size:68px;line-height:1.2} h1{margin:8px 0;font-size:clamp(2rem,6vw,3rem)} .sub{margin:0 0 18px}
+.pills{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:16px 0 24px}.pill{padding:7px 12px;border-radius:99px;font-size:.9rem;background:var(--blue)}.pill:nth-child(2){background:var(--pink)}.pill:nth-child(3){background:var(--purple)}
+.panel{background:white;border-radius:20px;padding:22px;margin-top:14px}.scene{font-size:48px;text-align:center}.question{text-align:center;font-size:1.2rem;font-weight:700;margin:8px 0 18px}
+.answers{display:grid;gap:10px}button{font:inherit;font-weight:650;color:var(--ink);background:var(--purple);border:2px solid transparent;border-radius:15px;padding:13px 16px;cursor:pointer;text-align:left;transition:.15s}button:hover{transform:translateY(-2px);border-color:#a98bdc}button:focus-visible{outline:3px solid #7661a5;outline-offset:3px}.answer:nth-child(2n){background:var(--pink)}.answer:nth-child(3n){background:var(--blue)}
+.feedback{min-height:60px;margin-top:14px;padding:12px;border-radius:14px;background:#f6f1ff;line-height:1.45}.next{display:block;margin:14px auto 0;text-align:center;background:#d9c5ff;padding:12px 24px}.hidden{display:none}.score{text-align:center;font-weight:700;margin-top:12px}.small{font-size:.9rem;line-height:1.5;color:#685d7e}.restart{display:block;margin:15px auto 0;background:var(--pink)}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div class="frog" aria-hidden="true">🐸💗</div>
+<h1>Sapinhas Cuidadosas</h1>
+<p class="sub">Uma aventura fofinha para aprender noções de primeiros socorros!</p>
+<div class="pills"><span class="pill">Azul bebê</span><span class="pill">Rosa bebê</span><span class="pill">Roxo bebê</span></div>
+</header>
+<section class="panel" id="game">
+<div class="scene" id="scene">🌼</div>
+<div class="question" id="question">As sapinhas estão prontas para ajudar. Vamos começar?</div>
+<div class="answers" id="answers"><button class="answer" onclick="startGame()">Começar a aventura ▶</button></div>
+<div class="feedback" id="feedback" aria-live="polite">Escolha com calma. Em uma emergência real, chame um adulto responsável e os serviços de emergência.</div>
+<div class="score" id="score">Missões concluídas: 0 / 4</div>
+</section>
+<section class="panel hidden" id="end">
+<div class="scene"><svg class="frog-drawing" viewBox="0 0 220 190" role="img" aria-label="Uma sapinha fofa verde com bochechas rosadas">
+  <ellipse cx="110" cy="153" rx="72" ry="13" fill="#d8c8ef" opacity=".45"/>
+  <path d="M48 103 Q38 65 62 58 Q81 53 91 76 Q110 65 129 76 Q141 52 160 58 Q183 66 172 105 L166 137 Q110 169 54 137Z" fill="#9bd9b0" stroke="#648f7a" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="75" cy="67" r="22" fill="#a9e5bd" stroke="#648f7a" stroke-width="4"/>
+  <circle cx="145" cy="67" r="22" fill="#a9e5bd" stroke="#648f7a" stroke-width="4"/>
+  <circle cx="78" cy="68" r="10" fill="white"/><circle cx="142" cy="68" r="10" fill="white"/>
+  <circle cx="81" cy="70" r="5.5" fill="#51456d"/><circle cx="139" cy="70" r="5.5" fill="#51456d"/>
+  <circle cx="83" cy="67" r="2" fill="white"/><circle cx="141" cy="67" r="2" fill="white"/>
+  <ellipse cx="66" cy="112" rx="13" ry="8" fill="#f6a9c6" opacity=".9"/>
+  <ellipse cx="154" cy="112" rx="13" ry="8" fill="#f6a9c6" opacity=".9"/>
+  <path d="M95 113 Q110 126 125 113" fill="none" stroke="#648f7a" stroke-width="4" stroke-linecap="round"/>
+  <path d="M54 143 Q40 151 34 140 Q32 130 48 130 M166 143 Q180 151 186 140 Q188 130 172 130" fill="#a9e5bd" stroke="#648f7a" stroke-width="4" stroke-linecap="round"/>
+  <path d="M83 151 Q72 164 61 156 M137 151 Q148 164 159 156" fill="none" stroke="#648f7a" stroke-width="5" stroke-linecap="round"/>
+  <path d="M105 37 Q110 24 115 37" fill="none" stroke="#e9a8cb" stroke-width="4" stroke-linecap="round"/>
+  <path d="M34 55 l4 -8 4 8 8 4 -8 4 -4 8 -4 -8 -8 -4z" fill="#f5c8df"/>
+  <path d="M184 88 l3 -6 3 6 6 3 -6 3 -3 6 -3 -6 -6 -3z" fill="#c9b2f0"/>
+</svg></div><h2 style="text-align:center">Missão cumprida!</h2>
+<p id="result" style="text-align:center"></p>
+<p class="small">Lembre-se: este jogo é educativo. Em uma situação real, procure um adulto responsável e siga as orientações dos profissionais de saúde. No Brasil, o SAMU atende pelo 192 e os Bombeiros pelo 193.</p>
+<button class="restart" onclick="restart()">Jogar novamente ↻</button>
+</section>
+<p class="small">Dica das sapinhas: primeiro, verifique se o local está seguro. Não tente procedimentos para os quais não recebeu treinamento.</p>
+</main>
+<script>
+const missions=[
+{emoji:"🛝",q:"Uma criança caiu no parquinho e está chorando. O que fazer primeiro?",a:["Verificar se o local está seguro e chamar um adulto responsável.","Levantar a criança rapidamente e fazê-la correr.","Dar um remédio por conta própria."],correct:0,why:"Isso mesmo! Segurança vem primeiro. Avise um adulto responsável e não mova a pessoa se houver suspeita de lesão importante, a menos que exista perigo imediato."},
+{emoji:"🩹",q:"Alguém tem um pequeno corte e está consciente. Qual é uma atitude segura?",a:["Pedir ajuda a um adulto e, se for seguro, fazer pressão suave com gaze ou pano limpo.","Colocar terra para fechar o corte.","Esfregar o machucado com força."],correct:0,why:"Boa escolha! Um adulto pode ajudar a controlar um sangramento pequeno com pressão suave usando material limpo. Se for intenso ou não parar, procure atendimento urgente."},
+{emoji:"🔥",q:"Uma pessoa encostou em algo quente e teve uma queimadura. O que é melhor?",a:["Passar manteiga ou pasta de dente.","Avisar um adulto e resfriar a área com água corrente fresca por 20 minutos.","Colocar gelo diretamente na pele."],correct:1,why:"Correto! Água corrente fresca ajuda a resfriar a queimadura. Não use gelo, manteiga ou pasta de dente; peça ajuda médica a um adulto."},
+{emoji:"📞",q:"Uma pessoa está inconsciente ou não responde. O que você deve fazer?",a:["Deixar a pessoa sozinha.","Chamar um adulto imediatamente e pedir que ligue para o SAMU (192).","Dar água para a pessoa beber."],correct:1,why:"Muito bem! Chame um adulto e peça ajuda de emergência pelo 192. Não ofereça comida, bebida ou remédios a alguém que não responde."},
+{emoji:"🧤",q:"Por que é importante lavar as mãos antes e depois de ajudar alguém?",a:["Para diminuir a transmissão de micróbios.","Para deixar as mãos cheirosas apenas.","Não é necessário."],correct:0,why:"Isso mesmo! Higienizar as mãos ajuda a reduzir a transmissão de micróbios."},
+{emoji:"🤕",q:"Uma pessoa bateu a cabeça e parece confusa. O que fazer?",a:["Deixar que volte a brincar.","Avisar um adulto imediatamente e procurar orientação médica.","Dar um medicamento sem perguntar a ninguém."],correct:1,why:"Acertou! Confusão depois de uma pancada na cabeça precisa de avaliação. Avise um adulto imediatamente."},
+{emoji:"🦶",q:"Alguém torceu o tornozelo e sente dor. Qual é a melhor atitude?",a:["Forçar a pessoa a continuar andando.","Avisar um adulto e evitar apoiar ou forçar o pé.","Puxar o pé para tentar endireitar."],correct:1,why:"Boa! Não force o movimento. Um adulto pode ajudar a pessoa a receber avaliação adequada."},
+{emoji:"🌞",q:"Uma pessoa está muito quente e tonta depois de brincar no sol. O que fazer?",a:["Levá-la para um local fresco, chamar um adulto e oferecer água se estiver bem acordada.","Mandá-la correr para melhorar.","Cobri-la com mais cobertores."],correct:0,why:"Correto! Um local fresco e a ajuda de um adulto são importantes. Se houver desmaio, confusão ou piora, procure ajuda de emergência."},
+{emoji:"🧴",q:"Você encontrou um frasco de produto de limpeza aberto. O que fazer?",a:["Cheirar para descobrir o que é.","Não tocar nem experimentar e avisar um adulto.","Misturar com água e outros produtos."],correct:1,why:"Muito bem! Nunca experimente produtos desconhecidos. Afaste-se e avise um adulto."},
+{emoji:"🩸",q:"Alguém está com sangramento no nariz. Qual atitude é mais segura?",a:["Avisar um adulto e inclinar a cabeça um pouco para frente.","Inclinar a cabeça para trás.","Deitar e fingir que nada aconteceu."],correct:0,why:"Isso mesmo! Avise um adulto. Inclinar a cabeça para frente ajuda a evitar engolir sangue. Se não parar ou for intenso, procure atendimento."},
+{emoji:"🐝",q:"Uma abelha picou alguém e a pessoa está bem. O que você deve fazer?",a:["Avisar um adulto e observar se aparecem sinais de reação alérgica.","Esfregar o local com força.","Passar qualquer produto encontrado."],correct:0,why:"Boa escolha! Avise um adulto para avaliar a picada. Se houver dificuldade para respirar, inchaço no rosto ou piora rápida, é emergência."},
+{emoji:"😵",q:"Uma pessoa desmaiou, mas já acordou. O que fazer?",a:["Avisar um adulto e ajudar a pessoa a ficar em segurança.","Mandá-la levantar e correr.","Dar comida imediatamente."],correct:0,why:"Correto! Mesmo que acorde, a pessoa precisa de um adulto e pode precisar de avaliação. Se não responder normalmente, peça ajuda de emergência."},
+{emoji:"🐕",q:"Um cachorro desconhecido mordeu alguém. Qual é a melhor atitude?",a:["Esconder o ocorrido.","Avisar um adulto imediatamente e procurar atendimento de saúde.","Esperar vários dias para contar."],correct:1,why:"Muito bem! Mordidas precisam de avaliação profissional. Conte a um adulto imediatamente."},
+{emoji:"👁️",q:"Caiu um produto no olho de alguém. O que fazer?",a:["Avisar um adulto imediatamente e começar a enxaguar com água limpa corrente.","Esfregar o olho.","Colocar colírio de outra pessoa."],correct:0,why:"Isso mesmo! Avise um adulto na hora e enxágue com água corrente limpa. Procurem orientação médica urgente e levem a embalagem do produto, se for seguro."},
+{emoji:"⚡",q:"Você vê alguém perto de um fio elétrico caído. O que fazer?",a:["Chegar perto para puxar a pessoa.","Manter distância e chamar um adulto e os serviços de emergência.","Tocar no fio com um objeto."],correct:1,why:"Acertou! Nunca se aproxime nem toque na pessoa ou no fio. Mantenha distância e peça ajuda de emergência."},
+{emoji:"🤧",q:"Uma pessoa começa a ter dificuldade para respirar e parece muito mal. O que fazer?",a:["Chamar um adulto e pedir ajuda de emergência imediatamente.","Esperar para ver se passa.","Oferecer comida."],correct:0,why:"Muito bem! Dificuldade para respirar é uma emergência. Chame um adulto e peça ajuda pelo SAMU (192)."},
+{emoji:"🧊",q:"Alguém está com um pequeno inchaço depois de uma batida leve. O que fazer?",a:["Avisar um adulto e seguir a orientação dele.","Massagear com força.","Continuar a atividade mesmo com dor."],correct:0,why:"Boa! Avise um adulto, interrompa a atividade e não force a região. Se houver dor forte ou piora, procure avaliação."},
+{emoji:"🧼",q:"Você vai ajudar a organizar um kit de primeiros socorros. O que é importante?",a:["Deixar medicamentos soltos ao alcance de crianças.","Pedir a um adulto para guardar o kit em local adequado e conferir os itens.","Colocar produtos de limpeza junto."],correct:1,why:"Isso mesmo! Um adulto deve manter o kit organizado, identificado e fora do alcance de crianças."},
+{emoji:"🧠",q:"Durante uma convulsão, qual atitude é segura para quem está ajudando?",a:["Segurar a pessoa com força.","Afastar objetos perigosos, não conter os movimentos e chamar um adulto.","Colocar algo na boca da pessoa."],correct:1,why:"Correto! Proteja a pessoa de objetos ao redor, não a segure e nunca coloque nada na boca. Peça ajuda a um adulto e siga as orientações de emergência."},
+{emoji:"🚑",q:"Quando devemos ligar para o SAMU no Brasil?",a:["Em situações graves, como dificuldade para respirar ou pessoa que não responde.","Para perguntar a previsão do tempo.","Quando queremos conversar."],correct:0,why:"Perfeito! O SAMU atende emergências de saúde pelo número 192. Peça ajuda a um adulto para ligar."}
+];
+let index=0,score=0,answered=false;
+const $=id=>document.getElementById(id);
+function startGame(){index=0;score=0;$("game").classList.remove("hidden");$("end").classList.add("hidden");showMission()}
+function showMission(){answered=false;let m=missions[index];$("scene").textContent=m.emoji;$("question").textContent=m.q;$("feedback").textContent="Escolha a opção mais segura!";$("score").textContent=`Missões concluídas: ${index} / ${missions.length}`;$("answers").innerHTML="";m.a.forEach((a,i)=>{let b=document.createElement("button");b.className="answer";b.textContent=a;b.onclick=()=>choose(i);$("answers").appendChild(b)})}
+function choose(i){if(answered)return;answered=true;let m=missions[index];let ok=i===m.correct;if(ok)score++;$("feedback").textContent=(ok?"🌟 Acertou! ":"💜 Vamos aprender: ")+m.why;$("score").textContent=`Missões concluídas: ${index+1} / ${missions.length}`;$("answers").innerHTML="";let b=document.createElement("button");b.className="next";b.textContent=index===missions.length-1?"Ver resultado":"Próxima missão →";b.onclick=next;$("answers").appendChild(b)}
+function next(){index++;if(index<missions.length)showMission();else{$("game").classList.add("hidden");$("end").classList.remove("hidden");$("result").textContent=`Você acertou ${score} de ${missions.length} missões. ${score===missions.length?"As sapinhas estão orgulhosas do seu cuidado!":"Continue praticando com um adulto e aprendendo a ajudar com segurança!"}`}}
+function restart(){startGame()}
+</script>
+</body>
+</html>

@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENAC Canoinhas - Ordem dos Curandeiros (RPG Primeiros Socorros)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cinzel (Títulos Medievais/D&D), Crimson Text (Pergaminho) e Inter (UI) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;700;800&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome para ícones RPG e Médicos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'dnd-title': ['"Cinzel Decorative"', 'serif'],
+                        'dnd-header': ['"Cinzel"', 'serif'],
+                        'parchment': ['"Crimson Text"', 'serif'],
+                        'ui': ['"Inter"', 'sans-serif'],
+                    },
+                    colors: {
+                        'dnd-red': '#7A1C1C',
+                        'dnd-red-dark': '#4A0E0E',
+                        'dnd-gold': '#D4AF37',
+                        'dnd-gold-light': '#F3E5AB',
+                        'parchment-bg': '#F4E8D1',
+                        'parchment-dark': '#E6D3B3',
+                        'obsidian': '#141210',
+                        'stone-dark': '#231F1D',
+                    },
+                    boxShadow: {
+                        'dnd-card': '0 10px 25px -5px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(139, 90, 43, 0.25)',
+                        'dnd-glow': '0 0 15px rgba(212, 175, 55, 0.45)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Textura de fundo estilo masmorra / couro envelhecido */
+        body {
+            background-color: #141210;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(122, 28, 28, 0.28) 0%, transparent 60%),
+                radial-gradient(circle at 85% 85%, rgba(212, 175, 55, 0.12) 0%, transparent 50%),
+                repeating-linear-gradient(45deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 2px, transparent 2px, transparent 8px);
+            color: #F4E8D1;
+        }
+
+        /* Efeito de Pergaminho nos Cards */
+        .parchment-card {
+            background: linear-gradient(145deg, #F7EDD8 0%, #EAD7B7 100%);
+            color: #2B1D12;
+            border: 2px solid #8C6239;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .parchment-card::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border: 1px solid rgba(122, 28, 28, 0.35);
+            pointer-events: none;
+            border-radius: 0.5rem;
+        }
+
+        .parchment-card:hover {
+            transform: translateY(-6px);
+            border-color: #D4AF37;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.8), 0 0 18px rgba(212, 175, 55, 0.45);
+        }
+
+        /* Ornamento Divisor D&D */
+        .dnd-divider {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #7A1C1C 20%, #D4AF37 50%, #7A1C1C 80%, transparent);
+        }
+
+        /* Animação suave no Dado D20 */
+        @keyframes floatDice {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(4deg); }
+        }
+        .dice-float {
+            animation: floatDice 4s ease-in-out infinite;
+        }
+
+        /* Selo de Cera Vermelha */
+        .wax-seal {
+            background: radial-gradient(circle at 30% 30%, #A82424, #5E0D0D);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.5), inset 0 1px 3px rgba(255,255,255,0.3);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141210;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #5C3A21;
+            border: 1px solid #D4AF37;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-ui selection:bg-dnd-red selection:text-dnd-gold-light">
+
+    <!-- Cabeçalho Institucional & Temático D&D -->
+    <header class="relative border-b-2 border-dnd-gold/60 bg-stone-dark/95 backdrop-blur-md shadow-2xl overflow-hidden">
+        <!-- Faixa Superior Institucional SENAC -->
+        <div class="bg-dnd-red-dark border-b border-dnd-gold/30 py-2 px-4">
+            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
+                <div class="flex items-center gap-2 text-dnd-gold-light font-medium">
+                    <i class="fa-solid fa-shield-halved text-dnd-gold"></i>
+                    <span>Programa <strong>Jovens Talentos</strong> • <strong>SENAC Canoinhas - SC</strong></span>
+                </div>
+                <div class="flex items-center gap-4 text-parchment-bg/80">
+                    <span class="hidden sm:inline"><i class="fa-solid fa-scroll text-dnd-gold mr-1"></i> Oficina de Primeiros Socorros</span>
+                    <button onclick="openDiceRoller()" class="bg-dnd-gold/20 hover:bg-dnd-gold/30 text-dnd-gold border border-dnd-gold/50 px-2.5 py-0.5 rounded-full text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-dice-d20"></i> Rolar Teste de Medicina (D20)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Banner Hero Principal -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
+                <!-- Título e Lore -->
+                <div class="text-center lg:text-left max-w-3xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-dnd-red/40 border border-dnd-gold/40 text-dnd-gold text-xs font-dnd-header tracking-widest uppercase mb-4">
+                        <i class="fa-solid fa-staff-snake"></i> Guilda dos Socorristas do Planalto Norte
+                    </div>
+                    <h1 class="font-dnd-title text-3xl sm:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-dnd-gold-light via-dnd-gold to-amber-600 drop-shadow-[0_4px_4px_rgba(0,0,0,0.9)] leading-tight">
+                        Crônicas do Resgate
+                    </h1>
+                    <h2 class="font-dnd-header text-lg sm:text-2xl text-parchment-bg mt-2 tracking-wide">
+                        O Grimório de Primeiros Socorros • Jovens Talentos
+                    </h2>
+                    <p class="font-parchment text-lg sm:text-xl text-parchment-dark/90 mt-4 leading-relaxed">
+                        Bem-vindo, aprendiz do <strong class="text-dnd-gold">SENAC Canoinhas</strong>! Nesta campanha educativa, cada desafio clínico é uma masmorra a ser vencida. Domine as artes da reanimação, contenção de hemorragias e suporte à vida através de <strong>15 missões interativas</strong>.
+                    </p>
+                </div>
+
+                <!-- Card de Status do Aventureiro (Progresso Local) -->
+                <div class="w-full max-w-sm bg-obsidian/90 border-2 border-dnd-gold/70 rounded-xl p-5 shadow-dnd-glow relative">
+                    <div class="flex items-center gap-3 border-b border-dnd-gold/30 pb-3">
+                        <div class="w-12 h-12 rounded-lg wax-seal border border-dnd-gold flex items-center justify-center text-dnd-gold-light text-2xl dice-float">
+                            <i class="fa-solid fa-hand-holding-medical"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs uppercase tracking-wider text-dnd-gold font-dnd-header block">Ficha do Aprendiz</span>
+                            <h3 class="font-dnd-header text-lg font-bold text-white" id="rankTitle">Iniciado da Cruz</h3>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 space-y-3">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-parchment-dark">Missões Concluídas:</span>
+                            <span class="font-bold text-dnd-gold"><span id="completedCount">0</span> / 15</span>
+                        </div>
+                        <!-- Barra de XP -->
+                        <div class="w-full h-3 bg-stone-dark rounded-full overflow-hidden border border-dnd-gold/40">
+                            <div id="xpBar" class="h-full bg-gradient-to-r from-dnd-red via-amber-600 to-dnd-gold transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-parchment-dark/80 pt-1">
+                            <span><i class="fa-solid fa-star text-dnd-gold mr-1"></i>XP Total: <strong id="xpPoints" class="text-white">0</strong> pts</span>
+                            <button onclick="resetProgress()" class="text-red-400 hover:text-red-300 underline cursor-pointer">Reiniciar Ficha</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="dnd-divider"></div>
+    </header>
+
+    <!-- Barra de Filtros e Busca (Taverna de Missões) -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <section class="bg-stone-dark/80 border border-dnd-gold/40 rounded-xl p-4 sm:p-6 mb-8 shadow-xl">
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                <!-- Campo de Busca -->
+                <div class="relative flex-grow max-w-md">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-dnd-gold"></i>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        onkeyup="filterQuests()"
+                        placeholder="Buscar missão (ex: RCP, engasgo, queimadura...)" 
+                        class="w-full bg-obsidian border border-dnd-gold/50 rounded-lg pl-10 pr-4 py-2.5 text-parchment-bg placeholder-parchment-dark/50 focus:outline-none focus:border-dnd-gold focus:ring-1 focus:ring-dnd-gold transition"
+                    >
+                </div>
+
+                <!-- Filtros por Classe/Especialidade -->
+                <div class="flex flex-wrap items-center gap-2" id="filterButtons">
+                    <button onclick="setCategory('todas')" data-cat="todas" class="filter-btn active px-3.5 py-2 rounded-lg text-xs sm:text-sm font-dnd-header font-bold border border-dnd-gold bg-dnd-red text-dnd-gold-light transition cursor-pointer">
+                        Todas (15)
+                    </button>
+                    <button onclick="setCategory('suporte-vital')" data-cat="suporte-vital" class="filter-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-dnd-header font-bold border border-dnd-gold/40 bg-obsidian text-parchment-dark hover:border-dnd-gold transition cursor-pointer">
+                        <i class="fa-solid fa-heart-pulse mr-1 text-red-400"></i> Suporte Vital
+                    </button>
+                    <button onclick="setCategory('traumas')" data-cat="traumas" class="filter-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-dnd-header font-bold border border-dnd-gold/40 bg-obsidian text-parchment-dark hover:border-dnd-gold transition cursor-pointer">
+                        <i class="fa-solid fa-bandage mr-1 text-amber-400"></i> Traumas & Feridas
+                    </button>
+                    <button onclick="setCategory('emergencias')" data-cat="emergencias" class="filter-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-dnd-header font-bold border border-dnd-gold/40 bg-obsidian text-parchment-dark hover:border-dnd-gold transition cursor-pointer">
+                        <i class="fa-solid fa-kit-medical mr-1 text-emerald-400"></i> Emergências Clínicas
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Grade dos 15 Jogos Educativos (Pergaminhos de Missão) -->
+        <section id="questsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <!-- Os cards serão renderizados dinamicamente via JavaScript -->
+        </section>
+
+        <!-- Mensagem caso nenhum filtro encontre resultados -->
+        <div id="emptyState" class="hidden text-center py-16 bg-stone-dark/60 border border-dnd-gold/30 rounded-xl">
+            <i class="fa-solid fa-scroll text-5xl text-dnd-gold/50 mb-4"></i>
+            <h3 class="font-dnd-header text-xl text-dnd-gold">Nenhum pergaminho encontrado</h3>
+            <p class="text-parchment-dark mt-2">Tente buscar por outro termo ou limpe os filtros da guilda.</p>
+        </div>
+    </main>
+
+    <!-- Rodapé Institucional -->
+    <footer class="bg-obsidian border-t-2 border-dnd-gold/40 mt-12 py-8 px-4">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+            <div>
+                <p class="font-dnd-header text-dnd-gold font-bold text-base">
+                    SENAC Canoinhas • Oficina Jovens Talentos
+                </p>
+                <p class="text-xs text-parchment-dark/70 mt-1">
+                    Portal Educativo Gamificado de Primeiros Socorros • Educação Profissional e Tecnológica
+                </p>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-parchment-dark/80">
+                <span class="px-3 py-1.5 rounded-lg bg-stone-dark border border-dnd-gold/30">
+                    <i class="fa-solid fa-phone-volume text-dnd-gold mr-1.5"></i> SAMU: <strong>192</strong> • Bombeiros: <strong>193</strong>
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL DE DETALHES DA MISSÃO E SIMULADOR / LINK DO JOGO -->
+    <div id="questModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="parchment-card w-full max-w-2xl rounded-xl p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex items-start justify-between gap-4 border-b-2 border-[#8C6239]/40 pb-4">
+                <div class="flex items-center gap-3">
+                    <div id="modalIconBox" class="w-12 h-12 rounded-lg wax-seal text-dnd-gold-light flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-dragon"></i>
+                    </div>
+                    <div>
+                        <span id="modalCode" class="text-xs font-dnd-header font-bold uppercase tracking-wider text-dnd-red">Missão #01</span>
+                        <h3 id="modalTitle" class="font-dnd-header text-xl sm:text-2xl font-extrabold text-[#2B1D12]">Título do Jogo</h3>
+                    </div>
+                </div>
+                <button onclick="closeQuestModal()" class="w-9 h-9 rounded-lg bg-[#2B1D12]/10 hover:bg-dnd-red hover:text-white text-[#2B1D12] flex items-center justify-center transition cursor-pointer">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="mt-5 space-y-4 font-parchment text-lg text-[#2B1D12]">
+                <div class="flex flex-wrap gap-2 font-ui text-xs">
+                    <span id="modalDifficulty" class="px-2.5 py-1 rounded bg-dnd-red text-dnd-gold-light font-semibold">Nível: Iniciante</span>
+                    <span id="modalXp" class="px-2.5 py-1 rounded bg-amber-800/20 text-[#2B1D12] border border-[#8C6239]/40 font-semibold">+100 XP</span>
+                    <span id="modalPlatform" class="px-2.5 py-1 rounded bg-emerald-900/15 text-emerald-950 border border-emerald-800/30 font-semibold">Jogo Interativo</span>
+                </div>
+
+                <div class="bg-[#EAD7B7]/80 border border-[#8C6239]/40 rounded-lg p-4">
+                    <h4 class="font-dnd-header text-sm font-bold uppercase text-dnd-red mb-1">
+                        <i class="fa-solid fa-book-open mr-1"></i> Narrativa da Missão
+                    </h4>
+                    <p id="modalLore" class="italic leading-relaxed"></p>
+                </div>
+
+                <div>
+                    <h4 class="font-dnd-header text-sm font-bold uppercase text-[#2B1D12] mb-1">
+                        <i class="fa-solid fa-bullseye mr-1 text-dnd-red"></i> Objetivo de Aprendizagem (SENAC)
+                    </h4>
+                    <p id="modalObjective" class="leading-relaxed"></p>
+                </div>
+
+                <!-- Mini Desafio Rápido de D&D antes de abrir o link -->
+                <div class="bg-stone-dark text-parchment-bg rounded-lg p-4 border border-dnd-gold">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-dnd-header text-xs text-dnd-gold uppercase tracking-wider">
+                            <i class="fa-solid fa-dice-d20 mr-1"></i> Pergunta de Perícia (Teste Rápido)
+                        </span>
+                        <span id="quizFeedback" class="font-ui text-xs font-bold"></span>
+                    </div>
+                    <p id="modalQuizQuestion" class="font-ui text-sm mb-3 text-parchment-light"></p>
+                    <div id="modalQuizOptions" class="grid grid-cols-1 gap-2 font-ui text-xs"></div>
+                </div>
+            </div>
+
+            <!-- Ações do Modal -->
+            <div class="mt-6 pt-4 border-t-2 border-[#8C6239]/40 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <button onclick="copyGameLink()" class="w-full sm:w-auto px-4 py-2.5 rounded-lg border-2 border-[#8C6239] text-[#2B1D12] hover:bg-[#8C6239]/20 font-dnd-header text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer">
+                    <i class="fa-solid fa-copy"></i> <span id="copyBtnText">Copiar Link do Jogo</span>
+                </button>
+
+                <div class="flex w-full sm:w-auto gap-2">
+                    <button id="toggleCompleteBtn" onclick="toggleQuestComplete()" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white font-dnd-header text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer">
+                        <i class="fa-solid fa-check-double"></i> Concluir Missão
+                    </button>
+                    <a id="modalLaunchLink" href="#" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-initial px-5 py-2.5 rounded-lg bg-dnd-red hover:bg-dnd-red-dark text-dnd-gold-light border border-dnd-gold font-dnd-header text-xs font-bold flex items-center justify-center gap-2 shadow-lg transition">
+                        <i class="fa-solid fa-gamepad"></i> Jogar Agora
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ROLADOR DE DADO D20 (EASTER EGG EDUCATIVO) -->
+    <div id="diceModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-stone-dark border-2 border-dnd-gold rounded-xl p-6 max-w-md w-full text-center shadow-dnd-glow">
+            <h3 class="font-dnd-header text-xl text-dnd-gold font-bold">Teste de Perícia: Medicina</h3>
+            <p class="text-xs text-parchment-dark mt-1">Role o D20 para testar sua prontidão em situações de emergência!</p>
+            
+            <div class="my-6 flex justify-center">
+                <div id="diceDisplay" class="w-24 h-24 rounded-2xl wax-seal border-2 border-dnd-gold flex items-center justify-center font-dnd-title text-4xl text-dnd-gold-light shadow-xl">
+                    20
+                </div>
+            </div>
+
+            <p id="diceOutcome" class="font-parchment text-lg text-parchment-bg min-h-[3.5rem] px-2">
+                Clique abaixo para lançar o dado do destino!
+            </p>
+
+            <div class="mt-6 flex justify-center gap-3">
+                <button onclick="rollD20()" class="px-5 py-2.5 rounded-lg bg-dnd-red hover:bg-dnd-red-dark text-dnd-gold-light border border-dnd-gold font-dnd-header text-sm font-bold cursor-pointer transition">
+                    <i class="fa-solid fa-dice-d20 mr-1"></i> Rolar Dado
+                </button>
+                <button onclick="closeDiceRoller()" class="px-4 py-2.5 rounded-lg bg-obsidian hover:bg-stone-800 text-parchment-dark border border-dnd-gold/40 font-dnd-header text-sm cursor-pointer transition">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de Notificação -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-obsidian border-2 border-dnd-gold text-dnd-gold-light px-4 py-3 rounded-xl shadow-2xl items-center gap-3 text-sm font-medium">
+        <i class="fa-solid fa-scroll text-dnd-gold"></i>
+        <span id="toastMsg">Link copiado para o pergaminho!</span>
+    </div>
+
+    <script>
+        /**
+         * Banco de Dados das 15 Missões (Jogos Educativos de Primeiros Socorros)
+         * Links direcionam para plataformas educativas reais (Wordwall, Kahoot, Quizizz, Cruz Roja / Simulações)
+         * adaptáveis às oficinas do SENAC Canoinhas.
+         */
+        const questsData = [
+            {
+                id: 1,
+                code: "Missão I • Nível 1",
+                title: "O Chamado da Guilda (Avaliação da Cena)",
+                category: "suporte-vital",
+                difficulty: "Aprendiz (CD 10)",
+                xp: 100,
+                icon: "fa-eye",
+                platform: "Wordwall • Labirinto",
+                url: "blue.html",
+                lore: "Antes de adentrar uma masmorra em chamas para salvar um aldeão, o sábio curandeiro observa os perigos ocultos. A segurança do socorrista vem sempre em primeiro lugar!",
+                objective: "Identificar riscos na cena do acidente, uso de EPIs e acionamento correto do SAMU (192) e Bombeiros (193).",
+                quiz: {
+                    question: "Qual é o primeiro passo antes de tocar em uma vítima de acidente?",
+                    options: [
+                        { text: "Avaliar a segurança do local para você e a vítima", correct: true },
+                        { text: "Mover a vítima imediatamente para longe", correct: false },
+                        { text: "Oferecer água para acalmá-la", correct: false }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                code: "Missão II • Nível 2",
+                title: "O Ritual do Sopro Vital (RCP & DEA)",
+                category: "suporte-vital",
+                difficulty: "Aventureiro (CD 14)",
+                xp: 150,
+                icon: "fa-heart-pulse",
+                platform: "Simulador Interativo",
+                url: "kauani.html",
+                lore: "O coração do guerreiro cessou seu tamborilar. Você tem poucos minutos antes que a alma parta para o plano astral. Mantenha o ritmo das compressões torácicas!",
+                objective: "Treinar a cadeia de sobrevivência na Parada Cardiorrespiratória (PCR), frequência de 100-120 compressões/min e uso do Desfibrilador (DEA).",
+                quiz: {
+                    question: "Qual a frequência correta das compressões torácicas na RCP em adultos?",
+                    options: [
+                        { text: "Entre 100 e 120 compressões por minuto", correct: true },
+                        { text: "40 compressões por minuto", correct: false },
+                        { text: "200 compressões por minuto", correct: false }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                code: "Missão III • Nível 2",
+                title: "A Manobra do Dragão Engasgado (OVACE)",
+                category: "suporte-vital",
+                difficulty: "Aventureiro (CD 13)",
+                xp: 120,
+                icon: "fa-lungs",
+                platform: "Wordwall • Desafio",
+                url: "marcos.html",
+                lore: "Durante o banquete na taverna de Canoinhas, um bardo engasgou com um pedaço de pão. As vias aéreas estão obstruídas! Execute a Manobra de Heimlich com precisão.",
+                objective: "Diferenciar engasgo parcial de total e aplicar corretamente a manobra de desobstrução em adultos, crianças e lactentes.",
+                quiz: {
+                    question: "Onde posicionar as mãos na Manobra de Heimlich em adultos?",
+                    options: [
+                        { text: "Acima do umbigo e abaixo do osso esterno", correct: true },
+                        { text: "Diretamente sobre o pescoço", correct: false },
+                        { text: "No centro do peito (sobre as costelas)", correct: false }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                code: "Missão IV • Nível 2",
+                title: "Contendo a Fúria Rubra (Hemorragias)",
+                category: "traumas",
+                difficulty: "Aventureiro (CD 14)",
+                xp: 140,
+                icon: "fa-droplet",
+                platform: "Wordwall • Quiz RPG",
+                url: "ana.html",
+                lore: "A lâmina de um goblin rasgou o braço do explorador. O sangue escorre rápido! Utilize compressão direta e curativos limpos para estancar a perda vital.",
+                objective: "Aplicar técnicas de hemostasia (compressão direta, curativo compressivo e critérios para torniquete).",
+                quiz: {
+                    question: "Qual a conduta imediata mais eficaz para estancar um sangramento externo?",
+                    options: [
+                        { text: "Pressão direta firme sobre o ferimento com pano limpo", correct: true },
+                        { text: "Lavar com pó de café para coagular", correct: false },
+                        { text: "Passar pomada cicatrizante na hora", correct: false }
+                    ]
+                }
+            },
+            {
+                id: 5,
+                code: "Missão V • Nível 1",
+                title: "O Sopro do Dragão (Queimaduras)",
+                category: "traumas",
+                difficulty: "Aprendiz (CD 11)",
+                xp: 110,
+                icon: "fa-fire-flame-curved",
+                platform: "Wordwall • Classificação",
+                url: "stefani.html",
+                lore: "Uma armadilha de fogo atingiu o grupo! Resfrie a pele com água corrente e jamais rompa as bolhas mágicas ou aplique poções caseiras proibidas.",
+                objective: "Classificar queimaduras de 1º, 2º e 3º graus e realizar o resfriamento adequado sem contaminar a lesão.",
+                quiz: {
+                    question: "O que deve ser feito imediatamente em uma queimadura térmica leve?",
+                    options: [
+                        { text: "Resfriar com água corrente em temperatura ambiente por 10-15 min", correct: true },
+                        { text: "Aplicar pasta de dente ou manteiga", correct: false },
+                        { text: "Estourar todas as bolhas com agulha", correct: false }
+                    ]
+                }
+            },
+            {
+                id: 6,
+                code: "Missão VI • Nível 3",
+                title: "Escudo Ósseo (Fraturas & Imobilização)",
+                category: "traumas",
+                difficulty: "Veterano (CD 15)",
+                xp: 160,
+                icon: "fa-bone",
+                platform: "Wordwall • Associação",
+                url: "estefani.html",
+                lore: "Ao saltar sobre um fosso, o paladino torceu ou fraturou a perna. Construa uma tala improvisada para imobilizar uma articulação acima e outra abaixo.",
+                objective: "Reconhecer sinais de fraturas fechadas, expostas, luxações e entorses, aplicando imobilização segura.",
+                quiz: {
+                    question: "Como deve ser feita a imobilização provisória de um osso fraturado?",
+                    options: [
+                        { text: "Imobilizando uma articulação acima e outra abaixo da fratura", correct: true },
+                        { text: "Tentando colocar o osso no lugar à força", correct: false },
+                        { text: "Apenas no local exato da dor", correct: false }
+                    ]
+                }
+            },
+            {
+                id: 7,
+                code: "Missão VII • Nível 1",
+                title: "Névoa Mental (Desmaio & Hipoglicemia)",
+                category: "emergencias",
+                difficulty: "Aprendiz (CD 10)",
+                xp: 100,
+                icon: "fa-person-falling",
+                platform: "Wordwall • Verdadeiro/Falso",
+                url: "aline.html",
+                lore: "Sob o sol escaldante da praça, um cidadão perde os sentidos subitamente. Eleve seus membros inferiores e garanta circulação de ar puro.",
+                objective: "Diferenciar síncope (desmaio) de parada cardíaca e posicionar a vítima adequadamente.",
+                quiz: {
+                    question: "Se a vítima desmaiou mas respira normalmente, como posicioná-la?",
+                    options: [
+                        { text: "Deitada de costas com as pernas elevadas cerca de 30 cm", correct: true },
+                        { text: "Sentada em uma cadeira com a cabeça para trás", correct: false },
+                        { text: "Jogando álcool no rosto para acordar", correct: false }
+                    ]
+                }
+            },
+            {
+                id: 8,
+                code: "Missão VIII • Nível 2",
+                title: "Tempestade Arcana (Crise Convulsiva)",
+                category: "emergencias",
+                difficulty: "Aventureiro (CD 13)",
+                xp: 130,
+                icon: "fa-bolt",
+                platform: "Wordwall • Sequência",
+                url: "diego.html",
+                lore: "Descargas elétricas percorrem o sistema nervoso do mago. Proteja sua cabeça contra impactos, afaste objetos e jamais coloque dedos ou objetos em sua boca!",
+                objective: "Conduzir o atendimento seguro durante e após uma crise convulsiva (Posição Lateral de Segurança).",
+                quiz: {
+                    question: "Durante uma convulsão, qual atitude é PROIBIDA?",
+                    options: [
+                        { text: "Tentar segurar a língua ou colocar objetos na boca da vítima", correct: true },
+                        { text: "Proteger a cabeça com algo macio", correct: false },
+                        { text: "Cronometrar a duração da crise", correct: false }
+                    ]
+                }
+            },
+            {
+                id: 9,
+                code: "Missão IX • Nível 3",
+                title: "Veneno de Serpente (Animais Peçonhentos)",
+                category: "emergencias",
+                difficulty: "Veterano (CD 15)",
+                xp: 160,
+                icon: "fa-staff-snake",
+                platform: "Wordwall • Caça ao Tesouro",
+                url: "davi.html",
+                lore: "Nas florestas de araucárias ao redor de Canoinhas, serpentes e aranhas espreitam. Mantenha a vítima em repouso, lave o local e busque o soro antiofídico!",
+                objective: "Atuar em acidentes com serpentes, aranhas (aranha-marrom/armadeira) e escorpiões, evitando mitos perigosos.",
+                quiz: {
+                    question: "Em caso de picada de cobra, o que você DEVE fazer?",
+                    options: [
+                        { text: "Lavar com água e sabão, manter repouso e levar ao hospital", correct: true },
+                        { text: "Sugar o veneno com a boca", correct: false },
+                        { text: "Fazer um torniquete bem apertado", correct: false }
+                    ]
+                }
+            },
+            {
+                id: 10,
+                code: "Missão X • Nível 2",
+                title: "Poções Tóxicas (Intoxicação Exógena)",
+                category: "emergencias",
+                difficulty: "Aventureiro (CD 13)",
+                xp: 130,
+                icon: "fa-flask-vial",
+                platform: "Wordwall • Roleta",
+                url: "https://wordwall.net/pt/community/intoxicacao-primeiros-socorros",
+                lore: "Um aprendiz ingeriu um elixir desconhecido no laboratório de alquimia! Guarde o frasco para identificação e contate o CIATox imediatamente.",
+                objective: "Identificar vias de intoxicação (ingestão, inalação, contato) e saber quando NÃO induzir o vômito.",
+                quiz: {
+                    question: "Quando uma pessoa ingere produto químico corrosivo, deve-se provocar vômito?",
+                    options: [
+                        { text: "Não! Provocar vômito causa nova queimadura no esôfago", correct: true },
+                        { text: "Sim, dando leite morno com sal", correct: false },
+                        { text: "Sim, imediatamente", correct: false }
+                    ]
+                }
+            },
+            {
+                id: 11,
+                code: "Missão XI • Nível 3",
+                title: "A Maldição do Tempo (Reconhecendo AVC)",
+                category: "emergencias",
+                difficulty: "Veterano (CD 16)",
+                xp: 180,
+                icon: "fa-brain",
+                platform: "Wordwall • Escala SAMU",
+                url: "https://wordwall.net/pt/community/avc-primeiros-socorros",
+                lore: "Tempo é cérebro! Use o feitiço diagnóstico S.A.M.U. (Sorriso, Abraço, Música, Urgência) para detectar um Acidente Vascular Cerebral.",
+                objective: "Aplicar a Escala de Cincinnati / SAMU para reconhecimento precoce de AVC e transporte rápido.",
+                quiz: {
+                    question: "Na sigla SAMU para identificar AVC, o que significa o 'A'?",
+                    options: [
+                        { text: "Abraço (pedir para levantar os dois braços e ver se um cai)", correct: true },
+                        { text: "Água (dar água com açúcar)", correct: false },
+                        { text: "Andar (fazer a pessoa correr)", correct: false }
+                    ]
+                }
+            },
+            {
+                id: 12,
+                code: "Missão XII • Nível 3",
+                title: "O Coração Oprimido (Infarto Agudo)",
+                category: "suporte-vital",
+                difficulty: "Veterano (CD 15)",
+                xp: 170,
+                icon: "fa-heart-crack",
+                platform: "Wordwall • Caso Clínico",
+                url: "https://wordwall.net/pt/community/infarto-primeiros-socorros",
+                lore: "Uma dor em aperto no peito irradia para o braço esquerdo do comandante. Acalme-o, deixe-o em posição confortável semiesentada e acione o socorro.",
+                objective: "Reconhecer sinais clássicos e atípicos de Infarto Agudo do Miocárdio (IAM) e prevenir a evolução para PCR.",
+                quiz: {
+                    question: "Qual a melhor posição para aguardar o SAMU em suspeita de infarto consciente?",
+                    options: [
+                        { text: "Semiesentado, em repouso absoluto e com roupas afrouxadas", correct: true },
+                        { text: "Deitado de bruços", correct: false },
+                        { text: "Caminhando para melhorar a circulação", correct: false }
+                    ]
+                }
+            },
+            {
+                id: 13,
+                code: "Missão XIII • Nível 2",
+                title: "A Postura do Guardião (Posição Lateral)",
+                category: "suporte-vital",
+                difficulty: "Aventureiro (CD 12)",
+                xp: 120,
+                icon: "fa-bed-pulse",
+                platform: "Wordwall • Passo a Passo",
+                url: "https://wordwall.net/pt/community/posicao-lateral-de-seguranca",
+                lore: "O viajante está inconsciente, porém respira. Coloque-o na Posição Lateral de Segurança (PLS) para evitar que engasgue com secreções.",
+                objective: "Executar o passo a passo da Posição Lateral de Segurança para vítimas inconscientes que respiram sem trauma.",
+                quiz: {
+                    question: "Para que serve a Posição Lateral de Segurança (PLS)?",
+                    options: [
+                        { text: "Manter vias aéreas livres e evitar aspiração de vômito/saliva", correct: true },
+                        { text: "Realizar massagem cardíaca", correct: false },
+                        { text: "Imobilizar fratura na coluna cervical", correct: false }
+                    ]
+                }
+            },
+            {
+                id: 14,
+                code: "Missão XIV • Nível 1",
+                title: "A Mochila do Curandeiro (Kit de Socorros)",
+                category: "traumas",
+                difficulty: "Aprendiz (CD 10)",
+                xp: 100,
+                icon: "fa-kit-medical",
+                platform: "Wordwall • Inventário",
+                url: "https://wordwall.net/pt/community/kit-de-primeiros-socorros",
+                lore: "Nenhum grupo parte de Canoinhas sem revisar seu inventário! Selecione apenas os itens essenciais e regulamentados para o kit de primeiros socorros.",
+                objective: "Conhecer os materiais essenciais de um kit de primeiros socorros escolar/empresarial (gaze, luvas, soro, ataduras).",
+                quiz: {
+                    question: "Qual item NÃO deve fazer parte de um kit básico de primeiros socorros escolar?",
+                    options: [
+                        { text: "Medicamentos controlados ou antibióticos sem prescrição", correct: true },
+                        { text: "Luvas descartáveis de procedimento", correct: false },
+                        { text: "Gazes estéreis e soro fisiológico 0,9%", correct: false }
+                    ]
+                }
+            },
+            {
+                id: 15,
+                code: "Missão XV • Chefão Final",
+                title: "O Desafio Supremo de Canoinhas (Simulado Geral)",
+                category: "suporte-vital",
+                difficulty: "Mestre Curandeiro (CD 18)",
+                xp: 250,
+                icon: "fa-dragon",
+                platform: "Quizizz • Batalha Final",
+                url: "https://quizizz.com/admin/search/primeiros%20socorros",
+                lore: "O grande dragão do caos testará todos os conhecimentos adquiridos na oficina dos Jovens Talentos do SENAC Canoinhas. Mostre que você é um verdadeiro mestre!",
+                objective: "Revisão geral integrando triagem, suporte básico de vida, traumas e emergências clínicas.",
+                quiz: {
+                    question: "Qual o número nacional do Serviço de Atendimento Móvel de Urgência (SAMU)?",
+                    options: [
+                        { text: "192", correct: true },
+                        { text: "190", correct: false },
+                        { text: "193", correct: false }
+                    ]
+                }
+            }
+        ];
+
+        // Estado da Aplicação
+        let currentCategory = 'todas';
+        let selectedQuestId = null;
+        let completedQuests = JSON.parse(localStorage.getItem('senac_canoinhas_dnd_socorros')) || [];
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            renderQuests();
+            updateStats();
+        });
+
+        // Renderiza os 15 Cards de Pergaminho
+        function renderQuests() {
+            const grid = document.getElementById('questsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            const filtered = questsData.filter(q => {
+                const matchesCat = currentCategory === 'todas' || q.category === currentCategory;
+                const matchesSearch = q.title.toLowerCase().includes(searchTerm) || 
+                                      q.objective.toLowerCase().includes(searchTerm) ||
+                                      q.code.toLowerCase().includes(searchTerm);
+                return matchesCat && matchesSearch;
+            });
+
+            grid.innerHTML = '';
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            filtered.forEach(quest => {
+                const isDone = completedQuests.includes(quest.id);
+                const card = document.createElement('article');
+                card.className = `parchment-card rounded-xl p-6 flex flex-col justify-between shadow-dnd-card ${isDone ? 'ring-2 ring-emerald-600' : ''}`;
+
+                card.innerHTML = `
+                    <div>
+                        <!-- Topo do Card: Número e Selo -->
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="font-dnd-header text-xs font-extrabold uppercase tracking-wider text-dnd-red">
+                                ${quest.code}
+                            </span>
+                            ${isDone 
+                                ? `<span class="px-2.5 py-0.5 rounded-full bg-emerald-800 text-white text-xs font-bold flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Concluída</span>`
+                                : `<span class="px-2.5 py-0.5 rounded-full bg-[#2B1D12]/10 text-[#2B1D12] text-xs font-semibold">+${quest.xp} XP</span>`
+                            }
+                        </div>
+
+                        <!-- Ícone e Título -->
+                        <div class="flex items-start gap-3.5 mb-3">
+                            <div class="w-12 h-12 rounded-lg wax-seal text-dnd-gold-light flex items-center justify-center text-xl shrink-0 mt-0.5">
+                                <i class="fa-solid ${quest.icon}"></i>
+                            </div>
+                            <h3 class="font-dnd-header text-lg font-extrabold text-[#2B1D12] leading-snug">
+                                ${quest.title}
+                            </h3>
+                        </div>
+
+                        <!-- Lore resumida -->
+                        <p class="font-parchment text-base text-[#3D2B1F] italic line-clamp-3 mb-4">
+                            "${quest.lore}"
+                        </p>
+                    </div>
+
+                    <!-- Rodapé do Card -->
+                    <div class="pt-3 border-t border-[#8C6239]/40">
+                        <div class="flex items-center justify-between text-xs text-[#5C4028] mb-3 font-medium">
+                            <span><i class="fa-solid fa-dice-d20 text-dnd-red mr-1"></i> ${quest.difficulty}</span>
+                            <span><i class="fa-solid fa-puzzle-piece text-amber-800 mr-1"></i> ${quest.platform}</span>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button onclick="openQuestModal(${quest.id})" class="flex-1 py-2.5 px-3 rounded-lg bg-[#2B1D12] hover:bg-dnd-red text-dnd-gold-light font-dnd-header text-xs font-bold tracking-wide transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-scroll"></i> Abrir Pergaminho
+                            </button>
+                            <a href="${quest.url}" target="_blank" rel="noopener noreferrer" title="Ir direto para o jogo" class="py-2.5 px-3.5 rounded-lg bg-dnd-red hover:bg-dnd-red-dark text-dnd-gold-light border border-dnd-gold/60 transition flex items-center justify-center">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Filtro por Categoria
+        function setCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.classList.remove('bg-obsidian', 'text-parchment-dark', 'border-dnd-gold/40');
+                    btn.classList.add('bg-dnd-red', 'text-dnd-gold-light', 'border-dnd-gold');
+                } else {
+                    btn.classList.add('bg-obsidian', 'text-parchment-dark', 'border-dnd-gold/40');
+                    btn.classList.remove('bg-dnd-red', 'text-dnd-gold-light', 'border-dnd-gold');
+                }
+            });
+            renderQuests();
+        }
+
+        function filterQuests() {
+            renderQuests();
+        }
+
+        // Abre o Modal Detalhado da Missão
+        function openQuestModal(id) {
+            const quest = questsData.find(q => q.id === id);
+            if (!quest) return;
+
+            selectedQuestId = id;
+            document.getElementById('modalCode').textContent = quest.code;
+            document.getElementById('modalTitle').textContent = quest.title;
+            document.getElementById('modalDifficulty').textContent = `Dificuldade: ${quest.difficulty}`;
+            document.getElementById('modalXp').textContent = `+${quest.xp} XP`;
+            document.getElementById('modalPlatform').textContent = quest.platform;
+            document.getElementById('modalLore').textContent = `"${quest.lore}"`;
+            document.getElementById('modalObjective').textContent = quest.objective;
+            document.getElementById('modalLaunchLink').href = quest.url;
+            document.getElementById('modalIconBox').innerHTML = `<i class="fa-solid ${quest.icon}"></i>`;
+
+            // Atualiza botão de conclusão
+            const isDone = completedQuests.includes(id);
+            const completeBtn = document.getElementById('toggleCompleteBtn');
+            if (isDone) {
+                completeBtn.innerHTML = `<i class="fa-solid fa-rotate-left"></i> Desmarcar Missão`;
+                completeBtn.className = "flex-1 sm:flex-initial px-4 py-2.5 rounded-lg bg-stone-700 hover:bg-stone-600 text-white font-dnd-header text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer";
+            } else {
+                completeBtn.innerHTML = `<i class="fa-solid fa-check-double"></i> Concluir Missão`;
+                completeBtn.className = "flex-1 sm:flex-initial px-4 py-2.5 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white font-dnd-header text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer";
+            }
+
+            // Monta o mini-quiz
+            document.getElementById('modalQuizQuestion').textContent = quest.quiz.question;
+            document.getElementById('quizFeedback').textContent = '';
+            const optionsContainer = document.getElementById('modalQuizOptions');
+            optionsContainer.innerHTML = '';
+
+            quest.quiz.options.forEach((opt) => {
+                const btn = document.createElement('button');
+                btn.className = "text-left p-2.5 rounded bg-obsidian hover:bg-dnd-red/40 border border-dnd-gold/30 text-parchment-bg transition cursor-pointer";
+                btn.textContent = `• ${opt.text}`;
+                btn.onclick = () => {
+                    const feedback = document.getElementById('quizFeedback');
+                    if (opt.correct) {
+                        btn.classList.add('!bg-emerald-900', '!border-emerald-400');
+                        feedback.textContent = "Sucesso Crítico! (+20 XP)";
+                        feedback.className = "font-ui text-xs font-bold text-emerald-400";
+                    } else {
+                        btn.classList.add('!bg-red-950', '!border-red-500');
+                        feedback.textContent = "Falha no teste! Tente novamente.";
+                        feedback.className = "font-ui text-xs font-bold text-red-400";
+                    }
+                };
+                optionsContainer.appendChild(btn);
+            });
+
+            const modal = document.getElementById('questModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeQuestModal() {
+            const modal = document.getElementById('questModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Alterna status de conclusão da missão
+        function toggleQuestComplete() {
+            if (!selectedQuestId) return;
+            const index = completedQuests.indexOf(selectedQuestId);
+            if (index === -1) {
+                completedQuests.push(selectedQuestId);
+                showToast("Missão concluída! XP adicionado à sua ficha.");
+            } else {
+                completedQuests.splice(index, 1);
+                showToast("Missão reaberta para novo treino.");
+            }
+            localStorage.setItem('senac_canoinhas_dnd_socorros', JSON.stringify(completedQuests));
+            updateStats();
+            renderQuests();
+            openQuestModal(selectedQuestId);
+        }
+
+        // Atualiza Ficha do Aluno (Nível, XP e Barra)
+        function updateStats() {
+            const count = completedQuests.length;
+            const totalXp = questsData
+                .filter(q => completedQuests.includes(q.id))
+                .reduce((acc, q) => acc + q.xp, 0);
+
+            document.getElementById('completedCount').textContent = count;
+            document.getElementById('xpPoints').textContent = totalXp;
+            document.getElementById('xpBar').style.width = `${(count / questsData.length) * 100}%`;
+
+            // Patentes estilo D&D
+            let rank = "Iniciado da Cruz";
+            if (count >= 15) rank = "Grão-Mestre Socorrista SENAC";
+            else if (count >= 10) rank = "Paladino da Vida";
+            else if (count >= 6) rank = "Clérigo de Campo";
+            else if (count >= 3) rank = "Escudeiro do Resgate";
+
+            document.getElementById('rankTitle').textContent = rank;
+        }
+
+        function resetProgress() {
+            completedQuests = [];
+            localStorage.removeItem('senac_canoinhas_dnd_socorros');
+            updateStats();
+            renderQuests();
+            showToast("Ficha do aventureiro reiniciada!");
+        }
+
+        // Copia o link do jogo usando fallback compatível com iframes
+        function copyGameLink() {
+            const quest = questsData.find(q => q.id === selectedQuestId);
+            if (!quest) return;
+
+            const tempInput = document.createElement('input');
+            tempInput.value = quest.url;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            showToast(`Link de "${quest.title}" copiado!`);
+        }
+
+        // Rolador de Dado D20
+        function openDiceRoller() {
+            const modal = document.getElementById('diceModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDiceRoller() {
+            const modal = document.getElementById('diceModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function rollD20() {
+            const display = document.getElementById('diceDisplay');
+            const outcome = document.getElementById('diceOutcome');
+            let rolls = 0;
+
+            const interval = setInterval(() => {
+                display.textContent = Math.floor(Math.random() * 20) + 1;
+                rolls++;
+                if (rolls > 10) {
+                    clearInterval(interval);
+                    const finalRoll = Math.floor(Math.random() * 20) + 1;
+                    display.textContent = finalRoll;
+
+                    if (finalRoll === 20) {
+                        outcome.innerHTML = `<strong class="text-dnd-gold">20 NATURAL! Sucesso Crítico!</strong> Você avaliou a cena, acionou o 192 e iniciou a RCP com perfeição!`;
+                    } else if (finalRoll >= 12) {
+                        outcome.innerHTML = `<strong class="text-emerald-400">Sucesso (${finalRoll})!</strong> Sua calma e técnica do SENAC Canoinhas estabilizaram a vítima.`;
+                    } else if (finalRoll > 1) {
+                        outcome.innerHTML = `<strong class="text-amber-400">Atenção (${finalRoll})!</strong> Revise os pergaminhos da oficina antes de agir na emergência.`;
+                    } else {
+                        outcome.innerHTML = `<strong class="text-red-400">1 Natural!</strong> Você esqueceu de verificar a segurança da cena! Pratique mais nos jogos.`;
+                    }
+                }
+            }, 60);
+        }
+
+        // Toast Feedback
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

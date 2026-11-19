@@ -1,0 +1,2889 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select: none" />
+  <title>FIRE RESCUE 2026</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap');
+
+    :root {
+      --glass-bg: rgba(12, 19, 32, 0.78);
+      --glass-border: rgba(255, 255, 255, 0.14);
+      --accent-red: #ef4444;
+      --accent-orange: #f97316;
+      --accent-amber: #fbbf24;
+      --accent-blue: #38bdf8;
+      --accent-green: #22c55e;
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #09111e;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+    }
+
+    #canvas-container {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* HUD Layer */
+    #hud {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.45s ease;
+    }
+
+    #hud.visible {
+      opacity: 1;
+    }
+
+    .glass-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Top Left: Minimap Radar + Radio Dispatch */
+    #top-left-stack {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: auto;
+      max-width: 260px;
+    }
+
+    #minimap-container {
+      padding: 8px;
+      position: relative;
+      width: fit-content;
+    }
+
+    #minimapCanvas {
+      width: 152px;
+      height: 152px;
+      border-radius: 12px;
+      background: #0c1626;
+      display: block;
+    }
+
+    .minimap-label {
+      position: absolute;
+      bottom: 13px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(12, 19, 32, 0.88);
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #cbd5e1;
+      white-space: nowrap;
+    }
+
+    #radio-card {
+      padding: 10px 14px;
+      border-left: 3px solid var(--accent-orange);
+    }
+
+    .radio-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.66rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--accent-amber);
+      margin-bottom: 4px;
+    }
+
+    .radio-bars {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 10px;
+    }
+
+    .radio-bars span {
+      width: 2.5px;
+      background: var(--accent-green);
+      border-radius: 2px;
+      animation: eq 0.55s infinite alternate;
+    }
+    .radio-bars span:nth-child(2) { animation-delay: 0.15s; }
+    .radio-bars span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes eq {
+      0% { height: 3px; }
+      100% { height: 10px; }
+    }
+
+    #radio-msg {
+      font-size: 0.76rem;
+      line-height: 1.35;
+      color: #e2e8f0;
+    }
+
+    /* Top Center: Mission Objective Banner */
+    #objective-card {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 22px;
+      min-width: 330px;
+      max-width: 90vw;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      pointer-events: auto;
+    }
+
+    .obj-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .obj-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-amber);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-red);
+      box-shadow: 0 0 10px var(--accent-red);
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.45); opacity: 0.55; }
+    }
+
+    .obj-distance {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+    }
+
+    #objective-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.04rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    #objective-sub {
+      font-size: 0.79rem;
+      color: #cbd5e1;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 3px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-orange), var(--accent-green));
+      border-radius: 999px;
+      transition: width 0.15s ease;
+    }
+
+    /* Top Right: Score, Rank & Quick Controls */
+    #top-right-panel {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 9px;
+      pointer-events: auto;
+    }
+
+    .stats-pill {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .stat-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .stat-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .stat-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .quick-buttons {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .hud-btn {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px);
+      color: #f8fafc;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .hud-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .hud-btn.active-siren {
+      background: rgba(239, 68, 68, 0.38);
+      border-color: #f87171;
+      color: #fecaca;
+    }
+
+    /* Mission Selector Drawer (Clean, Compact) */
+    #mission-drawer {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 10px;
+      width: 265px;
+      max-height: 330px;
+      overflow-y: auto;
+    }
+
+    #mission-drawer.open {
+      display: flex;
+    }
+
+    .mission-opt {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 7px 10px;
+      text-align: left;
+      color: #f8fafc;
+      cursor: pointer;
+      transition: all 0.14s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+
+    .mission-opt:hover {
+      background: rgba(249, 115, 22, 0.25);
+      border-color: var(--accent-orange);
+    }
+
+    .mission-opt span.reward {
+      color: var(--accent-amber);
+      font-size: 0.68rem;
+      font-weight: 800;
+    }
+
+    /* Bottom Center: Context Action Button + Equipment Bar */
+    #bottom-dock {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+      width: max-content;
+      max-width: 95vw;
+    }
+
+    #action-button {
+      background: linear-gradient(135deg, #f97316, #dc2626);
+      border: 2px solid rgba(255, 255, 255, 0.45);
+      color: #ffffff;
+      padding: 11px 26px;
+      border-radius: 999px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      box-shadow: 0 8px 26px rgba(239, 68, 68, 0.45);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: transform 0.14s ease, box-shadow 0.14s ease;
+    }
+
+    #action-button:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 12px 32px rgba(239, 68, 68, 0.65);
+    }
+
+    #action-button:active {
+      transform: scale(0.97);
+    }
+
+    .key-cap {
+      background: rgba(0, 0, 0, 0.35);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    #toolbar {
+      display: flex;
+      gap: 7px;
+      padding: 6px;
+    }
+
+    .tool-item {
+      padding: 8px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid transparent;
+      color: #cbd5e1;
+      font-size: 0.79rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.15s ease;
+    }
+
+    .tool-item:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .tool-item.active {
+      background: rgba(249, 115, 22, 0.28);
+      border-color: var(--accent-orange);
+      color: #ffffff;
+    }
+
+    /* Toast Alert */
+    #toast {
+      position: absolute;
+      top: 112px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      background: rgba(12, 19, 32, 0.92);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: #f8fafc;
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.25s ease;
+      pointer-events: none;
+      white-space: nowrap;
+      max-width: 92vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Subtle Controls Hint Bottom Left */
+    #controls-hint {
+      position: absolute;
+      bottom: 18px;
+      left: 16px;
+      padding: 10px 14px;
+      font-size: 0.72rem;
+      color: #cbd5e1;
+      line-height: 1.55;
+    }
+
+    #controls-hint strong {
+      color: #ffffff;
+    }
+
+    /* Title Screen Overlay */
+    #title-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      background: linear-gradient(180deg, rgba(8, 13, 24, 0.28) 0%, rgba(8, 13, 24, 0.78) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      transition: opacity 0.45s ease;
+    }
+
+    #title-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .title-chip {
+      background: rgba(239, 68, 68, 0.25);
+      border: 1px solid rgba(248, 113, 113, 0.55);
+      color: #fecaca;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      backdrop-filter: blur(8px);
+    }
+
+    .main-logo {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2.6rem, 6.5vw, 4.7rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.02;
+      color: #ffffff;
+      text-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+      margin-bottom: 12px;
+    }
+
+    .main-logo span {
+      background: linear-gradient(135deg, #fbbf24, #f97316, #ef4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      max-width: 540px;
+      font-size: 1rem;
+      color: #e2e8f0;
+      line-height: 1.5;
+      margin-bottom: 28px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+    }
+
+    #btn-start {
+      background: linear-gradient(135deg, #f97316, #dc2626);
+      color: #ffffff;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      padding: 16px 42px;
+      border-radius: 999px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      box-shadow: 0 14px 36px rgba(220, 38, 38, 0.55);
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    #btn-start:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 18px 44px rgba(220, 38, 38, 0.78);
+    }
+
+    /* Mobile Touch Pad */
+    #mobile-pad {
+      display: none;
+      position: absolute;
+      bottom: 92px;
+      left: 16px;
+      width: 112px;
+      height: 112px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      pointer-events: auto;
+      touch-action: none;
+    }
+
+    #mobile-knob {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 42px;
+      height: 42px;
+      margin: -21px 0 0 -21px;
+      border-radius: 50%;
+      background: rgba(249, 115, 22, 0.9);
+      border: 2px solid #fff;
+    }
+
+    @media (max-width: 860px) {
+      #controls-hint, #radio-card { display: none; }
+      #mobile-pad { display: block; }
+      #minimapCanvas { width: 108px; height: 108px; }
+      #objective-card { min-width: 240px; padding: 10px 14px; }
+      .tool-item span.label-text { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-container"></div>
+
+  <!-- Minimalist Title Overlay over Live 3D City -->
+  <div id="title-overlay">
+    <div class="title-chip">Simulador Urbano de Elite 3D</div>
+    <h1 class="main-logo">FIRE RESCUE <span>2026</span></h1>
+    <p class="subtitle">
+      Comande a unidade especial de bombeiros. Dirija viaturas de emergência, opere a mangueira de alta pressão e salve vidas em 8 tipos de ocorrências.
+    </p>
+    <button id="btn-start">🚒 INICIAR SERVIÇO</button>
+  </div>
+
+  <!-- Clean Modern HUD -->
+  <div id="hud">
+    <!-- Top Left: Radar + Radio -->
+    <div id="top-left-stack">
+      <div id="minimap-container" class="glass-card">
+        <canvas id="minimapCanvas" width="160" height="160"></canvas>
+        <div class="minimap-label">RADAR TÁTICO</div>
+      </div>
+
+      <div id="radio-card" class="glass-card">
+        <div class="radio-top">
+          <span>📡 CENTRAL 193 • CANAL 01</span>
+          <div class="radio-bars"><span></span><span></span><span></span></div>
+        </div>
+        <div id="radio-msg">Unidade em prontidão no Quartel Central.</div>
+      </div>
+    </div>
+
+    <!-- Top Center: Objective & Progress -->
+    <div id="objective-card" class="glass-card">
+      <div class="obj-header">
+        <span class="obj-badge"><span class="pulse-dot"></span><span id="obj-type">CHAMADO DE EMERGÊNCIA</span></span>
+        <span class="obj-distance" id="obj-dist">-- m</span>
+      </div>
+      <div id="objective-title">Aguardando chamado da Central...</div>
+      <div id="objective-sub">Prepare-se na Base dos Bombeiros</div>
+      <div class="progress-track">
+        <div class="progress-fill" id="objective-progress"></div>
+      </div>
+    </div>
+
+    <!-- Top Right: Score, Quick Controls & Mission Selector -->
+    <div id="top-right-panel">
+      <div class="stats-pill glass-card">
+        <div class="stat-block">
+          <span class="stat-label">Ocorrências</span>
+          <span class="stat-val" id="stat-rescues" style="color:#4ade80;">0</span>
+        </div>
+        <div style="width:1px; height:26px; background:rgba(255,255,255,0.14);"></div>
+        <div class="stat-block">
+          <span class="stat-label">Pontos</span>
+          <span class="stat-val" id="stat-score" style="color:#fbbf24;">0</span>
+        </div>
+      </div>
+      <div class="quick-buttons">
+        <button class="hud-btn" id="btn-missions" title="Escolher Ocorrência">📋 Chamados</button>
+        <button class="hud-btn" id="btn-siren" title="Sirene (H)">🚨 Sirene [H]</button>
+        <button class="hud-btn" id="btn-sound" title="Áudio">🔊 Som</button>
+      </div>
+      <div id="mission-drawer" class="glass-card"></div>
+    </div>
+
+    <!-- Toast Alert -->
+    <div id="toast"></div>
+
+    <!-- Controls Hint -->
+    <div id="controls-hint" class="glass-card">
+      <strong>WASD / Setas:</strong> Andar ou Dirigir &nbsp;|&nbsp; <strong>Shift:</strong> Correr<br/>
+      <strong>E:</strong> Entrar/Sair do Veículo ou Resgatar &nbsp;|&nbsp; <strong>Espaço / Clique:</strong> Mangueira / Ferramenta<br/>
+      <strong>Arrastar Mouse:</strong> Girar Câmera &nbsp;|&nbsp; <strong>H:</strong> Sirene
+    </div>
+
+    <!-- Mobile Touch Pad -->
+    <div id="mobile-pad">
+      <div id="mobile-knob"></div>
+    </div>
+
+    <!-- Bottom Center: Context Action Button + Equipment Bar -->
+    <div id="bottom-dock">
+      <button id="action-button">
+        <span class="key-cap">ESPAÇO / E</span>
+        <span id="action-label">Entrar no Caminhão</span>
+      </button>
+
+      <div id="toolbar" class="glass-card">
+        <div class="tool-item active" data-tool="0" onclick="selectTool(0)">
+          <span>💦</span><span class="label-text">[1] Mangueira</span>
+        </div>
+        <div class="tool-item" data-tool="1" onclick="selectTool(1)">
+          <span>🩹</span><span class="label-text">[2] Resgate / Socorros</span>
+        </div>
+        <div class="tool-item" data-tool="2" onclick="selectTool(2)">
+          <span>🪓</span><span class="label-text">[3] Cortador Hidráulico</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * FIRE RESCUE 2026
+     * Simulador 3D Moderno de Bombeiros em Three.js + Web Audio API
+     */
+
+    // =========================================================================
+    // 1. SISTEMA DE ÁUDIO PROCEDURAL (WEB AUDIO API)
+    // =========================================================================
+    class SoundSystem {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+        this.sirenOn = false;
+        this.sirenOsc = null;
+        this.sirenGain = null;
+        this.sirenInterval = null;
+        this.waterGain = null;
+      }
+
+      init() {
+        if (this.ctx) return;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        this.ctx = new AudioCtx();
+        this.setupWaterNoise();
+      }
+
+      setupWaterNoise() {
+        if (!this.ctx) return;
+        const bufferSize = this.ctx.sampleRate * 2;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        noise.loop = true;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1150;
+        filter.Q.value = 0.75;
+
+        this.waterGain = this.ctx.createGain();
+        this.waterGain.gain.value = 0;
+
+        noise.connect(filter);
+        filter.connect(this.waterGain);
+        this.waterGain.connect(this.ctx.destination);
+        noise.start(0);
+      }
+
+      setWaterSpray(active) {
+        if (!this.ctx || !this.waterGain) return;
+        const target = (!this.muted && active) ? 0.13 : 0;
+        this.waterGain.gain.setTargetAtTime(target, this.ctx.currentTime, 0.05);
+      }
+
+      toggleMute() {
+        this.muted = !this.muted;
+        if (this.muted) {
+          this.setWaterSpray(false);
+          if (this.sirenGain && this.ctx) {
+            this.sirenGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.05);
+          }
+        } else if (this.sirenOn && this.sirenGain && this.ctx) {
+          this.sirenGain.gain.setTargetAtTime(0.06, this.ctx.currentTime, 0.05);
+        }
+        return !this.muted;
+      }
+
+      toggleSiren(forceState = null) {
+        this.init();
+        this.sirenOn = forceState !== null ? forceState : !this.sirenOn;
+        const btn = document.getElementById('btn-siren');
+        if (btn) btn.classList.toggle('active-siren', this.sirenOn);
+
+        if (!this.ctx) return;
+
+        if (this.sirenOn) {
+          if (!this.sirenOsc) {
+            this.sirenOsc = this.ctx.createOscillator();
+            this.sirenGain = this.ctx.createGain();
+            this.sirenOsc.type = 'triangle';
+            this.sirenOsc.frequency.value = 660;
+            this.sirenGain.gain.value = this.muted ? 0 : 0.06;
+            this.sirenOsc.connect(this.sirenGain);
+            this.sirenGain.connect(this.ctx.destination);
+            this.sirenOsc.start();
+
+            let high = false;
+            this.sirenInterval = setInterval(() => {
+              if (!this.sirenOsc || !this.ctx) return;
+              high = !high;
+              this.sirenOsc.frequency.setTargetAtTime(high ? 890 : 630, this.ctx.currentTime, 0.04);
+            }, 410);
+          }
+        } else {
+          if (this.sirenInterval) clearInterval(this.sirenInterval);
+          if (this.sirenOsc) {
+            try { this.sirenOsc.stop(); } catch (e) {}
+            this.sirenOsc = null;
+          }
+          this.sirenGain = null;
+        }
+        return this.sirenOn;
+      }
+
+      playDispatchChime() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        [880, 1174.66].forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + i * 0.13);
+          gain.gain.setValueAtTime(0.075, now + i * 0.13);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.13 + 0.24);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + i * 0.13);
+          osc.stop(now + i * 0.13 + 0.25);
+        });
+      }
+
+      playSuccess() {
+        if (this.muted || !this.ctx) return;
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((freq, i) => {
+          const now = this.ctx.currentTime + i * 0.1;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.085, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.34);
+        });
+      }
+
+      playActionTick(freq = 540) {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.045, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.09);
+      }
+    }
+
+    const sfx = new SoundSystem();
+
+    // =========================================================================
+    // 2. CONFIGURAÇÃO DA CENA 3D E ILUMINAÇÃO MODERNA
+    // =========================================================================
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x8ecae6);
+    scene.fog = new THREE.FogExp2(0x9bd1e5, 0.0022);
+
+    const camera = new THREE.PerspectiveCamera(56, window.innerWidth / window.innerHeight, 0.4, 750);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+    container.appendChild(renderer.domElement);
+
+    const hemiLight = new THREE.HemisphereLight(0xfffbeb, 0x334155, 0.82);
+    scene.add(hemiLight);
+
+    const sunLight = new THREE.DirectionalLight(0xfff3d6, 1.38);
+    sunLight.position.set(130, 195, 110);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.camera.near = 10;
+    sunLight.shadow.camera.far = 560;
+    const dShadow = 220;
+    sunLight.shadow.camera.left = -dShadow;
+    sunLight.shadow.camera.right = dShadow;
+    sunLight.shadow.camera.top = dShadow;
+    sunLight.shadow.camera.bottom = -dShadow;
+    sunLight.shadow.bias = -0.0005;
+    scene.add(sunLight);
+
+    // =========================================================================
+    // 3. CIDADE MODERNA, RODOVIA, FLORESTA, ZONA INDUSTRIAL E ÁREA DE ENCHENTE
+    // =========================================================================
+    const WORLD_HALF = 250;
+    const colliders = [];
+    const streetCoords = [-140, -70, 0, 70, 140];
+
+    function addBoxCollider(cx, cz, w, d) {
+      colliders.push({
+        minX: cx - w / 2,
+        maxX: cx + w / 2,
+        minZ: cz - d / 2,
+        maxZ: cz + d / 2
+      });
+    }
+
+    function createBuildingTexture(baseColor, windowColor) {
+      const c = document.createElement('canvas');
+      c.width = 128;
+      c.height = 256;
+      const g = c.getContext('2d');
+      g.fillStyle = baseColor;
+      g.fillRect(0, 0, 128, 256);
+
+      g.fillStyle = windowColor;
+      for (let y = 12; y < 244; y += 24) {
+        for (let x = 12; x < 116; x += 22) {
+          g.fillRect(x, y, 14, 14);
+        }
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      return tex;
+    }
+
+    const glassTexBlue = createBuildingTexture('#334155', '#bae6fd');
+    const glassTexWarm = createBuildingTexture('#475569', '#fef08a');
+    const houseTex = createBuildingTexture('#e2e8f0', '#38bdf8');
+    const industrialTex = createBuildingTexture('#64748b', '#94a3b8');
+
+    function buildWorld() {
+      // Solo Geral
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(WORLD_HALF * 2.4, WORLD_HALF * 2.4),
+        new THREE.MeshStandardMaterial({ color: 0x3f6212, roughness: 0.9 })
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      const sidewalkMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.85 });
+      const roadMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.78 });
+      const lineMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
+      const whiteMat = new THREE.MeshBasicMaterial({ color: 0xf8fafc });
+
+      // Ruas da Cidade
+      streetCoords.forEach(coord => {
+        const rH = new THREE.Mesh(new THREE.PlaneGeometry(310, 16), roadMat);
+        rH.rotation.x = -Math.PI / 2;
+        rH.position.set(0, 0.04, coord);
+        rH.receiveShadow = true;
+        scene.add(rH);
+
+        const rV = new THREE.Mesh(new THREE.PlaneGeometry(16, 310), roadMat);
+        rV.rotation.x = -Math.PI / 2;
+        rV.position.set(coord, 0.04, 0);
+        rV.receiveShadow = true;
+        scene.add(rV);
+
+        for (let s = -140; s <= 140; s += 14) {
+          if (streetCoords.some(sc => Math.abs(s - sc) < 10)) continue;
+          const dashH = new THREE.Mesh(new THREE.PlaneGeometry(5, 0.35), lineMat);
+          dashH.rotation.x = -Math.PI / 2;
+          dashH.position.set(s, 0.06, coord);
+          scene.add(dashH);
+
+          const dashV = new THREE.Mesh(new THREE.PlaneGeometry(0.35, 5), lineMat);
+          dashV.rotation.x = -Math.PI / 2;
+          dashV.position.set(coord, 0.06, s);
+          scene.add(dashV);
+        }
+      });
+
+      // Rodovia Expressa Leste-Oeste no Sul (z = 195) com 4 faixas
+      const highway = new THREE.Mesh(new THREE.PlaneGeometry(WORLD_HALF * 2, 24), roadMat);
+      highway.rotation.x = -Math.PI / 2;
+      highway.position.set(0, 0.05, 195);
+      highway.receiveShadow = true;
+      scene.add(highway);
+
+      // Conector da cidade até a Rodovia (x = 0 e x = 140)
+      [0, 140].forEach(cx => {
+        const ramp = new THREE.Mesh(new THREE.PlaneGeometry(16, 55), roadMat);
+        ramp.rotation.x = -Math.PI / 2;
+        ramp.position.set(cx, 0.045, 168);
+        ramp.receiveShadow = true;
+        scene.add(ramp);
+      });
+
+      // Faixas da Rodovia
+      for (let hx = -WORLD_HALF + 10; hx < WORLD_HALF - 10; hx += 14) {
+        const hLine1 = new THREE.Mesh(new THREE.PlaneGeometry(6, 0.4), whiteMat);
+        hLine1.rotation.x = -Math.PI / 2;
+        hLine1.position.set(hx, 0.07, 189);
+        const hCenter = new THREE.Mesh(new THREE.PlaneGeometry(14, 0.45), lineMat);
+        hCenter.rotation.x = -Math.PI / 2;
+        hCenter.position.set(hx, 0.07, 195);
+        const hLine2 = new THREE.Mesh(new THREE.PlaneGeometry(6, 0.4), whiteMat);
+        hLine2.rotation.x = -Math.PI / 2;
+        hLine2.position.set(hx, 0.07, 201);
+        scene.add(hLine1, hCenter, hLine2);
+      }
+
+      // Quarteirões Urbanos
+      for (let ix = 0; ix < streetCoords.length - 1; ix++) {
+        for (let iz = 0; iz < streetCoords.length - 1; iz++) {
+          const minX = streetCoords[ix] + 8;
+          const maxX = streetCoords[ix + 1] - 8;
+          const minZ = streetCoords[iz] + 8;
+          const maxZ = streetCoords[iz + 1] - 8;
+          const cx = (minX + maxX) / 2;
+          const cz = (minZ + maxZ) / 2;
+          const bw = maxX - minX;
+          const bd = maxZ - minZ;
+
+          const pad = new THREE.Mesh(new THREE.BoxGeometry(bw, 0.28, bd), sidewalkMat);
+          pad.position.set(cx, 0.14, cz);
+          pad.receiveShadow = true;
+          scene.add(pad);
+
+          // Quarteirão da Base Central dos Bombeiros (ix === 1 && iz === 1 -> x: -35, z: -35)
+          if (ix === 1 && iz === 1) {
+            buildFireStation(cx, cz, bw, bd);
+            continue;
+          }
+
+          // Parque Municipal & Resgate de Animais (ix === 2 && iz === 2 -> x: 35, z: 35)
+          if (ix === 2 && iz === 2) {
+            buildCityPark(cx, cz, bw, bd);
+            continue;
+          }
+
+          // Zona Industrial no Quarteirão Sudeste (ix === 3 && iz === 3 -> x: 105, z: 105)
+          if (ix === 3 && iz === 3) {
+            buildIndustrialComplex(cx, cz);
+            continue;
+          }
+
+          // Bairro Baixo / Área Sujeita a Enchente (ix === 0 && iz === 3 -> x: -105, z: 105)
+          if (ix === 0 && iz === 3) {
+            buildFloodDistrict(cx, cz);
+            continue;
+          }
+
+          // Prédios Modernos e Casas Residenciais
+          const isCommercial = (ix + iz) % 2 === 0;
+          if (isCommercial) {
+            const positions = [
+              { x: cx - 13, z: cz - 12, w: 18, d: 18, h: 36 + ((ix * 7 + iz * 13) % 24) },
+              { x: cx + 13, z: cz + 12, w: 18, d: 18, h: 30 + ((ix * 11 + iz * 5) % 22) }
+            ];
+            positions.forEach((p, idx) => {
+              const mat = new THREE.MeshStandardMaterial({
+                map: idx % 2 === 0 ? glassTexBlue : glassTexWarm,
+                roughness: 0.3,
+                metalness: 0.3
+              });
+              const mesh = new THREE.Mesh(new THREE.BoxGeometry(p.w, p.h, p.d), mat);
+              mesh.position.set(p.x, p.h / 2 + 0.28, p.z);
+              mesh.castShadow = true;
+              mesh.receiveShadow = true;
+              scene.add(mesh);
+              addBoxCollider(p.x, p.z, p.w, p.d);
+              addTree(cx + (idx === 0 ? 15 : -15), cz + (idx === 0 ? -15 : 15));
+            });
+          } else {
+            const houseSpots = [
+              { x: cx - 13, z: cz - 13, color: 0xf8fafc, roof: 0xb91c1c },
+              { x: cx + 13, z: cz - 13, color: 0xfef3c7, roof: 0x1e3a8a },
+              { x: cx - 13, z: cz + 13, color: 0xe2e8f0, roof: 0x0f766e },
+              { x: cx + 13, z: cz + 13, color: 0xf1f5f9, roof: 0x9a3412 }
+            ];
+            houseSpots.forEach(hs => {
+              const body = new THREE.Mesh(
+                new THREE.BoxGeometry(14, 7.5, 13),
+                new THREE.MeshStandardMaterial({ map: houseTex, color: hs.color, roughness: 0.6 })
+              );
+              body.position.set(hs.x, 3.75 + 0.28, hs.z);
+              body.castShadow = true;
+              body.receiveShadow = true;
+              scene.add(body);
+
+              const roof = new THREE.Mesh(
+                new THREE.ConeGeometry(10.8, 4.2, 4),
+                new THREE.MeshStandardMaterial({ color: hs.roof, roughness: 0.7 })
+              );
+              roof.position.set(hs.x, 7.5 + 2.1 + 0.28, hs.z);
+              roof.rotation.y = Math.PI / 4;
+              roof.castShadow = true;
+              scene.add(roof);
+
+              addBoxCollider(hs.x, hs.z, 14, 13);
+            });
+          }
+        }
+      }
+
+      // Reserva Florestal no Setor Norte (z: -165 a -225)
+      for (let i = 0; i < 65; i++) {
+        const fx = -160 + (i % 13) * 26 + ((i * 7) % 9 - 4);
+        const fz = -162 - Math.floor(i / 13) * 14 + ((i * 5) % 7 - 3);
+        if (Math.abs(fx - 0) < 14 && Math.abs(fz + 185) < 14) continue; // Clareira do foco florestal
+        addTree(fx, fz);
+      }
+
+      // Postes de Iluminação
+      streetCoords.forEach(sx => {
+        streetCoords.forEach(sz => {
+          addStreetLight(sx + 9.2, sz + 9.2);
+        });
+      });
+    }
+
+    function buildFireStation(cx, cz, bw, bd) {
+      const yard = new THREE.Mesh(
+        new THREE.BoxGeometry(bw - 1, 0.32, bd - 1),
+        new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8 })
+      );
+      yard.position.set(cx, 0.16, cz);
+      yard.receiveShadow = true;
+      scene.add(yard);
+
+      const stationZ = cz - 14;
+      const wallMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.45 });
+      const trimMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.4 });
+
+      const leftWing = new THREE.Mesh(new THREE.BoxGeometry(16, 12, 18), wallMat);
+      leftWing.position.set(cx - 15, 6.3, stationZ);
+      leftWing.castShadow = true;
+      scene.add(leftWing);
+      addBoxCollider(cx - 15, stationZ, 16, 18);
+
+      const tower = new THREE.Mesh(new THREE.BoxGeometry(8, 22, 8), trimMat);
+      tower.position.set(cx - 19, 11.3, stationZ - 4);
+      tower.castShadow = true;
+      scene.add(tower);
+
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(28, 2.2, 18), trimMat);
+      roof.position.set(cx + 7, 10.5, stationZ);
+      roof.castShadow = true;
+      scene.add(roof);
+
+      const backWall = new THREE.Mesh(new THREE.BoxGeometry(28, 9.5, 1.5), wallMat);
+      backWall.position.set(cx + 7, 5, stationZ - 8.2);
+      backWall.castShadow = true;
+      scene.add(backWall);
+      addBoxCollider(cx + 7, stationZ - 8.2, 28, 1.5);
+
+      const rightPillar = new THREE.Mesh(new THREE.BoxGeometry(1.6, 9.5, 18), wallMat);
+      rightPillar.position.set(cx + 20.2, 5, stationZ);
+      rightPillar.castShadow = true;
+      scene.add(rightPillar);
+      addBoxCollider(cx + 20.2, stationZ, 1.6, 18);
+
+      // Heliponto
+      const hpX = cx - 14;
+      const hpZ = cz + 13;
+      const hpPad = new THREE.Mesh(
+        new THREE.CylinderGeometry(9.5, 9.5, 0.38, 32),
+        new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 })
+      );
+      hpPad.position.set(hpX, 0.2, hpZ);
+      hpPad.receiveShadow = true;
+      scene.add(hpPad);
+
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(7.8, 8.7, 32),
+        new THREE.MeshBasicMaterial({ color: 0xfacc15, side: THREE.DoubleSide })
+      );
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.set(hpX, 0.41, hpZ);
+      scene.add(ring);
+    }
+
+    function buildCityPark(cx, cz, bw, bd) {
+      const grass = new THREE.Mesh(
+        new THREE.BoxGeometry(bw - 3, 0.34, bd - 3),
+        new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.9 })
+      );
+      grass.position.set(cx, 0.17, cz);
+      grass.receiveShadow = true;
+      scene.add(grass);
+
+      const fountain = new THREE.Mesh(
+        new THREE.CylinderGeometry(6, 6.5, 1.2, 24),
+        new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.4 })
+      );
+      fountain.position.set(cx, 0.7, cz);
+      fountain.castShadow = true;
+      scene.add(fountain);
+      addBoxCollider(cx, cz, 11, 11);
+
+      const water = new THREE.Mesh(
+        new THREE.CylinderGeometry(5.3, 5.3, 1.25, 24),
+        new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.15 })
+      );
+      water.position.set(cx, 0.72, cz);
+      scene.add(water);
+
+      [[-16, -16], [16, -16], [-16, 16], [16, 16], [0, -18], [0, 18]].forEach(([ox, oz]) => addTree(cx + ox, cz + oz));
+    }
+
+    function buildIndustrialComplex(cx, cz) {
+      const warehouse = new THREE.Mesh(
+        new THREE.BoxGeometry(24, 14, 20),
+        new THREE.MeshStandardMaterial({ map: industrialTex, roughness: 0.55, metalness: 0.3 })
+      );
+      warehouse.position.set(cx - 8, 7.28, cz - 8);
+      warehouse.castShadow = true;
+      warehouse.receiveShadow = true;
+      scene.add(warehouse);
+      addBoxCollider(cx - 8, cz - 8, 24, 20);
+
+      // Tanques Industriais Cilíndricos
+      const tankMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.65, roughness: 0.25 });
+      [[cx + 14, cz - 10], [cx + 14, cz + 4]].forEach(([tx, tz]) => {
+        const tank = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.2, 12, 20), tankMat);
+        tank.position.set(tx, 6.28, tz);
+        tank.castShadow = true;
+        scene.add(tank);
+        addBoxCollider(tx, tz, 8.2, 8.2);
+      });
+    }
+
+    function buildFloodDistrict(cx, cz) {
+      // Casas elevadas no bairro alagável
+      [[-13, -12], [13, -12]].forEach(([ox, oz]) => {
+        const body = new THREE.Mesh(
+          new THREE.BoxGeometry(14, 7.5, 13),
+          new THREE.MeshStandardMaterial({ map: houseTex, color: 0xf1f5f9 })
+        );
+        body.position.set(cx + ox, 4.03, cz + oz);
+        body.castShadow = true;
+        scene.add(body);
+        addBoxCollider(cx + ox, cz + oz, 14, 13);
+      });
+    }
+
+    function addTree(x, z) {
+      const trunk = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.45, 0.65, 3.8, 8),
+        new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.9 })
+      );
+      trunk.position.set(x, 1.9, z);
+      trunk.castShadow = true;
+      scene.add(trunk);
+
+      const crown = new THREE.Mesh(
+        new THREE.DodecahedronGeometry(2.9, 1),
+        new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.75 })
+      );
+      crown.position.set(x, 5.4, z);
+      crown.castShadow = true;
+      scene.add(crown);
+
+      addBoxCollider(x, z, 1.5, 1.5);
+    }
+
+    function addStreetLight(x, z) {
+      const pole = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.14, 0.18, 7.5, 8),
+        new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.6 })
+      );
+      pole.position.set(x, 3.85, z);
+      pole.castShadow = true;
+      scene.add(pole);
+
+      const lamp = new THREE.Mesh(
+        new THREE.BoxGeometry(1.1, 0.25, 0.45),
+        new THREE.MeshBasicMaterial({ color: 0xfef08a })
+      );
+      lamp.position.set(x - 0.4, 7.5, z);
+      scene.add(lamp);
+    }
+
+    buildWorld();
+
+    // =========================================================================
+    // 4. PERSONAGEM BOMBEIRO MODERNO PROPORCIONAL + POSTURA DE MANGUEIRA 2 MÃOS
+    // =========================================================================
+    function createModernFirefighter() {
+      const root = new THREE.Group();
+
+      // Materiais de Alta Qualidade (Uniforme Bunker Profissional)
+      const jacketMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.58 }); // Cáqui/Laranja Técnico
+      const pantsMat = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.62 });
+      const limeStripeMat = new THREE.MeshStandardMaterial({ color: 0xa3e635, emissive: 0x1a2e05, roughness: 0.35 });
+      const silverStripeMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.65, roughness: 0.2 });
+      const bootMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.45, metalness: 0.2 });
+      const gloveMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.75 });
+      const skinMat = new THREE.MeshStandardMaterial({ color: 0xf3c69f, roughness: 0.55 });
+      const hoodMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.85 });
+      const helmetMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.22, metalness: 0.25 });
+      const tankMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.72, roughness: 0.22 });
+
+      // Pélvis / Cinturão Tático
+      const pelvis = new THREE.Group();
+      pelvis.position.set(0, 1.02, 0);
+      root.add(pelvis);
+
+      const hipMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.25, 0.24, 14), pantsMat);
+      hipMesh.scale.set(1.15, 1, 0.82);
+      hipMesh.castShadow = true;
+      pelvis.add(hipMesh);
+
+      const belt = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.255, 0.255, 0.09, 14),
+        new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4 })
+      );
+      belt.scale.set(1.16, 1, 0.84);
+      belt.position.y = 0.08;
+      pelvis.add(belt);
+
+      // Fivela metálica + Bolsa lateral
+      const buckle = new THREE.Mesh(
+        new THREE.BoxGeometry(0.11, 0.08, 0.04),
+        new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.8, roughness: 0.2 })
+      );
+      buckle.position.set(0, 0.08, 0.21);
+      pelvis.add(buckle);
+
+      // Função auxiliar para Pernas Articuladas (Coxa -> Joelho -> Canela -> Bota)
+      function buildLeg(sideSign) {
+        const hipJoint = new THREE.Group();
+        hipJoint.position.set(sideSign * 0.145, -0.06, 0);
+
+        const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.115, 0.098, 0.46, 12), pantsMat);
+        thigh.position.y = -0.22;
+        thigh.castShadow = true;
+        hipJoint.add(thigh);
+
+        const kneeJoint = new THREE.Group();
+        kneeJoint.position.set(0, -0.44, 0);
+        hipJoint.add(kneeJoint);
+
+        const kneePad = new THREE.Mesh(
+          new THREE.BoxGeometry(0.16, 0.12, 0.18),
+          new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 })
+        );
+        kneePad.position.set(0, 0, 0.02);
+        kneeJoint.add(kneePad);
+
+        const shin = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.085, 0.36, 12), pantsMat);
+        shin.position.y = -0.18;
+        shin.castShadow = true;
+        kneeJoint.add(shin);
+
+        // Faixas refletivas na barra da calça
+        const legLime = new THREE.Mesh(new THREE.CylinderGeometry(0.092, 0.09, 0.07, 12), limeStripeMat);
+        legLime.position.y = -0.26;
+        const legSilver = new THREE.Mesh(new THREE.CylinderGeometry(0.093, 0.092, 0.03, 12), silverStripeMat);
+        legSilver.position.y = -0.26;
+        kneeJoint.add(legLime, legSilver);
+
+        // Bota Tática com Biqueira Reforçada
+        const bootShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.088, 0.092, 0.16, 12), bootMat);
+        bootShaft.position.y = -0.40;
+        const bootFoot = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.11, 0.30), bootMat);
+        bootFoot.position.set(0, -0.46, 0.06);
+        bootFoot.castShadow = true;
+        kneeJoint.add(bootShaft, bootFoot);
+
+        return { hipJoint, kneeJoint };
+      }
+
+      const leftLeg = buildLeg(-1);
+      const rightLeg = buildLeg(1);
+      pelvis.add(leftLeg.hipJoint, rightLeg.hipJoint);
+
+      // Tronco Anatômico (Jaqueta Bunker + Gola Alta + Rádio no Peito + Cilindro SCBA)
+      const torso = new THREE.Group();
+      torso.position.set(0, 0.12, 0);
+      pelvis.add(torso);
+
+      const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.24, 0.64, 16), jacketMat);
+      chest.scale.set(1.22, 1, 0.78);
+      chest.position.y = 0.32;
+      chest.castShadow = true;
+      torso.add(chest);
+
+      // Gola protetora de pescoço
+      const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.17, 0.12, 14), jacketMat);
+      collar.position.y = 0.66;
+      torso.add(collar);
+
+      // Faixas Refletivas Duplas (Verde-Lima + Prata) no Tórax e Barra
+      [0.14, 0.38].forEach(sy => {
+        const lime = new THREE.Mesh(new THREE.CylinderGeometry(0.275, 0.265, 0.08, 16), limeStripeMat);
+        lime.scale.set(1.23, 1, 0.80);
+        lime.position.y = sy;
+        const silver = new THREE.Mesh(new THREE.CylinderGeometry(0.278, 0.268, 0.032, 16), silverStripeMat);
+        silver.scale.set(1.235, 1, 0.805);
+        silver.position.y = sy;
+        torso.add(lime, silver);
+      });
+
+      // Microfone de Ombro / Rádio Comunicador no Peito Esquerdo
+      const chestMic = new THREE.Mesh(
+        new THREE.BoxGeometry(0.07, 0.1, 0.05),
+        new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4 })
+      );
+      chestMic.position.set(-0.16, 0.48, 0.21);
+      torso.add(chestMic);
+
+      // Cilindro de Ar Comprimido (SCBA) e Alças nas Costas
+      const scbaGroup = new THREE.Group();
+      scbaGroup.position.set(0, 0.34, -0.24);
+      const cylinder = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.095, 0.52, 14), tankMat);
+      cylinder.castShadow = true;
+      const valve = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.035, 0.035, 0.08, 10),
+        new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.7 })
+      );
+      valve.position.y = -0.29;
+      scbaGroup.add(cylinder, valve);
+      torso.add(scbaGroup);
+
+      // Cabeça Esculpida + Rosto Expressivo + Capacete Profissional
+      const headGroup = new THREE.Group();
+      headGroup.position.set(0, 0.73, 0.02);
+      torso.add(headGroup);
+
+      // Balaclava antichama no pescoço
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 0.14, 12), hoodMat);
+      neck.position.y = 0.02;
+      headGroup.add(neck);
+
+      // Crânio / Rosto proporcionado
+      const headMesh = new THREE.Mesh(new THREE.SphereGeometry(0.145, 18, 18), skinMat);
+      headMesh.scale.set(0.94, 1.08, 1.0);
+      headMesh.position.y = 0.17;
+      headMesh.castShadow = true;
+      headGroup.add(headMesh);
+
+      // Nariz, Olhos e Sobrancelhas
+      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.055, 8), skinMat);
+      nose.rotation.x = Math.PI / 2;
+      nose.position.set(0, 0.165, 0.148);
+      headGroup.add(nose);
+
+      const eyeMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
+      const browMat = new THREE.MeshBasicMaterial({ color: 0x334155 });
+      [-0.048, 0.048].forEach(ex => {
+        const eye = new THREE.Mesh(new THREE.SphereGeometry(0.016, 8, 8), eyeMat);
+        eye.position.set(ex, 0.19, 0.132);
+        const brow = new THREE.Mesh(new THREE.BoxGeometry(0.042, 0.01, 0.015), browMat);
+        brow.position.set(ex, 0.212, 0.135);
+        headGroup.add(eye, brow);
+      });
+
+      // Capacete Moderno de Bombeiro (Casco + Crista + Aba + Brasão Frontal + Lanterna + Visor)
+      const helmetShell = new THREE.Mesh(
+        new THREE.SphereGeometry(0.175, 20, 14, 0, Math.PI * 2, 0, Math.PI * 0.58),
+        helmetMat
+      );
+      helmetShell.position.set(0, 0.20, -0.01);
+      helmetShell.castShadow = true;
+      headGroup.add(helmetShell);
+
+      const helmetCrest = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.055, 0.26), helmetMat);
+      helmetCrest.position.set(0, 0.365, -0.01);
+      headGroup.add(helmetCrest);
+
+      const helmetBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.185, 0.215, 0.028, 20), helmetMat);
+      helmetBrim.scale.set(0.95, 1, 1.15);
+      helmetBrim.position.set(0, 0.205, -0.025);
+      headGroup.add(helmetBrim);
+
+      const frontShield = new THREE.Mesh(
+        new THREE.BoxGeometry(0.075, 0.085, 0.02),
+        new THREE.MeshStandardMaterial({ color: 0xdc2626, metalness: 0.4 })
+      );
+      frontShield.position.set(0, 0.275, 0.165);
+      headGroup.add(frontShield);
+
+      const visor = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.168, 0.168, 0.075, 18, 1, true, -0.85, 1.7),
+        new THREE.MeshStandardMaterial({
+          color: 0x38bdf8,
+          transparent: true,
+          opacity: 0.48,
+          roughness: 0.1,
+          metalness: 0.85,
+          side: THREE.DoubleSide
+        })
+      );
+      visor.position.set(0, 0.185, 0.01);
+      headGroup.add(visor);
+
+      // Braços Articulados (Ombro -> Cotovelo -> Antebraço -> Luva Térmica)
+      function buildArm(sideSign) {
+        const shoulderJoint = new THREE.Group();
+        shoulderJoint.position.set(sideSign * 0.37, 0.54, 0);
+
+        const upperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.088, 0.078, 0.30, 12), jacketMat);
+        upperArm.position.y = -0.14;
+        upperArm.castShadow = true;
+        shoulderJoint.add(upperArm);
+
+        const elbowJoint = new THREE.Group();
+        elbowJoint.position.set(0, -0.29, 0);
+        shoulderJoint.add(elbowJoint);
+
+        const forearm = new THREE.Mesh(new THREE.CylinderGeometry(0.076, 0.068, 0.26, 12), jacketMat);
+        forearm.position.y = -0.12;
+        forearm.castShadow = true;
+        elbowJoint.add(forearm);
+
+        const cuffStripe = new THREE.Mesh(new THREE.CylinderGeometry(0.074, 0.072, 0.05, 12), limeStripeMat);
+        cuffStripe.position.y = -0.20;
+        elbowJoint.add(cuffStripe);
+
+        const glove = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.13, 0.12), gloveMat);
+        glove.position.set(0, -0.29, 0.01);
+        glove.castShadow = true;
+        elbowJoint.add(glove);
+
+        return { shoulderJoint, elbowJoint, glove };
+      }
+
+      const leftArm = buildArm(-1);
+      const rightArm = buildArm(1);
+      torso.add(leftArm.shoulderJoint, rightArm.shoulderJoint);
+
+      // =====================================================================
+      // ESGUICHO TÁTICO COM EMPUNHADURA PISTOLA E BICO DE ALTA PRESSÃO
+      // =====================================================================
+      const nozzleAssembly = new THREE.Group();
+      // Acoplado à mão direita (segura o gatilho traseiro) enquanto a mão esquerda apoia a frente
+      nozzleAssembly.position.set(0, -0.29, 0.08);
+      rightArm.elbowJoint.add(nozzleAssembly);
+
+      const brassMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.78, roughness: 0.22 });
+      const nozzleBodyMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.35, metalness: 0.3 });
+      const gripMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 });
+
+      // Corpo cilíndrico do esguicho apontando para frente (+Z local quando o braço aponta)
+      const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.048, 0.44, 12), nozzleBodyMat);
+      barrel.rotation.x = Math.PI / 2;
+      barrel.position.set(0, 0, 0.16);
+      nozzleAssembly.add(barrel);
+
+      // Empunhadura traseira (mão direita)
+      const rearGrip = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.13, 0.055), gripMat);
+      rearGrip.position.set(0, -0.06, 0.02);
+      nozzleAssembly.add(rearGrip);
+
+      // Empunhadura frontal de apoio (mão esquerda)
+      const frontGrip = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.12, 0.055), gripMat);
+      frontGrip.position.set(0, -0.055, 0.24);
+      nozzleAssembly.add(frontGrip);
+
+      // Bocal difusor de latão na ponta
+      const tipRing = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.044, 0.09, 12), brassMat);
+      tipRing.rotation.x = Math.PI / 2;
+      tipRing.position.set(0, 0, 0.39);
+      nozzleAssembly.add(tipRing);
+
+      // Pontos de referência exatos no espaço 3D para a água e a mangueira flexível
+      const nozzleTip = new THREE.Object3D();
+      nozzleTip.position.set(0, 0, 0.45);
+      nozzleAssembly.add(nozzleTip);
+
+      const hoseInlet = new THREE.Object3D();
+      hoseInlet.position.set(0, 0, -0.08);
+      nozzleAssembly.add(hoseInlet);
+
+      const hipHoseAnchor = new THREE.Object3D();
+      hipHoseAnchor.position.set(0.28, -0.02, -0.18);
+      pelvis.add(hipHoseAnchor);
+
+      scene.add(root);
+
+      // Malha Dinâmica da Mangueira Flexível (Tubulação curva conectando o quadril ao esguicho)
+      const hoseMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.55 });
+      const hoseMesh = new THREE.Mesh(new THREE.BufferGeometry(), hoseMat);
+      hoseMesh.castShadow = true;
+      scene.add(hoseMesh);
+
+      return {
+        root,
+        pelvis,
+        torso,
+        headGroup,
+        leftLeg,
+        rightLeg,
+        leftArm,
+        rightArm,
+        nozzleAssembly,
+        nozzleTip,
+        hoseInlet,
+        hipHoseAnchor,
+        hoseMesh
+      };
+    }
+
+    const ffRig = createModernFirefighter();
+
+    // Atualiza a geometria curva da mangueira flexível a cada quadro
+    const _vAnchor = new THREE.Vector3();
+    const _vInlet = new THREE.Vector3();
+    const _vMid1 = new THREE.Vector3();
+    const _vMid2 = new THREE.Vector3();
+
+    function updateFlexibleHose(visible) {
+      ffRig.hoseMesh.visible = visible;
+      if (!visible) return;
+
+      ffRig.hipHoseAnchor.getWorldPosition(_vAnchor);
+      ffRig.hoseInlet.getWorldPosition(_vInlet);
+
+      // Curva natural pendendo levemente pela gravidade entre o quadril e a base do esguicho
+      _vMid1.lerpVectors(_vAnchor, _vInlet, 0.35);
+      _vMid1.y -= 0.26;
+      _vMid2.lerpVectors(_vAnchor, _vInlet, 0.72);
+      _vMid2.y -= 0.14;
+
+      const curve = new THREE.CatmullRomCurve3([
+        _vAnchor.clone(),
+        _vMid1.clone(),
+        _vMid2.clone(),
+        _vInlet.clone()
+      ]);
+
+      if (ffRig.hoseMesh.geometry) ffRig.hoseMesh.geometry.dispose();
+      ffRig.hoseMesh.geometry = new THREE.TubeGeometry(curve, 12, 0.034, 8, false);
+    }
+
+    const player = {
+      x: -35,
+      z: -24,
+      vx: 0,
+      vz: 0,
+      yaw: 0,
+      radius: 0.78,
+      speed: 11.5,
+      sprintSpeed: 18.5,
+      walkCycle: 0,
+      inVehicle: null,
+      selectedTool: 0,
+      sprayingWater: false,
+      interacting: false,
+      score: 0,
+      rescues: 0
+    };
+
+    // =========================================================================
+    // 5. VEÍCULOS DE EMERGÊNCIA DETALHADOS COM FARÓIS E GIROFLEX
+    // =========================================================================
+    const vehicles = [];
+
+    function createEmergencyVehicle(type, x, z, yaw) {
+      const group = new THREE.Group();
+      group.position.set(x, 0, z);
+      group.rotation.y = yaw;
+
+      const isTruck = type === 'truck';
+      const w = isTruck ? 3.2 : 2.5;
+      const l = isTruck ? 8.6 : 5.4;
+      const h = isTruck ? 3.35 : 2.15;
+
+      const redMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.28, metalness: 0.25 });
+      const whiteMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.35 });
+      const glassMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.1, metalness: 0.85 });
+      const chromeMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.85, roughness: 0.2 });
+
+      const body = new THREE.Mesh(new THREE.BoxGeometry(w, h * 0.68, l), redMat);
+      body.position.y = 0.75 + (h * 0.68) / 2;
+      body.castShadow = true;
+      body.receiveShadow = true;
+      group.add(body);
+
+      const stripe = new THREE.Mesh(new THREE.BoxGeometry(w + 0.06, 0.42, l - 0.2), whiteMat);
+      stripe.position.y = 1.65;
+      group.add(stripe);
+
+      // Compartimentos laterais metálicos (persianas) no Caminhão
+      if (isTruck) {
+        [-w / 2 - 0.02, w / 2 + 0.02].forEach(sx => {
+          [-1.8, 0.2].forEach(sz => {
+            const shutter = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.35, 1.5), chromeMat);
+            shutter.position.set(sx, 1.55, sz);
+            group.add(shutter);
+          });
+        });
+      }
+
+      const cabinL = isTruck ? 2.9 : 3.2;
+      const cabinZ = isTruck ? l / 2 - 1.65 : -0.3;
+      const cabin = new THREE.Mesh(new THREE.BoxGeometry(w - 0.15, h * 0.45, cabinL), redMat);
+      cabin.position.set(0, 0.75 + h * 0.68 + (h * 0.45) / 2 - 0.1, cabinZ);
+      cabin.castShadow = true;
+      group.add(cabin);
+
+      const windshield = new THREE.Mesh(new THREE.BoxGeometry(w - 0.35, h * 0.34, 0.15), glassMat);
+      windshield.position.set(0, cabin.position.y, cabinZ + cabinL / 2 + 0.02);
+      group.add(windshield);
+
+      // Faróis dianteiros
+      [-w * 0.34, w * 0.34].forEach(hx => {
+        const hl = new THREE.Mesh(
+          new THREE.BoxGeometry(0.45, 0.25, 0.1),
+          new THREE.MeshBasicMaterial({ color: 0xfef9c3 })
+        );
+        hl.position.set(hx, 1.15, l / 2 + 0.03);
+        group.add(hl);
+      });
+
+      // Escada Magirus + Canhão de Água no teto do Caminhão
+      if (isTruck) {
+        const ladder = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.35, 5.4), chromeMat);
+        ladder.position.set(0, 0.75 + h * 0.68 + 0.25, -1.2);
+        ladder.castShadow = true;
+        group.add(ladder);
+      }
+
+      // Giroflex LED Vermelho e Azul
+      const lightBarY = cabin.position.y + (h * 0.45) / 2 + 0.18;
+      const redBeacon = new THREE.Mesh(
+        new THREE.BoxGeometry(0.8, 0.26, 0.45),
+        new THREE.MeshBasicMaterial({ color: 0xff2a2a })
+      );
+      redBeacon.position.set(-0.65, lightBarY, cabinZ + 0.4);
+      group.add(redBeacon);
+
+      const blueBeacon = new THREE.Mesh(
+        new THREE.BoxGeometry(0.8, 0.26, 0.45),
+        new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+      );
+      blueBeacon.position.set(0.65, lightBarY, cabinZ + 0.4);
+      group.add(blueBeacon);
+
+      // Rodas
+      const wheelGeo = new THREE.CylinderGeometry(0.65, 0.65, 0.45, 16);
+      wheelGeo.rotateZ(Math.PI / 2);
+      const wheelMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.85 });
+
+      const wheels = [];
+      const wheelZPositions = isTruck ? [l / 2 - 1.4, -l / 2 + 1.3, -l / 2 + 2.8] : [l / 2 - 1.1, -l / 2 + 1.1];
+      wheelZPositions.forEach(wz => {
+        [-w / 2 - 0.05, w / 2 + 0.05].forEach(wx => {
+          const wh = new THREE.Mesh(wheelGeo, wheelMat);
+          wh.position.set(wx, 0.65, wz);
+          wh.castShadow = true;
+          group.add(wh);
+          wheels.push(wh);
+        });
+      });
+
+      scene.add(group);
+
+      const vehicleObj = {
+        type,
+        name: isTruck ? 'Caminhão Auto Bomba Tanque' : 'Viatura Resgate Rápido 4x4',
+        mesh: group,
+        redBeacon,
+        blueBeacon,
+        wheels,
+        x,
+        z,
+        yaw,
+        speed: 0,
+        maxSpeed: isTruck ? 35 : 46,
+        accel: isTruck ? 25 : 34,
+        turnSpeed: isTruck ? 2.15 : 2.65,
+        radius: isTruck ? 2.6 : 2.0
+      };
+      vehicles.push(vehicleObj);
+      return vehicleObj;
+    }
+
+    createEmergencyVehicle('truck', -32, -46, 0);
+    createEmergencyVehicle('suv', -23, -46, 0);
+
+    // =========================================================================
+    // 6. AS 8 MISSÕES DISTINTAS + PERSONAGENS E ANIMAIS REATIVOS
+    // =========================================================================
+    const fireParticles = [];
+    const waterParticles = [];
+    let currentMission = null;
+    let missionQueueIndex = 0;
+
+    // Marcador luminoso de ocorrência
+    const beaconGroup = new THREE.Group();
+    const beaconRing = new THREE.Mesh(
+      new THREE.RingGeometry(2.6, 3.4, 32),
+      new THREE.MeshBasicMaterial({ color: 0xf97316, side: THREE.DoubleSide, transparent: true, opacity: 0.85 })
+    );
+    beaconRing.rotation.x = -Math.PI / 2;
+    beaconRing.position.y = 0.25;
+
+    const beaconBeam = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.4, 2.6, 46, 20, 1, true),
+      new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.22, side: THREE.DoubleSide })
+    );
+    beaconBeam.position.y = 23;
+    beaconGroup.add(beaconRing, beaconBeam);
+    scene.add(beaconGroup);
+
+    const ALL_MISSIONS = [
+      {
+        id: 0,
+        type: 'INCÊNDIO EM RESIDÊNCIA',
+        title: 'Incêndio na Casa Residencial Norte',
+        sub: 'Extinga as chamas com a Mangueira [1] e socorra o morador [2]',
+        radio: 'CHAMADO 193: Fogo em residência na Av. Norte! Morador pede socorro na varanda.',
+        x: 35, z: -96,
+        reward: 500,
+        hasObstacle: false,
+        victimType: 'civilian',
+        fireSpots: [{ dx: -3.2, dz: 0 }, { dx: 3.2, dz: 1 }, { dx: 0, dz: -2.2 }]
+      },
+      {
+        id: 1,
+        type: 'ACIDENTE ENTRE VEÍCULOS',
+        title: 'Colisão Grave no Cruzamento Central',
+        sub: 'Apague o fogo [1], corte os destroços [3] e atenda o motorista [2]',
+        radio: 'CHAMADO 193: Colisão entre dois automóveis no cruzamento! Motorista preso nas ferragens.',
+        x: 70, z: 0,
+        reward: 650,
+        hasObstacle: true,
+        sceneProp: 'cars',
+        victimType: 'civilian',
+        fireSpots: [{ dx: -2.5, dz: 1.5 }, { dx: 2.5, dz: -1 }]
+      },
+      {
+        id: 2,
+        type: 'RESGATE EM PRÉDIO',
+        title: 'Incêndio e Evacuação no Edifício Comercial',
+        sub: 'Controle as chamas na entrada [1] e evacue o funcionário [2]',
+        radio: 'CHAMADO 193: Fumaça densa e chamas no térreo do Edifício Comercial Oeste! Equipe necessária.',
+        x: -96, z: 35,
+        reward: 600,
+        hasObstacle: false,
+        victimType: 'civilian',
+        fireSpots: [{ dx: -4, dz: -2 }, { dx: 4, dz: 2 }, { dx: 0, dz: 3.2 }, { dx: -2, dz: -4 }]
+      },
+      {
+        id: 3,
+        type: 'INCÊNDIO FLORESTAL',
+        title: 'Foco de Incêndio na Reserva Florestal Norte',
+        sub: 'Use a Mangueira de Alta Pressão [1] para conter o fogo nas árvores',
+        radio: 'ALERTA AMBIENTAL: Incêndio florestal avançando na mata norte! Contenha os focos rapidamente.',
+        x: 0, z: -185,
+        reward: 700,
+        hasObstacle: false,
+        victimType: null,
+        fireSpots: [{ dx: -5, dz: -2 }, { dx: 5, dz: -2 }, { dx: 0, dz: 3 }, { dx: -3, dz: 5 }, { dx: 4, dz: 4 }]
+      },
+      {
+        id: 4,
+        type: 'ACIDENTE EM INDÚSTRIA',
+        title: 'Vazamento e Fogo no Complexo Industrial',
+        sub: 'Resfrie os tanques [1], libere a passagem [3] e socorra o técnico [2]',
+        radio: 'EMERGÊNCIA INDUSTRIAL: Explosão elétrica próxima aos tanques químicos no setor sudeste!',
+        x: 105, z: 122,
+        reward: 800,
+        hasObstacle: true,
+        sceneProp: 'industrial',
+        victimType: 'civilian',
+        fireSpots: [{ dx: -4, dz: 0 }, { dx: 4, dz: 0 }, { dx: 0, dz: -3.5 }]
+      },
+      {
+        id: 5,
+        type: 'RESGATE DE ANIMAIS',
+        title: 'Cachorro Preso nos Escombros do Parque',
+        sub: 'Remova os galhos caídos [3] e resgate o animal assustado [2]',
+        radio: 'CHAMADO COMUNITÁRIO: Um cãozinho ficou preso sob galhos caídos após ventania no Parque Central.',
+        x: 35, z: 17,
+        reward: 450,
+        hasObstacle: true,
+        sceneProp: 'branches',
+        victimType: 'dog',
+        fireSpots: []
+      },
+      {
+        id: 6,
+        type: 'SALVAMENTO EM ENCHENTE',
+        title: 'Alagamento no Bairro Baixo Sudoeste',
+        sub: 'Entre na área alagada e resgate o morador ilhado [2]',
+        radio: 'DEFESA CIVIL 193: Chuva forte alagou o bairro sudoeste! Morador ilhado precisa de resgate imediato.',
+        x: -105, z: 122,
+        reward: 750,
+        hasObstacle: false,
+        sceneProp: 'flood',
+        victimType: 'civilian',
+        fireSpots: []
+      },
+      {
+        id: 7,
+        type: 'ACIDENTE EM RODOVIA',
+        title: 'Tombamento de Carga na Rodovia Expressa Sul',
+        sub: 'Extinga o fogo no combustível [1], corte a cabine [3] e socorra o motorista [2]',
+        radio: 'POLÍCIA RODOVIÁRIA / 193: Caminhão tombado na Rodovia Expressa Sul com princípio de incêndio!',
+        x: 65, z: 195,
+        reward: 850,
+        hasObstacle: true,
+        sceneProp: 'highwayTruck',
+        victimType: 'civilian',
+        fireSpots: [{ dx: -3.5, dz: 1 }, { dx: 3.5, dz: -1 }, { dx: 0, dz: 2.5 }]
+      }
+    ];
+
+    // Preencher seletor rápido de missões na UI
+    const drawer = document.getElementById('mission-drawer');
+    ALL_MISSIONS.forEach((m, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'mission-opt';
+      btn.innerHTML = `<span>${idx + 1}. ${m.type}</span><span class="reward">+${m.reward}</span>`;
+      btn.onclick = () => {
+        drawer.classList.remove('open');
+        startSpecificMission(idx);
+      };
+      drawer.appendChild(btn);
+    });
+
+    document.getElementById('btn-missions').addEventListener('click', () => {
+      drawer.classList.toggle('open');
+    });
+
+    function createReactiveVictimMesh(type) {
+      const g = new THREE.Group();
+      if (type === 'dog') {
+        const furMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.8 });
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.34, 0.72), furMat);
+        body.position.y = 0.34;
+        body.castShadow = true;
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.3, 0.34), furMat);
+        head.position.set(0, 0.54, 0.38);
+        const earL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, 0.1), furMat);
+        earL.position.set(-0.12, 0.7, 0.36);
+        const earR = earL.clone();
+        earR.position.x = 0.12;
+        const tail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.24, 0.08), furMat);
+        tail.position.set(0, 0.5, -0.38);
+        tail.rotation.x = -0.5;
+        g.add(body, head, earL, earR, tail);
+        return { group: g, tail, armL: null, armR: null, isDog: true };
+      } else {
+        const shirtMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.6 });
+        const pantsMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 });
+        const skinMat = new THREE.MeshStandardMaterial({ color: 0xfed7aa, roughness: 0.6 });
+
+        const legs = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.85, 0.28), pantsMat);
+        legs.position.y = 0.425;
+        legs.castShadow = true;
+
+        const torso = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.75, 0.3), shirtMat);
+        torso.position.y = 1.22;
+        torso.castShadow = true;
+
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 14, 14), skinMat);
+        head.position.y = 1.8;
+
+        const armL = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.65, 0.16), skinMat);
+        armL.position.set(-0.35, 1.45, 0);
+        const armR = armL.clone();
+        armR.position.x = 0.35;
+
+        g.add(legs, torso, head, armL, armR);
+        return { group: g, tail: null, armL, armR, isDog: false };
+      }
+    }
+
+    function startSpecificMission(index) {
+      if (currentMission && currentMission.propsGroup) {
+        scene.remove(currentMission.propsGroup);
+      }
+
+      const template = ALL_MISSIONS[index % ALL_MISSIONS.length];
+      missionQueueIndex = (index + 1) % ALL_MISSIONS.length;
+
+      const propsGroup = new THREE.Group();
+      propsGroup.position.set(template.x, 0, template.z);
+      scene.add(propsGroup);
+
+      // Cenografia específica da ocorrência
+      if (template.sceneProp === 'cars') {
+        const c1 = new THREE.Mesh(
+          new THREE.BoxGeometry(2.2, 1.3, 4.3),
+          new THREE.MeshStandardMaterial({ color: 0x3b82f6, roughness: 0.4 })
+        );
+        c1.position.set(-1.3, 0.65, 0);
+        c1.rotation.y = 0.55;
+        c1.castShadow = true;
+
+        const c2 = new THREE.Mesh(
+          new THREE.BoxGeometry(2.2, 1.3, 4.3),
+          new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.4 })
+        );
+        c2.position.set(1.5, 0.65, 0.6);
+        c2.rotation.y = -0.65;
+        c2.castShadow = true;
+        propsGroup.add(c1, c2);
+      } else if (template.sceneProp === 'highwayTruck') {
+        const cargo = new THREE.Mesh(
+          new THREE.BoxGeometry(2.8, 2.7, 7.6),
+          new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.5 })
+        );
+        cargo.position.set(0, 1.35, 0);
+        cargo.rotation.set(0, 0.35, Math.PI / 2 - 0.15); // Tombado de lado
+        cargo.castShadow = true;
+        propsGroup.add(cargo);
+      } else if (template.sceneProp === 'branches') {
+        for (let b = 0; b < 4; b++) {
+          const branch = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.18, 0.26, 3.8, 8),
+            new THREE.MeshStandardMaterial({ color: 0x78350f })
+          );
+          branch.position.set((b - 1.5) * 0.6, 0.45, 0.8);
+          branch.rotation.set(0.3, b * 0.6, Math.PI / 2 - 0.2);
+          propsGroup.add(branch);
+        }
+      } else if (template.sceneProp === 'flood') {
+        // Lâmina d'água translúcida da enchente
+        const floodWater = new THREE.Mesh(
+          new THREE.PlaneGeometry(46, 46),
+          new THREE.MeshStandardMaterial({
+            color: 0x0284c7,
+            transparent: true,
+            opacity: 0.68,
+            roughness: 0.15,
+            metalness: 0.4
+          })
+        );
+        floodWater.rotation.x = -Math.PI / 2;
+        floodWater.position.set(0, 0.48, -14);
+        propsGroup.add(floodWater);
+      }
+
+      const fires = template.fireSpots.map(fs => ({
+        x: template.x + fs.dx,
+        z: template.z + fs.dz,
+        intensity: 100
+      }));
+
+      let victim = null;
+      if (template.victimType) {
+        const rig = createReactiveVictimMesh(template.victimType);
+        rig.group.position.set(0, template.sceneProp === 'flood' ? 0.35 : 0, 2.4);
+        propsGroup.add(rig.group);
+        victim = {
+          ...rig,
+          x: template.x,
+          z: template.z + 2.4,
+          healProgress: 0,
+          healed: false
+        };
+      }
+
+      currentMission = {
+        ...template,
+        propsGroup,
+        fires,
+        victim,
+        obstacleHp: template.hasObstacle ? 100 : 0
+      };
+
+      beaconGroup.position.set(template.x, 0, template.z);
+      document.getElementById('radio-msg').textContent = template.radio;
+      sfx.playDispatchChime();
+      showToast(`📡 ${template.type}: ${template.title}`);
+      updateObjectiveHUD();
+    }
+
+    function updateObjectiveHUD() {
+      if (!currentMission) return;
+      const px = player.inVehicle ? player.inVehicle.x : player.x;
+      const pz = player.inVehicle ? player.inVehicle.z : player.z;
+      const d = Math.round(Math.hypot(currentMission.x - px, currentMission.z - pz));
+
+      document.getElementById('obj-type').textContent = currentMission.type;
+      document.getElementById('obj-dist').textContent = `${d} m`;
+      document.getElementById('objective-title').textContent = currentMission.title;
+      document.getElementById('objective-sub').textContent = currentMission.sub;
+
+      let totalSteps = currentMission.fires.length * 100;
+      let doneSteps = currentMission.fires.reduce((acc, f) => acc + (100 - f.intensity), 0);
+
+      if (currentMission.hasObstacle) {
+        totalSteps += 100;
+        doneSteps += (100 - currentMission.obstacleHp);
+      }
+      if (currentMission.victim) {
+        totalSteps += 100;
+        doneSteps += currentMission.victim.healProgress;
+      }
+
+      const pct = totalSteps > 0 ? Math.min(100, Math.round((doneSteps / totalSteps) * 100)) : 100;
+      document.getElementById('objective-progress').style.width = `${pct}%`;
+
+      if (pct >= 100) {
+        completeMission();
+      }
+    }
+
+    function completeMission() {
+      const reward = currentMission ? currentMission.reward : 500;
+      player.score += reward;
+      player.rescues += 1;
+      document.getElementById('stat-score').textContent = player.score;
+      document.getElementById('stat-rescues').textContent = player.rescues;
+      sfx.playSuccess();
+      showToast(`✅ Ocorrência concluída! (+${reward} PTS)`);
+      document.getElementById('radio-msg').textContent = 'Excelente trabalho, equipe! Aguardando próximo chamado...';
+      currentMission = null;
+      setTimeout(() => startSpecificMission(missionQueueIndex), 2200);
+    }
+
+    // =========================================================================
+    // 7. CONTROLES, POSTURA DE MANGUEIRA 2 MÃOS E CÂMERA EM 3ª PESSOA
+    // =========================================================================
+    const keys = {};
+    let gameActive = false;
+    let camYaw = 0;
+    let camPitch = 0.35;
+    let isDraggingCam = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    const touchMove = { active: false, dx: 0, dz: 0 };
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.remove('show'), 2800);
+    }
+
+    function selectTool(idx) {
+      player.selectedTool = idx;
+      document.querySelectorAll('.tool-item').forEach((el, i) => {
+        el.classList.toggle('active', i === idx);
+      });
+      ffRig.nozzleAssembly.visible = (idx === 0);
+      updateFlexibleHose(idx === 0 && !player.inVehicle);
+    }
+
+    function resolveCollisions(entity, radius) {
+      entity.x = Math.max(-WORLD_HALF + 8, Math.min(WORLD_HALF - 8, entity.x));
+      entity.z = Math.max(-WORLD_HALF + 8, Math.min(WORLD_HALF - 8, entity.z));
+
+      for (let i = 0; i < colliders.length; i++) {
+        const b = colliders[i];
+        const closestX = Math.max(b.minX, Math.min(b.maxX, entity.x));
+        const closestZ = Math.max(b.minZ, Math.min(b.maxZ, entity.z));
+        const dx = entity.x - closestX;
+        const dz = entity.z - closestZ;
+        const distSq = dx * dx + dz * dz;
+
+        if (distSq < radius * radius) {
+          const d = Math.sqrt(distSq);
+          if (d > 0.0001) {
+            const overlap = radius - d;
+            entity.x += (dx / d) * overlap;
+            entity.z += (dz / d) * overlap;
+          } else {
+            entity.x += radius;
+          }
+        }
+      }
+    }
+
+    function getNearbyVehicle() {
+      let best = null;
+      let bestDist = 5.6;
+      vehicles.forEach(v => {
+        const d = Math.hypot(v.x - player.x, v.z - player.z);
+        if (d < bestDist) {
+          bestDist = d;
+          best = v;
+        }
+      });
+      return best;
+    }
+
+    function toggleVehicleEntry() {
+      if (!gameActive) return;
+      if (player.inVehicle) {
+        const v = player.inVehicle;
+        player.inVehicle = null;
+        player.x = v.x - Math.cos(v.yaw) * 2.7;
+        player.z = v.z + Math.sin(v.yaw) * 2.7;
+        ffRig.root.visible = true;
+        updateFlexibleHose(player.selectedTool === 0);
+        sfx.setWaterSpray(false);
+        showToast(`Saiu de: ${v.name}`);
+        return true;
+      }
+
+      const nearV = getNearbyVehicle();
+      if (nearV) {
+        player.inVehicle = nearV;
+        ffRig.root.visible = false;
+        updateFlexibleHose(false);
+        player.sprayingWater = false;
+        sfx.setWaterSpray(false);
+        camYaw = nearV.yaw;
+        showToast(`Dirigindo: ${nearV.name} • [H] Sirene`);
+        return true;
+      }
+      return false;
+    }
+
+    function triggerToolUse(dt = 0.05, isClick = false) {
+      if (!gameActive || player.inVehicle) return;
+
+      player.interacting = true;
+
+      // Ferramenta 0: Mangueira de Alta Pressão
+      if (player.selectedTool === 0) {
+        player.sprayingWater = true;
+        sfx.setWaterSpray(true);
+        if (currentMission) {
+          currentMission.fires.forEach(f => {
+            if (f.intensity > 0 && Math.hypot(f.x - player.x, f.z - player.z) < 16) {
+              f.intensity = Math.max(0, f.intensity - 44 * dt);
+            }
+          });
+        }
+        return;
+      }
+
+      if (!currentMission) return;
+      const distMission = Math.hypot(currentMission.x - player.x, currentMission.z - player.z);
+
+      // Ferramenta 2: Cortador Hidráulico
+      if (player.selectedTool === 2 && currentMission.obstacleHp > 0 && distMission < 9.5) {
+        currentMission.obstacleHp = Math.max(0, currentMission.obstacleHp - (isClick ? 35 : 78 * dt));
+        sfx.playActionTick(310);
+        if (currentMission.obstacleHp === 0) {
+          showToast('🪓 Obstáculo removido! Agora realize o resgate [2].');
+          selectTool(1);
+        }
+        return;
+      }
+
+      // Ferramenta 1: Resgate / Primeiros Socorros
+      if (player.selectedTool === 1 && currentMission.victim && !currentMission.victim.healed) {
+        if (currentMission.obstacleHp > 0) {
+          if (isClick) showToast('⚠️ Use o Cortador Hidráulico [3] para liberar a passagem primeiro!');
+          selectTool(2);
+          return;
+        }
+        const dv = Math.hypot(currentMission.victim.x - player.x, currentMission.victim.z - player.z);
+        if (dv < 9.0) {
+          currentMission.victim.healProgress = Math.min(100, currentMission.victim.healProgress + (isClick ? 30 : 72 * dt));
+          sfx.playActionTick(680);
+          if (currentMission.victim.healProgress >= 100) {
+            currentMission.victim.healed = true;
+            showToast(currentMission.victim.isDog ? '🐕 Animal resgatado em segurança!' : '🩹 Vítima socorrida em segurança!');
+          }
+        }
+      }
+    }
+
+    function updateActionButtonUI() {
+      const btnLabel = document.getElementById('action-label');
+      if (player.inVehicle) {
+        btnLabel.textContent = 'Sair do Veículo [E]';
+        return;
+      }
+      const nearV = getNearbyVehicle();
+      if (nearV) {
+        btnLabel.textContent = `Entrar: ${nearV.type === 'truck' ? 'Caminhão' : 'Viatura'} [E]`;
+        return;
+      }
+      if (currentMission && Math.hypot(currentMission.x - player.x, currentMission.z - player.z) < 16) {
+        if (player.selectedTool === 0) btnLabel.textContent = 'Esguichar Água';
+        else if (player.selectedTool === 1) btnLabel.textContent = 'Resgatar / Primeiros Socorros';
+        else btnLabel.textContent = 'Cortar Destroços';
+        return;
+      }
+      btnLabel.textContent = player.selectedTool === 0 ? 'Acionar Mangueira' : 'Usar Equipamento';
+    }
+
+    // =========================================================================
+    // 8. PARTÍCULAS 3D REALISTAS (FOGO, FUMAÇA E JATO DA PONTA DO ESGUICHO)
+    // =========================================================================
+    const fireGeo = new THREE.DodecahedronGeometry(0.55, 0);
+    const waterGeo = new THREE.SphereGeometry(0.16, 6, 6);
+    const waterMat = new THREE.MeshBasicMaterial({ color: 0xbae6fd });
+    const _nozzleWorldPos = new THREE.Vector3();
+    const _nozzleWorldDir = new THREE.Vector3();
+
+    function updateParticles(dt) {
+      if (currentMission) {
+        currentMission.fires.forEach(f => {
+          if (f.intensity <= 0) return;
+          const scaleFactor = 0.4 + (f.intensity / 100) * 0.95;
+          if (Math.random() < 0.78) {
+            const isSmoke = Math.random() < 0.36;
+            const mat = new THREE.MeshBasicMaterial({
+              color: isSmoke ? 0x334155 : (Math.random() < 0.5 ? 0xf97316 : 0xfacc15),
+              transparent: true,
+              opacity: isSmoke ? 0.55 : 0.92
+            });
+            const m = new THREE.Mesh(fireGeo, mat);
+            m.position.set(
+              f.x + (Math.random() - 0.5) * 2.2,
+              0.6,
+              f.z + (Math.random() - 0.5) * 2.2
+            );
+            m.scale.setScalar(scaleFactor);
+            scene.add(m);
+            fireParticles.push({
+              mesh: m,
+              vy: isSmoke ? 5.0 : 3.3,
+              vx: (Math.random() - 0.5) * 1.2,
+              vz: (Math.random() - 0.5) * 1.2,
+              life: isSmoke ? 1.45 : 0.75,
+              maxLife: isSmoke ? 1.45 : 0.75,
+              isSmoke
+            });
+          }
+        });
+      }
+
+      // Água sai exatamente da ponta do esguicho (nozzleTip) no espaço mundial
+      if (player.sprayingWater && !player.inVehicle && player.selectedTool === 0) {
+        ffRig.nozzleTip.getWorldPosition(_nozzleWorldPos);
+        ffRig.nozzleTip.getWorldDirection(_nozzleWorldDir);
+
+        for (let i = 0; i < 4; i++) {
+          const drop = new THREE.Mesh(waterGeo, waterMat);
+          drop.position.copy(_nozzleWorldPos);
+          scene.add(drop);
+          waterParticles.push({
+            mesh: drop,
+            vx: _nozzleWorldDir.x * 26 + (Math.random() - 0.5) * 2.0,
+            vy: _nozzleWorldDir.y * 26 + 2.4 + (Math.random() - 0.5) * 1.1,
+            vz: _nozzleWorldDir.z * 26 + (Math.random() - 0.5) * 2.0,
+            life: 0.65
+          });
+        }
+      }
+
+      for (let i = fireParticles.length - 1; i >= 0; i--) {
+        const p = fireParticles[i];
+        p.life -= dt;
+        p.mesh.position.x += p.vx * dt;
+        p.mesh.position.y += p.vy * dt;
+        p.mesh.position.z += p.vz * dt;
+        const ratio = Math.max(0, p.life / p.maxLife);
+        p.mesh.material.opacity = ratio * (p.isSmoke ? 0.5 : 0.92);
+        if (p.isSmoke) p.mesh.scale.addScalar(dt * 1.4);
+        else p.mesh.scale.multiplyScalar(0.96);
+
+        if (p.life <= 0) {
+          scene.remove(p.mesh);
+          p.mesh.material.dispose();
+          fireParticles.splice(i, 1);
+        }
+      }
+
+      for (let i = waterParticles.length - 1; i >= 0; i--) {
+        const w = waterParticles[i];
+        w.life -= dt;
+        w.vy -= 14.5 * dt;
+        w.mesh.position.x += w.vx * dt;
+        w.mesh.position.y += w.vy * dt;
+        w.mesh.position.z += w.vz * dt;
+
+        if (w.life <= 0 || w.mesh.position.y < 0.1) {
+          scene.remove(w.mesh);
+          waterParticles.splice(i, 1);
+        }
+      }
+    }
+
+    // =========================================================================
+    // 9. ANIMAÇÃO ESQUELÉTICA NATURAL E POSTURA DE MANGUEIRA COM DUAS MÃOS
+    // =========================================================================
+    function lerp(a, b, t) {
+      return a + (b - a) * Math.min(1, t);
+    }
+
+    function lerpAngle(a, b, t) {
+      let diff = b - a;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      return a + diff * Math.min(1, t);
+    }
+
+    function animateFirefighterPose(dt, clockTime, currentSpeed, isSprinting) {
+      const s = 14 * dt;
+      const holdingHose = (player.selectedTool === 0 && !player.inVehicle);
+      const isSpraying = holdingHose && player.sprayingWater;
+      const isCrouchingRescue = (!holdingHose && player.interacting && currentSpeed < 1.0);
+
+      // 1. Pernas e Pélvis (Postura tática de base firme ao esguichar água vs caminhada/corrida)
+      if (isSpraying && currentSpeed < 1.5) {
+        // Base tática firme: joelhos levemente flexionados, pé esquerdo à frente absorvendo o recuo
+        ffRig.pelvis.position.y = lerp(ffRig.pelvis.position.y, 0.94, s);
+        ffRig.torso.rotation.y = lerp(ffRig.torso.rotation.y, -0.22, s);
+        ffRig.torso.rotation.x = lerp(ffRig.torso.rotation.x, 0.12, s);
+
+        ffRig.leftLeg.hipJoint.rotation.x = lerp(ffRig.leftLeg.hipJoint.rotation.x, -0.34, s);
+        ffRig.leftLeg.kneeJoint.rotation.x = lerp(ffRig.leftLeg.kneeJoint.rotation.x, 0.42, s);
+
+        ffRig.rightLeg.hipJoint.rotation.x = lerp(ffRig.rightLeg.hipJoint.rotation.x, 0.24, s);
+        ffRig.rightLeg.kneeJoint.rotation.x = lerp(ffRig.rightLeg.kneeJoint.rotation.x, 0.28, s);
+      } else if (isCrouchingRescue) {
+        // Postura agachada de atendimento médico / cortador
+        ffRig.pelvis.position.y = lerp(ffRig.pelvis.position.y, 0.72, s);
+        ffRig.torso.rotation.x = lerp(ffRig.torso.rotation.x, 0.35, s);
+        ffRig.torso.rotation.y = lerp(ffRig.torso.rotation.y, 0, s);
+        ffRig.leftLeg.hipJoint.rotation.x = lerp(ffRig.leftLeg.hipJoint.rotation.x, -0.75, s);
+        ffRig.leftLeg.kneeJoint.rotation.x = lerp(ffRig.leftLeg.kneeJoint.rotation.x, 1.15, s);
+        ffRig.rightLeg.hipJoint.rotation.x = lerp(ffRig.rightLeg.hipJoint.rotation.x, -0.45, s);
+        ffRig.rightLeg.kneeJoint.rotation.x = lerp(ffRig.rightLeg.kneeJoint.rotation.x, 0.95, s);
+      } else if (currentSpeed > 0.7) {
+        // Caminhada e Corrida naturais com flexão de joelho e inclinação atlética
+        const rate = isSprinting ? 13.5 : 9.2;
+        player.walkCycle += rate * dt;
+        const phase = player.walkCycle;
+        const amp = isSprinting ? 0.72 : 0.44;
+
+        ffRig.pelvis.position.y = 1.02 + Math.abs(Math.sin(phase)) * (isSprinting ? 0.065 : 0.035);
+        ffRig.torso.rotation.x = lerp(ffRig.torso.rotation.x, isSprinting ? 0.18 : 0.06, s);
+        ffRig.torso.rotation.y = lerp(ffRig.torso.rotation.y, holdingHose ? -0.15 : Math.sin(phase) * 0.08, s);
+
+        const lSwing = Math.sin(phase) * amp;
+        const rSwing = -Math.sin(phase) * amp;
+        ffRig.leftLeg.hipJoint.rotation.x = lSwing;
+        ffRig.leftLeg.kneeJoint.rotation.x = Math.max(0, -Math.cos(phase) * (isSprinting ? 0.85 : 0.5));
+
+        ffRig.rightLeg.hipJoint.rotation.x = rSwing;
+        ffRig.rightLeg.kneeJoint.rotation.x = Math.max(0, Math.cos(phase) * (isSprinting ? 0.85 : 0.5));
+      } else {
+        // Parado natural com respiração suave
+        ffRig.pelvis.position.y = lerp(ffRig.pelvis.position.y, 1.02 + Math.sin(clockTime * 2.6) * 0.014, s);
+        ffRig.torso.rotation.x = lerp(ffRig.torso.rotation.x, 0, s);
+        ffRig.torso.rotation.y = lerp(ffRig.torso.rotation.y, holdingHose ? -0.15 : 0, s);
+        ffRig.leftLeg.hipJoint.rotation.x = lerp(ffRig.leftLeg.hipJoint.rotation.x, 0, s);
+        ffRig.leftLeg.kneeJoint.rotation.x = lerp(ffRig.leftLeg.kneeJoint.rotation.x, 0.04, s);
+        ffRig.rightLeg.hipJoint.rotation.x = lerp(ffRig.rightLeg.hipJoint.rotation.x, 0, s);
+        ffRig.rightLeg.kneeJoint.rotation.x = lerp(ffRig.rightLeg.kneeJoint.rotation.x, 0.04, s);
+      }
+
+      // 2. Braços e Mãos: Postura Profissional de Mangueira com DUAS MÃOS
+      if (holdingHose) {
+        const recoil = isSpraying ? Math.sin(clockTime * 34) * 0.025 : 0;
+
+        // Braço Direito: segura o gatilho traseiro da mangueira na altura da cintura/tórax
+        ffRig.rightArm.shoulderJoint.rotation.x = lerp(ffRig.rightArm.shoulderJoint.rotation.x, -0.58 + recoil, s);
+        ffRig.rightArm.shoulderJoint.rotation.y = lerp(ffRig.rightArm.shoulderJoint.rotation.y, 0.22, s);
+        ffRig.rightArm.shoulderJoint.rotation.z = lerp(ffRig.rightArm.shoulderJoint.rotation.z, -0.12, s);
+        ffRig.rightArm.elbowJoint.rotation.x = lerp(ffRig.rightArm.elbowJoint.rotation.x, -0.92, s);
+
+        // Braço Esquerdo: estendido à frente e cruzando levemente para apoiar a empunhadura frontal do esguicho
+        ffRig.leftArm.shoulderJoint.rotation.x = lerp(ffRig.leftArm.shoulderJoint.rotation.x, -0.98 + recoil, s);
+        ffRig.leftArm.shoulderJoint.rotation.y = lerp(ffRig.leftArm.shoulderJoint.rotation.y, -0.46, s);
+        ffRig.leftArm.shoulderJoint.rotation.z = lerp(ffRig.leftArm.shoulderJoint.rotation.z, 0.24, s);
+        ffRig.leftArm.elbowJoint.rotation.x = lerp(ffRig.leftArm.elbowJoint.rotation.x, -0.48, s);
+
+        // Orienta o esguicho horizontalmente para frente (+Z do personagem)
+        ffRig.nozzleAssembly.rotation.x = lerp(ffRig.nozzleAssembly.rotation.x, 1.50, s);
+        ffRig.nozzleAssembly.rotation.y = lerp(ffRig.nozzleAssembly.rotation.y, 0.14, s);
+      } else if (currentSpeed > 0.7) {
+        // Balanço natural dos braços oposto às pernas durante caminhada/corrida
+        const phase = player.walkCycle;
+        const armAmp = isSprinting ? 0.65 : 0.38;
+        ffRig.leftArm.shoulderJoint.rotation.x = -Math.sin(phase) * armAmp;
+        ffRig.leftArm.shoulderJoint.rotation.y = 0;
+        ffRig.leftArm.shoulderJoint.rotation.z = 0.08;
+        ffRig.leftArm.elbowJoint.rotation.x = isSprinting ? -0.65 : -0.25;
+
+        ffRig.rightArm.shoulderJoint.rotation.x = Math.sin(phase) * armAmp;
+        ffRig.rightArm.shoulderJoint.rotation.y = 0;
+        ffRig.rightArm.shoulderJoint.rotation.z = -0.08;
+        ffRig.rightArm.elbowJoint.rotation.x = isSprinting ? -0.65 : -0.25;
+      } else if (player.interacting) {
+        // Animação de trabalho manual (primeiros socorros / cortador)
+        const workWave = Math.sin(clockTime * 11) * 0.22;
+        ffRig.leftArm.shoulderJoint.rotation.x = lerp(ffRig.leftArm.shoulderJoint.rotation.x, -0.85 + workWave, s);
+        ffRig.leftArm.shoulderJoint.rotation.y = lerp(ffRig.leftArm.shoulderJoint.rotation.y, -0.25, s);
+        ffRig.leftArm.elbowJoint.rotation.x = lerp(ffRig.leftArm.elbowJoint.rotation.x, -0.55, s);
+
+        ffRig.rightArm.shoulderJoint.rotation.x = lerp(ffRig.rightArm.shoulderJoint.rotation.x, -0.85 - workWave, s);
+        ffRig.rightArm.shoulderJoint.rotation.y = lerp(ffRig.rightArm.shoulderJoint.rotation.y, 0.25, s);
+        ffRig.rightArm.elbowJoint.rotation.x = lerp(ffRig.rightArm.elbowJoint.rotation.x, -0.55, s);
+      } else {
+        // Postura relaxada parada
+        ffRig.leftArm.shoulderJoint.rotation.x = lerp(ffRig.leftArm.shoulderJoint.rotation.x, 0.04, s);
+        ffRig.leftArm.shoulderJoint.rotation.y = lerp(ffRig.leftArm.shoulderJoint.rotation.y, 0, s);
+        ffRig.leftArm.shoulderJoint.rotation.z = lerp(ffRig.leftArm.shoulderJoint.rotation.z, 0.08, s);
+        ffRig.leftArm.elbowJoint.rotation.x = lerp(ffRig.leftArm.elbowJoint.rotation.x, -0.14, s);
+
+        ffRig.rightArm.shoulderJoint.rotation.x = lerp(ffRig.rightArm.shoulderJoint.rotation.x, 0.04, s);
+        ffRig.rightArm.shoulderJoint.rotation.y = lerp(ffRig.rightArm.shoulderJoint.rotation.y, 0, s);
+        ffRig.rightArm.shoulderJoint.rotation.z = lerp(ffRig.rightArm.shoulderJoint.rotation.z, -0.08, s);
+        ffRig.rightArm.elbowJoint.rotation.x = lerp(ffRig.rightArm.elbowJoint.rotation.x, -0.14, s);
+      }
+    }
+
+    // =========================================================================
+    // 10. LOOP DE SIMULAÇÃO, CÂMERA EM 3ª PESSOA E RADAR
+    // =========================================================================
+    const miniCanvas = document.getElementById('minimapCanvas');
+    const miniCtx = miniCanvas.getContext('2d');
+
+    function renderMinimap() {
+      const mw = miniCanvas.width;
+      const mh = miniCanvas.height;
+      const scale = mw / (WORLD_HALF * 2);
+
+      miniCtx.clearRect(0, 0, mw, mh);
+      miniCtx.fillStyle = '#0c1626';
+      miniCtx.fillRect(0, 0, mw, mh);
+
+      // Ruas
+      miniCtx.strokeStyle = '#334155';
+      miniCtx.lineWidth = 4;
+      streetCoords.forEach(c => {
+        const pos = (c + WORLD_HALF) * scale;
+        miniCtx.beginPath();
+        miniCtx.moveTo(40 * scale, pos);
+        miniCtx.lineTo(mw - 40 * scale, pos);
+        miniCtx.stroke();
+
+        miniCtx.beginPath();
+        miniCtx.moveTo(pos, 40 * scale);
+        miniCtx.lineTo(pos, mh - 40 * scale);
+        miniCtx.stroke();
+      });
+
+      // Rodovia Expressa Sul
+      miniCtx.strokeStyle = '#475569';
+      miniCtx.lineWidth = 5;
+      miniCtx.beginPath();
+      miniCtx.moveTo(0, (195 + WORLD_HALF) * scale);
+      miniCtx.lineTo(mw, (195 + WORLD_HALF) * scale);
+      miniCtx.stroke();
+
+      // Base dos Bombeiros
+      miniCtx.fillStyle = '#ef4444';
+      miniCtx.fillRect((-62 + WORLD_HALF) * scale, (-62 + WORLD_HALF) * scale, 54 * scale, 54 * scale);
+
+      // Veículos
+      vehicles.forEach(v => {
+        miniCtx.fillStyle = '#facc15';
+        miniCtx.beginPath();
+        miniCtx.arc((v.x + WORLD_HALF) * scale, (v.z + WORLD_HALF) * scale, 3, 0, Math.PI * 2);
+        miniCtx.fill();
+      });
+
+      // Missão Ativa
+      if (currentMission) {
+        miniCtx.fillStyle = '#f97316';
+        miniCtx.beginPath();
+        miniCtx.arc((currentMission.x + WORLD_HALF) * scale, (currentMission.z + WORLD_HALF) * scale, 5.2, 0, Math.PI * 2);
+        miniCtx.fill();
+      }
+
+      // Jogador
+      const px = player.inVehicle ? player.inVehicle.x : player.x;
+      const pz = player.inVehicle ? player.inVehicle.z : player.z;
+      miniCtx.fillStyle = '#38bdf8';
+      miniCtx.beginPath();
+      miniCtx.arc((px + WORLD_HALF) * scale, (pz + WORLD_HALF) * scale, 3.8, 0, Math.PI * 2);
+      miniCtx.fill();
+    }
+
+    let isHoldingAction = false;
+    let isMouseDownSpray = false;
+    let clockTime = 0;
+
+    function updateSimulation(dt) {
+      clockTime += dt;
+
+      // Giroflex dos veículos
+      vehicles.forEach(v => {
+        const activeFlash = (player.inVehicle === v) || sfx.sirenOn;
+        const flashPhase = Math.sin(clockTime * 14) > 0;
+        v.redBeacon.material.color.setHex(activeFlash ? (flashPhase ? 0xff1e1e : 0x450a0a) : 0x991b1b);
+        v.blueBeacon.material.color.setHex(activeFlash ? (!flashPhase ? 0x38bdf8 : 0x082f49) : 0x0369a1);
+      });
+
+      beaconRing.scale.setScalar(1 + Math.sin(clockTime * 4) * 0.12);
+
+      // Animação reativa de vítimas / animais aguardando resgate
+      if (currentMission && currentMission.victim && !currentMission.victim.healed) {
+        const v = currentMission.victim;
+        if (v.isDog) {
+          v.tail.rotation.z = Math.sin(clockTime * 14) * 0.45;
+          v.group.position.y = Math.abs(Math.sin(clockTime * 6)) * 0.12;
+        } else {
+          v.armL.rotation.z = 2.4 + Math.sin(clockTime * 8) * 0.35;
+          v.armR.rotation.z = -2.4 - Math.sin(clockTime * 8) * 0.35;
+        }
+      }
+
+      if (!gameActive) {
+        const angle = clockTime * 0.18;
+        camera.position.set(-30 + Math.cos(angle) * 32, 16, -34 + Math.sin(angle) * 32);
+        camera.lookAt(-30, 3, -44);
+        updateFlexibleHose(false);
+        return;
+      }
+
+      // Entradas de movimento
+      let forwardInput = 0;
+      let turnInput = 0;
+      if (keys['KeyW'] || keys['ArrowUp']) forwardInput += 1;
+      if (keys['KeyS'] || keys['ArrowDown']) forwardInput -= 1;
+      if (keys['KeyA'] || keys['ArrowLeft']) turnInput += 1;
+      if (keys['KeyD'] || keys['ArrowRight']) turnInput -= 1;
+
+      if (touchMove.active) {
+        forwardInput = -touchMove.dz;
+        turnInput = -touchMove.dx;
+      }
+
+      if (player.inVehicle) {
+        const v = player.inVehicle;
+        if (forwardInput > 0) {
+          v.speed = Math.min(v.maxSpeed, v.speed + v.accel * dt);
+        } else if (forwardInput < 0) {
+          v.speed = Math.max(-v.maxSpeed * 0.45, v.speed - v.accel * 1.3 * dt);
+        } else {
+          v.speed *= Math.pow(0.18, dt);
+          if (Math.abs(v.speed) < 0.2) v.speed = 0;
+        }
+
+        if (Math.abs(v.speed) > 0.6) {
+          const dirSign = v.speed >= 0 ? 1 : -1;
+          v.yaw += turnInput * v.turnSpeed * dirSign * dt;
+        }
+
+        v.x += Math.sin(v.yaw) * v.speed * dt;
+        v.z += Math.cos(v.yaw) * v.speed * dt;
+        resolveCollisions(v, v.radius);
+
+        v.mesh.position.set(v.x, 0, v.z);
+        v.mesh.rotation.y = v.yaw;
+        v.wheels.forEach(wh => { wh.rotation.x += v.speed * dt * 1.4; });
+
+        player.x = v.x;
+        player.z = v.z;
+
+        if (!isDraggingCam && Math.abs(v.speed) > 2) {
+          camYaw = lerpAngle(camYaw, v.yaw, 3.4 * dt);
+        }
+      } else {
+        let moveX = 0;
+        let moveZ = 0;
+        const sinCam = Math.sin(camYaw);
+        const cosCam = Math.cos(camYaw);
+
+        moveX += (-sinCam * forwardInput) + (-cosCam * turnInput);
+        moveZ += (-cosCam * forwardInput) + (sinCam * turnInput);
+
+        const mag = Math.hypot(moveX, moveZ);
+        const isSprinting = (keys['ShiftLeft'] || keys['ShiftRight']) && mag > 0.1;
+        const targetSpeed = isSprinting ? player.sprintSpeed : player.speed;
+
+        if (mag > 0.01) {
+          moveX /= mag;
+          moveZ /= mag;
+          const desiredYaw = Math.atan2(moveX, moveZ);
+          player.yaw = lerpAngle(player.yaw, desiredYaw, 16 * dt);
+        }
+
+        const blend = 1 - Math.exp(-24 * dt);
+        player.vx += (moveX * targetSpeed - player.vx) * blend;
+        player.vz += (moveZ * targetSpeed - player.vz) * blend;
+
+        player.x += player.vx * dt;
+        player.z += player.vz * dt;
+        resolveCollisions(player, player.radius);
+
+        const currentSpeed = Math.hypot(player.vx, player.vz);
+        ffRig.root.position.set(player.x, 0, player.z);
+        ffRig.root.rotation.y = player.yaw;
+
+        // Uso de ferramentas (Espaço, Botão de Ação ou Segurar Clique Esquerdo)
+        if (keys['Space'] || isHoldingAction || isMouseDownSpray) {
+          triggerToolUse(dt, false);
+        } else {
+          player.sprayingWater = false;
+          player.interacting = false;
+          sfx.setWaterSpray(false);
+        }
+
+        animateFirefighterPose(dt, clockTime, currentSpeed, isSprinting);
+        ffRig.root.updateMatrixWorld(true);
+        updateFlexibleHose(player.selectedTool === 0);
+      }
+
+      // Câmera Suave em 3ª Pessoa
+      const focusX = player.inVehicle ? player.inVehicle.x : player.x;
+      const focusY = player.inVehicle ? 2.4 : 1.75;
+      const focusZ = player.inVehicle ? player.inVehicle.z : player.z;
+      const camDist = player.inVehicle ? 14.5 : 7.6;
+
+      const targetCamX = focusX + Math.sin(camYaw) * Math.cos(camPitch) * camDist;
+      const targetCamY = focusY + Math.sin(camPitch) * camDist + 1.0;
+      const targetCamZ = focusZ + Math.cos(camYaw) * Math.cos(camPitch) * camDist;
+
+      const camSmooth = 1 - Math.exp(-13 * dt);
+      camera.position.x += (targetCamX - camera.position.x) * camSmooth;
+      camera.position.y += (targetCamY - camera.position.y) * camSmooth;
+      camera.position.z += (targetCamZ - camera.position.z) * camSmooth;
+      camera.lookAt(focusX, focusY, focusZ);
+
+      updateParticles(dt);
+      updateObjectiveHUD();
+      updateActionButtonUI();
+      renderMinimap();
+    }
+
+    // =========================================================================
+    // 11. EVENTOS DE ENTRADA E INICIALIZAÇÃO
+    // =========================================================================
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    window.addEventListener('keydown', e => {
+      keys[e.code] = true;
+      if (!gameActive) return;
+
+      if (e.code === 'Digit1') selectTool(0);
+      if (e.code === 'Digit2') selectTool(1);
+      if (e.code === 'Digit3') selectTool(2);
+
+      if (e.code === 'KeyH') {
+        const on = sfx.toggleSiren();
+        showToast(on ? '🚨 Sirene LIGADA' : '🚨 Sirene DESLIGADA');
+      }
+
+      if (e.code === 'KeyE' && !e.repeat) {
+        if (!toggleVehicleEntry()) {
+          triggerToolUse(0.05, true);
+        }
+      }
+
+      if (e.code === 'Space' && !e.repeat) {
+        e.preventDefault();
+        triggerToolUse(0.05, true);
+      }
+    });
+
+    window.addEventListener('keyup', e => {
+      keys[e.code] = false;
+    });
+
+    window.addEventListener('blur', () => {
+      for (const k in keys) keys[k] = false;
+      isHoldingAction = false;
+      isMouseDownSpray = false;
+      player.sprayingWater = false;
+      sfx.setWaterSpray(false);
+    });
+
+    // Órbita suave da câmera ou esguicho ao clicar/arrastar no canvas
+    let dragDistance = 0;
+    renderer.domElement.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;
+      isDraggingCam = true;
+      dragDistance = 0;
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+      if (gameActive && !player.inVehicle) {
+        isMouseDownSpray = true;
+      }
+    });
+
+    window.addEventListener('mousemove', e => {
+      if (!isDraggingCam) return;
+      const dx = e.clientX - lastMouseX;
+      const dy = e.clientY - lastMouseY;
+      dragDistance += Math.hypot(dx, dy);
+      if (dragDistance > 8) isMouseDownSpray = false;
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+      camYaw -= dx * 0.0065;
+      camPitch = Math.max(0.14, Math.min(0.95, camPitch + dy * 0.005));
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDraggingCam = false;
+      isMouseDownSpray = false;
+    });
+
+    document.getElementById('btn-start').addEventListener('click', () => {
+      sfx.init();
+      gameActive = true;
+      document.getElementById('title-overlay').classList.add('hidden');
+      document.getElementById('hud').classList.add('visible');
+      selectTool(0);
+      startSpecificMission(0);
+    });
+
+    const actionBtn = document.getElementById('action-button');
+    actionBtn.addEventListener('mousedown', () => {
+      isHoldingAction = true;
+      if (!toggleVehicleEntry()) {
+        triggerToolUse(0.05, true);
+      }
+    });
+    actionBtn.addEventListener('mouseup', () => { isHoldingAction = false; });
+    actionBtn.addEventListener('mouseleave', () => { isHoldingAction = false; });
+    actionBtn.addEventListener('touchstart', e => {
+      e.preventDefault();
+      isHoldingAction = true;
+      if (!toggleVehicleEntry()) {
+        triggerToolUse(0.05, true);
+      }
+    });
+    actionBtn.addEventListener('touchend', () => { isHoldingAction = false; });
+
+    document.getElementById('btn-siren').addEventListener('click', () => {
+      const on = sfx.toggleSiren();
+      showToast(on ? '🚨 Sirene LIGADA' : '🚨 Sirene DESLIGADA');
+    });
+
+    document.getElementById('btn-sound').addEventListener('click', () => {
+      sfx.init();
+      const on = sfx.toggleMute();
+      document.getElementById('btn-sound').textContent = on ? '🔊 Som' : '🔇 Mudo';
+    });
+
+    // Controle Touch Mobile
+    const pad = document.getElementById('mobile-pad');
+    const knob = document.getElementById('mobile-knob');
+    function updateTouchPad(cx, cy) {
+      const rect = pad.getBoundingClientRect();
+      const midX = rect.left + rect.width / 2;
+      const midY = rect.top + rect.height / 2;
+      const maxR = rect.width / 2 - 18;
+      let dx = cx - midX;
+      let dz = cy - midY;
+      const d = Math.hypot(dx, dz);
+      if (d > maxR) {
+        dx = (dx / d) * maxR;
+        dz = (dz / d) * maxR;
+      }
+      knob.style.transform = `translate(${dx}px, ${dz}px)`;
+      touchMove.dx = dx / maxR;
+      touchMove.dz = dz / maxR;
+    }
+
+    pad.addEventListener('touchstart', e => {
+      e.preventDefault();
+      touchMove.active = true;
+      updateTouchPad(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: false });
+
+    pad.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (touchMove.active) updateTouchPad(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: false });
+
+    const resetPad = () => {
+      touchMove.active = false;
+      touchMove.dx = 0;
+      touchMove.dz = 0;
+      knob.style.transform = 'translate(0, 0)';
+    };
+    pad.addEventListener('touchend', resetPad);
+    pad.addEventListener('touchcancel', resetPad);
+
+    let prevTime = 0;
+    function animate(now) {
+      requestAnimationFrame(animate);
+      if (!prevTime) prevTime = now;
+      const dt = Math.min(0.05, (now - prevTime) / 1000);
+      prevTime = now;
+
+      updateSimulation(dt);
+      renderer.render(scene, camera);
+    }
+
+    window.onload = function () {
+      requestAnimationFrame(animate);
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fuga da Sapona Rosa</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:18px;background:#fff3f8;font-family:Arial,sans-serif;color:#71354e}
+.game{max-width:940px;margin:auto;display:flex;flex-direction:column;gap:12px}
+.head{background:#f9c5df;border-radius:12px;padding:12px 14px;font-weight:900;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+canvas{width:100%;height:auto;display:block;border:4px solid #39834d;border-radius:13px;background:#a8e4ff;touch-action:none}
+.controls,.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+button{border:2px solid #e89abd;background:#ffe0ee;color:#71354e;border-radius:12px;padding:11px 18px;font-weight:900;font-size:15px;cursor:pointer}
+button:active{background:#f5a6ca;transform:scale(.97)}
+.hint{text-align:center;font-size:12px;color:#79566a}.message{text-align:center;font-weight:bold;min-height:22px}
+</style>
+</head>
+<body>
+<div class="game">
+ <div class="head"><span id="level">🌸 FASE 1 / 10</span><span id="score">⭐ 0 moedas</span><span id="lives">❤️ 3</span></div>
+ <canvas id="game" width="900" height="430"></canvas>
+ <div class="controls"><button id="left">A ◀</button><button id="jump">W ⬆ PULAR</button><button id="right">D ▶</button></div>
+ <div class="hint">A = esquerda · W = pular · D = direita</div>
+ <div class="actions"><button id="start">▶ JOGAR</button><button id="restart">↻ RECOMEÇAR</button></div>
+ <div id="message" class="message">Ajude a sapinha a chegar até a bandeira! 🐸</div>
+</div>
+<script>
+(()=>{
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),$=id=>document.getElementById(id);
+const W=900,H=430,G=350;let level=1,score=0,lives=3,player,obstacles,coins,potions,world=0,keys={},running=false,raf=0,last=0,invul=0;
+function makeLevel(){world=0;invul=0;player={x:120,y:G-44,w:42,h:44,vy:0,on:true};obstacles=[];coins=[];potions=[];let spacing=Math.max(230,340-level*11);
+for(let i=0;i<5+level;i++){let x=390+i*spacing;obstacles.push({x,y:G-35-(i%3===1?4:0),w:35,h:35,type:i%2?'bottle':'rock'});if(i%2===0)coins.push({x:x+105,y:G-100-(i%3)*15,taken:false});if(i%2===1)potions.push({x:x+150,y:G-75,taken:false});}
+$('level').textContent='🌸 FASE '+level+' / 10';$('score').textContent='⭐ '+score+' moedas';$('lives').textContent='❤️ '+lives;}
+function drawTree(x,y,s=1){ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.fillStyle='#805238';ctx.fillRect(25,45,18,75);ctx.fillStyle='#9b6949';ctx.fillRect(29,57,5,48);const blossoms=[[34,35,38],[12,43,23],[55,45,25],[8,18,20],[39,8,25],[65,19,21],[22,-5,19],[51,-9,20],[77,36,15]];blossoms.forEach((b,i)=>{ctx.fillStyle=i%2===0?'#ffb7d5':'#f78fbe';ctx.beginPath();ctx.arc(b[0],b[1],b[2],0,Math.PI*2);ctx.fill();});[[19,27],[42,1],[62,35],[6,48],[49,51],[29,-9]].forEach(p=>{ctx.fillStyle='#ffe5f1';ctx.beginPath();ctx.arc(p[0],p[1],5,0,Math.PI*2);ctx.fill();});ctx.restore();}
+function frog(x,y,pink=false,scale=1){ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.fillStyle=pink?'#f16cb5':'#42bd59';ctx.beginPath();ctx.ellipse(21,27,20,17,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(10,9,9,0,Math.PI*2);ctx.arc(31,9,9,0,Math.PI*2);ctx.fill();ctx.fillStyle='white';ctx.beginPath();ctx.arc(10,9,5,0,Math.PI*2);ctx.arc(31,9,5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#222';ctx.beginPath();ctx.arc(11,9,2.5,0,Math.PI*2);ctx.arc(32,9,2.5,0,Math.PI*2);ctx.fill();ctx.strokeStyle=pink?'#a93275':'#247c39';ctx.lineWidth=2;ctx.beginPath();ctx.arc(21,28,7,0.15,Math.PI-.15);ctx.stroke();ctx.fillStyle=pink?'#ff168f':'#318e43';ctx.fillRect(7,39,11,5);ctx.fillRect(26,39,11,5);if(pink){ctx.fillStyle='#ff1493';ctx.fillRect(5,32,33,9);ctx.fillStyle='#ff9acb';ctx.fillRect(9,34,25,3);}ctx.restore();}
+function drawPotion(x,y){ctx.save();ctx.translate(x,y);ctx.fillStyle='#8151b5';ctx.fillRect(10,0,11,8);ctx.fillStyle='#b88be8';ctx.fillRect(8,-3,15,4);ctx.fillStyle='#d9b6ff';ctx.beginPath();ctx.moveTo(10,8);ctx.lineTo(21,8);ctx.lineTo(21,15);ctx.lineTo(28,22);ctx.lineTo(28,36);ctx.quadraticCurveTo(28,41,23,41);ctx.lineTo(7,41);ctx.quadraticCurveTo(2,41,2,36);ctx.lineTo(2,22);ctx.lineTo(10,15);ctx.closePath();ctx.fill();ctx.fillStyle='#a56be0';ctx.fillRect(4,25,22,12);ctx.fillStyle='#f5e8ff';ctx.fillRect(7,20,5,10);ctx.fillStyle='#fff';ctx.fillRect(13,27,5,5);ctx.restore();}
+function draw(){ctx.clearRect(0,0,W,H);let sky=ctx.createLinearGradient(0,0,0,G);sky.addColorStop(0,'#72cfff');sky.addColorStop(1,'#d5f5ff');ctx.fillStyle=sky;ctx.fillRect(0,0,W,G);
+for(let i=0;i<6;i++){let x=((i*185-world*.13)%1050+1050)%1050;ctx.fillStyle='rgba(255,255,255,.94)';ctx.beginPath();ctx.arc(x,70+(i%2)*35,22,0,7);ctx.arc(x+23,62+(i%2)*35,28,0,7);ctx.arc(x+51,73+(i%2)*35,20,0,7);ctx.fill();}
+ctx.fillStyle='#a5df86';ctx.fillRect(0,260,W,90);for(let i=0;i<12;i++){let x=((i*110-world*.24)%1050+1050)%1050;drawTree(x,210,.7);}
+ctx.fillStyle='#64bd4c';ctx.fillRect(0,G,W,H-G);ctx.fillStyle='#3c963c';ctx.fillRect(0,G,W,12);ctx.fillStyle='#8bd46a';for(let i=0;i<35;i++){let x=((i*37-world*.7)%920+920)%920;ctx.fillRect(x,G+22+(i%4)*12,17,4);}
+obstacles.forEach(o=>{let x=o.x-world;if(x<-50||x>W+50)return;if(o.type==='rock'){ctx.font='36px serif';ctx.textBaseline='bottom';ctx.fillText('🪨',x,G+3);}else{ctx.font='34px serif';ctx.textBaseline='bottom';ctx.fillText('🧴',x,G+3);}});ctx.textBaseline='alphabetic';
+coins.forEach(c=>{if(!c.taken){let x=c.x-world;if(x>-30&&x<W+30){ctx.font='27px serif';ctx.fillText('🪙',x,c.y);}}});
+potions.forEach(p=>{if(!p.taken){let x=p.x-world;if(x>-40&&x<W+40)drawPotion(x,G-41);}});
+let finish=obstacles[obstacles.length-1].x+330,fx=finish-world;ctx.fillStyle='#795333';ctx.fillRect(fx,G-115,7,115);ctx.font='52px serif';ctx.fillText('🏁',fx+3,G-117);if(invul%2===0)frog(player.x,player.y,false);frog(7,G-65,true,1.5);ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillRect(18,16,190,12);ctx.fillStyle='#ec65a7';ctx.fillRect(18,16,190*Math.min(1,(world+player.x)/finish),12);ctx.fillStyle='#315b37';ctx.font='bold 13px sans-serif';ctx.fillText('CHEGADA',fx-30,G-125);}
+function updateHud(){$('score').textContent='⭐ '+score+' moedas';$('lives').textContent='❤️ '+lives;}
+function jump(){if(running&&player.on){player.vy=-14;player.on=false;}}
+function start(){if(level>10){level=1;score=0;lives=3;}makeLevel();running=true;last=0;cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);}
+function restart(){level=1;score=0;lives=3;start();}
+function loseLife(){lives--;updateHud();if(lives<=0){running=false;$('message').textContent='A Sapona te alcançou! Clique em Recomeçar para tentar de novo.';return false;}invul=90;player.x=Math.max(65,player.x-45);player.y=G-44;player.vy=0;world=Math.max(0,world-25);return true;}
+function loop(t){if(!running)return;let dt=Math.min((t-last)/16.67||1,2);last=t;const speed=6.1+level*.18;if(keys.a)player.x=Math.max(18,player.x-speed*dt);if(keys.d){player.x=Math.min(280,player.x+speed*dt);world+=speed*dt;}else if(!keys.a)world+=2.8*dt;player.vy+=.68*dt;player.y+=player.vy*dt;if(player.y+player.h>=G){player.y=G-player.h;player.vy=0;player.on=true;}if(invul>0)invul--;
+for(let o of obstacles){let ox=o.x-world;if(invul===0&&player.x+player.w-7>ox+5&&player.x+6<ox+o.w-5&&player.y+player.h>G-38){if(!loseLife()){draw();return;}break;}}
+for(let c of coins){if(!c.taken&&Math.abs((c.x-world)-(player.x+18))<30&&Math.abs(c.y-(player.y+20))<35){c.taken=true;score++;updateHud();}}
+for(let p of potions){if(!p.taken&&Math.abs((p.x-world)-(player.x+20))<35&&Math.abs((G-20)-(player.y+20))<48){p.taken=true;if(lives<3){lives++;updateHud();$('message').textContent='💜 Poção lilás coletada! Você recuperou uma vida!';}else{$('message').textContent='💜 Poção coletada! Você já está com a vida cheia!';}}}
+let finish=obstacles[obstacles.length-1].x+330;if(world+player.x>=finish){running=false;draw();if(level===10){$('message').textContent='🏆 PARABÉNS! Você venceu as 10 fases!';$('level').textContent='🏆 VITÓRIA!';}else{$('message').textContent='🎉 Fase concluída! Prepare-se para a próxima!';level++;setTimeout(()=>{if(!running)startNext();},1100);}return;}draw();raf=requestAnimationFrame(loop);}
+function startNext(){makeLevel();running=true;last=0;raf=requestAnimationFrame(loop);}
+function keydown(e){let k=e.key.toLowerCase();if(['a','d','w',' '].includes(k))e.preventDefault();keys[k]=true;if(k==='w'||k===' ')jump();}
+function keyup(e){keys[e.key.toLowerCase()]=false;}
+window.addEventListener('keydown',keydown);window.addEventListener('keyup',keyup);
+function hold(id,k){let b=$(id);b.addEventListener('pointerdown',e=>{e.preventDefault();keys[k]=true;if(k==='w')jump();});['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>keys[k]=false));}
+hold('left','a');hold('right','d');$('jump').addEventListener('pointerdown',e=>{e.preventDefault();jump();});$('start').onclick=start;$('restart').onclick=restart;makeLevel();draw();
+})();
+</script>
+</body></html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maré Azul: Resgate</title>
+  <style>
+    body { margin: 0; background: #070d18; color: #eef6ff; font-family: Arial, sans-serif; overflow: hidden; }
+    canvas { display: block; width: 100vw; height: 100vh; cursor: crosshair; }
+    #hud { position: fixed; top: 10px; left: 10px; right: 10px; display: flex; gap: 8px; flex-wrap: wrap; pointer-events: none; }
+    .tag { background: rgba(10, 20, 36, 0.85); border: 1px solid #38bdf8; border-radius: 6px; padding: 6px 10px; font-size: 13px; }
+    #ajuda { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(10, 20, 36, 0.9); border: 1px solid #38bdf8; border-radius: 6px; padding: 6px 14px; font-size: 12px; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+  <div id="hud">
+    <div class="tag" id="uVida">Vida: 100%</div>
+    <div class="tag" id="uPts">Pontos: 0</div>
+    <div class="tag" id="uSalvos">Salvos: 0/3</div>
+    <div class="tag" id="uFogo">Fogo: 0/3</div>
+    <div class="tag" id="uArma">Arma: [1] Rifle</div>
+  </div>
+  <div id="ajuda">WASD/Setas: Andar | Mouse: Mirar + Clique: Atirar/Jato | 1/2/3: Rifle/Escopeta/Mangueira | E: Resgatar/Entregar</div>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    function fit() {
+      canvas.width = window.innerWidth || 800;
+      canvas.height = window.innerHeight || 600;
+    }
+    fit();
+    window.addEventListener("resize", fit);
+
+    let vida = 100, pts = 0, salvos = 0, fogoOut = 0, arma = 1, escolta = null;
+    let px = 0, pz = 12, mx = canvas.width / 2, my = canvas.height / 2, lookX = 0, lookY = 0;
+    let tiro = false, cd = 0, last = performance.now();
+
+    const caminhao = { x: 0, z: 8 };
+    const inimigos = [
+      { x: -4, z: 1, hp: 50, vivo: true },
+      { x: 4, z: -3, hp: 50, vivo: true },
+      { x: 0, z: -8, hp: 70, vivo: true }
+    ];
+    const fogos = [
+      { x: -3, z: 3, hp: 100, out: false },
+      { x: 3, z: -4, hp: 100, out: false },
+      { x: -5, z: -6, hp: 100, out: false }
+    ];
+    const civis = [
+      { x: -3, z: 1, nome: "Civil 1", st: "wait" },
+      { x: 4, z: -5, nome: "Civil 2", st: "wait" },
+      { x: 0, z: -10, nome: "Civil 3", st: "wait" }
+    ];
+    const sangue = [];
+    const keys = {};
+
+    function hud() {
+      document.getElementById("uVida").textContent = "Vida: " + vida + "%";
+      document.getElementById("uPts").textContent = "Pontos: " + pts;
+      document.getElementById("uSalvos").textContent = "Salvos: " + salvos + "/3";
+      document.getElementById("uFogo").textContent = "Fogo: " + fogoOut + "/3";
+      document.getElementById("uArma").textContent = "Arma: " + (arma === 1 ? "[1] Rifle" : arma === 2 ? "[2] Escopeta" : "[3] Mangueira");
+    }
+
+    window.addEventListener("keydown", (e) => {
+      const k = e.key.toLowerCase();
+      keys[k] = true;
+      if (e.key === "1") { arma = 1; hud(); }
+      if (e.key === "2") { arma = 2; hud(); }
+      if (e.key === "3") { arma = 3; hud(); }
+      if (k === "e") {
+        if (escolta && Math.hypot(px - caminhao.x, pz - caminhao.z) < 4.5) {
+          escolta.st = "done"; escolta = null; salvos++; pts += 200; vida = Math.min(100, vida + 15); hud();
+        } else if (!escolta) {
+          for (const c of civis) {
+            if (c.st === "wait" && Math.hypot(px - c.x, pz - c.z) < 3.5) { c.st = "go"; escolta = c; break; }
+          }
+        }
+      }
+    });
+    window.addEventListener("keyup", (e) => { keys[e.key.toLowerCase()] = false; });
+
+    canvas.addEventListener("mousemove", (e) => {
+      mx = e.clientX; my = e.clientY;
+      lookX = (mx / canvas.width - 0.5) * 2;
+      lookY = (my / canvas.height - 0.5) * 1.1;
+    });
+    canvas.addEventListener("mousedown", (e) => { if (e.button === 0) tiro = true; });
+    window.addEventListener("mouseup", (e) => { if (e.button === 0) tiro = false; });
+
+    function proj(x, z) {
+      const dx = x - px - lookX * 5;
+      const dz = z - pz;
+      const esc = Math.max(0.3, 20 / Math.max(4, 20 + dz));
+      return { sx: canvas.width * 0.5 + dx * 40 * esc, sy: canvas.height * 0.56 + lookY * 80 + (dz - 8) * 4 * esc, esc };
+    }
+
+    function splash(x, y, n) {
+      for (let i = 0; i < n; i++) {
+        sangue.push({
+          x: x + (Math.random() - 0.5) * 16,
+          y: y + (Math.random() - 0.5) * 16,
+          vx: (Math.random() - 0.5) * 150,
+          vy: -60 - Math.random() * 130,
+          r: 3 + Math.random() * 4,
+          t: 0.75
+        });
+      }
+    }
+
+    function loop(now) {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+
+      const v = 7;
+      if (keys["w"] || keys["arrowup"]) pz -= v * dt;
+      if (keys["s"] || keys["arrowdown"]) pz += v * dt;
+      if (keys["a"] || keys["arrowleft"]) px -= v * dt;
+      if (keys["d"] || keys["arrowright"]) px += v * dt;
+
+      if (escolta) {
+        escolta.x += (px - escolta.x) * 3.5 * dt;
+        escolta.z += ((pz + 1.5) - escolta.z) * 3.5 * dt;
+      }
+
+      for (const en of inimigos) {
+        if (!en.vivo) continue;
+        const dx = px - en.x, dz = pz - en.z, d = Math.hypot(dx, dz);
+        if (d > 1.3 && d < 24) { en.x += (dx / d) * 2.2 * dt; en.z += (dz / d) * 2.2 * dt; }
+      }
+
+      cd -= dt;
+      if (tiro && cd <= 0) {
+        if (arma === 1) {
+          cd = 0.15;
+          for (const en of inimigos) {
+            if (!en.vivo) continue;
+            const p = proj(en.x, en.z);
+            if (Math.hypot(mx - p.sx, my - (p.sy - 20 * p.esc)) < 36 * p.esc + 14) {
+              en.hp -= 25; splash(p.sx, p.sy - 20 * p.esc, 12);
+              if (en.hp <= 0) { en.vivo = false; pts += 100; splash(p.sx, p.sy - 20 * p.esc, 24); hud(); }
+              break;
+            }
+          }
+        } else if (arma === 2) {
+          cd = 0.45;
+          for (const en of inimigos) {
+            if (!en.vivo) continue;
+            const p = proj(en.x, en.z);
+            if (Math.hypot(mx - p.sx, my - (p.sy - 20 * p.esc)) < 55 * p.esc + 18) {
+              en.hp -= 45; splash(p.sx, p.sy - 20 * p.esc, 20);
+              if (en.hp <= 0) { en.vivo = false; pts += 100; splash(p.sx, p.sy - 20 * p.esc, 32); hud(); }
+            }
+          }
+        } else {
+          cd = 0.06;
+          for (const f of fogos) {
+            if (f.out) continue;
+            const p = proj(f.x, f.z);
+            if (Math.hypot(mx - p.sx, my - (p.sy - 12 * p.esc)) < 48 * p.esc + 18) {
+              f.hp -= 15;
+              if (f.hp <= 0) { f.out = true; fogoOut++; pts += 150; hud(); }
+            }
+          }
+        }
+      }
+
+      const hor = canvas.height * 0.54 + lookY * 80;
+      ctx.fillStyle = "#0b192e"; ctx.fillRect(0, 0, canvas.width, hor);
+      ctx.fillStyle = "#141c28"; ctx.fillRect(0, hor, canvas.width, canvas.height - hor);
+
+      const tc = proj(caminhao.x, caminhao.z);
+      const cw = 150 * tc.esc, ch = 75 * tc.esc;
+      ctx.fillStyle = "#dc2626"; ctx.fillRect(tc.sx - cw / 2, tc.sy - ch, cw, ch);
+      ctx.fillStyle = "#f8fafc"; ctx.fillRect(tc.sx - cw / 2, tc.sy - ch * 0.55, cw, ch * 0.16);
+      ctx.fillStyle = Math.sin(now * 0.015) > 0 ? "#ef4444" : "#38bdf8";
+      ctx.fillRect(tc.sx - cw * 0.16, tc.sy - ch - 8 * tc.esc, cw * 0.32, 8 * tc.esc);
+
+      for (const f of fogos) {
+        if (f.out) continue;
+        const p = proj(f.x, f.z);
+        ctx.fillStyle = "#f97316";
+        ctx.beginPath(); ctx.arc(p.sx, p.sy - 10 * p.esc, 20 * p.esc, 0, Math.PI * 2); ctx.fill();
+      }
+
+      for (const c of civis) {
+        if (c.st === "done") continue;
+        const p = proj(c.x, c.z);
+        ctx.fillStyle = "#eab308"; ctx.fillRect(p.sx - 10 * p.esc, p.sy - 32 * p.esc, 20 * p.esc, 32 * p.esc);
+        ctx.fillStyle = "#4ade80"; ctx.beginPath(); ctx.arc(p.sx, p.sy - 42 * p.esc, 5 * p.esc, 0, Math.PI * 2); ctx.fill();
+      }
+
+      for (const en of inimigos) {
+        if (!en.vivo) continue;
+        const p = proj(en.x, en.z);
+        const r = 22 * p.esc;
+        ctx.fillStyle = "#1d4ed8"; ctx.beginPath(); ctx.arc(p.sx, p.sy - r, r, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#38bdf8"; ctx.beginPath(); ctx.arc(p.sx, p.sy - r * 1.15, r * 0.3, 0, Math.PI * 2); ctx.fill();
+      }
+
+      for (let i = sangue.length - 1; i >= 0; i--) {
+        const s = sangue[i];
+        s.t -= dt; s.vy += 320 * dt; s.x += s.vx * dt; s.y += s.vy * dt;
+        ctx.fillStyle = "#0ea5e9"; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+        if (s.t <= 0) sangue.splice(i, 1);
+      }
+
+      ctx.fillStyle = "#1e293b"; ctx.fillRect(canvas.width * 0.62 + lookX * 28, canvas.height * 0.72 + lookY * 20, 120, 180);
+      ctx.strokeStyle = "#7dd3fc"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(mx - 10, my); ctx.lineTo(mx + 10, my); ctx.moveTo(mx, my - 10); ctx.lineTo(mx, my + 10); ctx.stroke();
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script>(function(){var hostname=location.hostname.toLowerCase();if(hostname.endsWith(".discordsays.com"))return;var origins=["https://www.gstatic.com","https://first-kookabura-972.convex.cloud","https://first-kookabura-972.convex.site"];for(var i=0;i<origins.length;i++){var link=document.createElement("link");link.rel="preconnect";link.href=origins[i];link.crossOrigin="anonymous";document.head.appendChild(link);}})();</script>
+
+    <script data-editorial-preload="">(function(){var images={"/about":{"src":"/blog/art/idea-1200.webp","srcSet":"/blog/art/idea-480.webp 480w, /blog/art/idea-1200.webp 1200w"},"/blog/classroom-review-games":{"src":"/blog/art/classroom-1200.webp","srcSet":"/blog/art/classroom-480.webp 480w, /blog/art/classroom-1200.webp 1200w"},"/blog/what-is-instaplay":{"src":"/blog/art/toolkit-1200.webp","srcSet":"/blog/art/toolkit-480.webp 480w, /blog/art/toolkit-1200.webp 1200w"},"/blog/make-a-multiplayer-browser-game":{"src":"/blog/art/party-1200.webp","srcSet":"/blog/art/party-480.webp 480w, /blog/art/party-1200.webp 1200w"},"/blog/party-game-generator":{"src":"/blog/art/party-1200.webp","srcSet":"/blog/art/party-480.webp 480w, /blog/art/party-1200.webp 1200w"},"/blog/how-to-make-a-game-with-ai":{"src":"/blog/art/idea-1200.webp","srcSet":"/blog/art/idea-480.webp 480w, /blog/art/idea-1200.webp 1200w"},"/blog/best-ai-game-generators":{"src":"/blog/art/toolkit-1200.webp","srcSet":"/blog/art/toolkit-480.webp 480w, /blog/art/toolkit-1200.webp 1200w"},"/blog/turn-any-idea-into-a-game":{"src":"/blog/art/idea-1200.webp","srcSet":"/blog/art/idea-480.webp 480w, /blog/art/idea-1200.webp 1200w"},"/blog/multiplayer-ai-game-maker":{"src":"/blog/art/party-1200.webp","srcSet":"/blog/art/party-480.webp 480w, /blog/art/party-1200.webp 1200w"},"/blog/ai-game-prompt-examples":{"src":"/blog/art/idea-1200.webp","srcSet":"/blog/art/idea-480.webp 480w, /blog/art/idea-1200.webp 1200w"},"/blog/instaplay-vs-roblox-studio":{"src":"/blog/art/toolkit-1200.webp","srcSet":"/blog/art/toolkit-480.webp 480w, /blog/art/toolkit-1200.webp 1200w"},"/blog/make-a-game-without-unreal-engine":{"src":"/blog/art/first-game-1200.webp","srcSet":"/blog/art/first-game-480.webp 480w, /blog/art/first-game-1200.webp 1200w"},"/blog/best-roblox-studio-alternatives":{"src":"/blog/art/toolkit-1200.webp","srcSet":"/blog/art/toolkit-480.webp 480w, /blog/art/toolkit-1200.webp 1200w"},"/blog/best-free-game-makers-no-download":{"src":"/blog/art/browser-1200.webp","srcSet":"/blog/art/browser-480.webp 480w, /blog/art/browser-1200.webp 1200w"},"/blog/best-ai-game-generators-for-beginners":{"src":"/blog/art/first-game-1200.webp","srcSet":"/blog/art/first-game-480.webp 480w, /blog/art/first-game-1200.webp 1200w"}};var image=images[location.pathname.replace(/\/$/,"")];if(!image)return;var link=document.createElement("link");link.rel="preload";link.as="image";link.href=image.src;link.imageSrcset=image.srcSet;link.imageSizes="(min-width: 640px) 720px, calc(100vw - 32px)";link.fetchPriority="high";document.head.appendChild(link);})();</script>
+
+    <meta charset="UTF-8" />
+    <script>
+      // Native-shell detection, computed once before anything below can load a
+      // tracker. EVERY Instaplay native shell counts, not just the main
+      // WebView: the native game surface loads /embed/feed/* into its own
+      // WKWebView under the InstaplayNativeGameSurface user agent and without
+      // the __INSTAPLAY_NATIVE_APP__ global, so a check that only knew about
+      // InstaplayMobileApp let Google Ads run inside the app. Keep the user
+      // agents in sync with userAgentImpliesNativeApp in src/lib/nativeApp.ts.
+      (function () {
+        var nativeAppParam = null;
+        try {
+          nativeAppParam = new URLSearchParams(location.search).get("nativeApp");
+        } catch (_) {}
+        window.__INSTAPLAY_NATIVE_SHELL__ = Boolean(
+          window.__INSTAPLAY_NATIVE_APP__ ||
+            /InstaplayMobileApp|InstaplayNativeGameSurface/i.test(navigator.userAgent || "") ||
+            nativeAppParam === "1" ||
+            nativeAppParam === "true"
+        );
+        // A Test User must stay invisible to every inline tracker too; module
+        // guards run later and cannot undo a gtag request made in <head>.
+        window.__INSTAPLAY_TEST_USER_TAB__ = false;
+        try {
+          window.__INSTAPLAY_TEST_USER_TAB__ =
+            sessionStorage.getItem("instaplay_test_user_mode_v1") === "1";
+        } catch (_) {}
+        // Classroom hosts and public school-support routes never initialize
+        // marketing pixels. Keep this in sync with schoolSafeTraffic.ts; this
+        // pre-bundle decision is required because the Google tag lives below.
+        var schoolSafeHostname = location.hostname.toLowerCase();
+        var schoolSafePathname = location.pathname;
+        window.__INSTAPLAY_SCHOOL_SAFE_TRAFFIC__ = Boolean(
+          schoolSafeHostname === "school.instaplay.ai" ||
+            schoolSafeHostname === "classroom.instaplay.ai" ||
+            schoolSafePathname === "/network-check" ||
+            schoolSafePathname.indexOf("/network-check/") === 0 ||
+            schoolSafePathname === "/schools" ||
+            schoolSafePathname.indexOf("/schools/") === 0
+        );
+      })();
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script>
+      (function () {
+        var hostname = location.hostname.toLowerCase();
+        var isInternal =
+          hostname === "internal.localhost" || hostname.indexOf("internal.") === 0;
+        var isLocalDevelopment =
+          hostname === "localhost" ||
+          hostname === "127.0.0.1" ||
+          hostname.endsWith(".localhost");
+        var isNativeApp = window.__INSTAPLAY_NATIVE_SHELL__;
+        // The Data portal is a signed-in client tool; keep in sync with
+        // isDataPortalHostname in src/lib/dataPortalHost.ts.
+        var isDataPortal = hostname === "data.localhost" || hostname.indexOf("data.") === 0;
+        // These handoff documents briefly hold bearer credentials in their URL.
+        // No marketing or product tracker may initialize until the app has
+        // exchanged and scrubbed them.
+        var isCredentialHandoff =
+          location.pathname === "/__test-user/login" ||
+          location.pathname === "/cli-auth" ||
+          location.pathname === "/pixel" ||
+          location.pathname.indexOf("/pixel/") === 0;
+        if (
+          isInternal ||
+          isLocalDevelopment ||
+          isDataPortal ||
+          isNativeApp ||
+          window.__INSTAPLAY_SCHOOL_SAFE_TRAFFIC__ ||
+          window.__INSTAPLAY_TEST_USER_TAB__ ||
+          isCredentialHandoff ||
+          // Browser automation must not count as an ad visit; keep in sync
+          // with isAutomatedBrowser in src/lib/automatedBrowser.ts.
+          navigator.webdriver === true ||
+          hostname.endsWith(".discordsays.com")
+        )
+          return;
+
+        var tagId = "AW-18321952853";
+        window.dataLayer = window.dataLayer || [];
+        window.gtag =
+          window.gtag ||
+          function () {
+            window.dataLayer.push(arguments);
+          };
+        window.gtag("js", new Date());
+        window.gtag("config", tagId);
+
+        var script = document.createElement("script");
+        script.async = true;
+        script.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(tagId);
+        document.head.appendChild(script);
+      })();
+    </script>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, interactive-widget=overlays-content"
+    />
+    <link
+      rel="preload"
+      href="data:font/woff2;base64,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"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/assets/geist-pixel-square-B0mEoKr8.woff2?dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/assets/space-grotesk-latin-DPT1xrvW.woff2?dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="icon" type="image/png" href="/icon-192.png?dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" sizes="192x192" />
+    <link rel="manifest" href="/manifest.json?dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" />
+    <link rel="canonical" href="https://www.instaplay.ai/" />
+    <!-- Safari owns this UI and automatically switches VIEW to OPEN when the
+         native iOS app is installed. Keep the app argument on our universal
+         link origin so the handoff opens Instaplay rather than only the store. -->
+    <meta
+      name="apple-itunes-app"
+      content="app-id=6792130949, app-argument=https://www.instaplay.ai/"
+    />
+    <meta name="theme-color" content="#0f0d13" />
+    <script>
+      // Keep these keys in sync with src/lib/colorTheme.ts. This runs before the
+      // application bundle so a saved light theme never flashes dark.
+      //
+      // The light theme is admin-only, and admin status needs a network round
+      // trip, so this trusts the hint the provider cached on the last load. That
+      // only affects paint: ColorThemeProvider re-resolves admin and forces dark
+      // if the hint is stale, so a non-admin cannot hold light by writing it.
+      (function () {
+        var theme = "dark";
+        var isNativeApp = window.__INSTAPLAY_NATIVE_SHELL__;
+        var isMobile =
+          typeof window.matchMedia === "function" &&
+          window.matchMedia("(max-width: 767px), (pointer: coarse)").matches;
+        // The data portal (data.*) used to be pinned dark here; it now follows
+        // the same saved preference as the rest of the app.
+        var forceDark = isNativeApp || isMobile;
+        try {
+          var adminHint = localStorage.getItem("instaplay.color-theme.admin.v1") === "1";
+          theme =
+            !forceDark && adminHint && localStorage.getItem("instaplay.color-theme.v1") === "light"
+              ? "light"
+              : "dark";
+        } catch (_) {}
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        if (theme === "light") {
+          document.querySelector('meta[name="theme-color"]').content = "#f7f5f2";
+        }
+      })();
+    </script>
+    <meta name="application-name" content="Instaplay" />
+
+    <!-- iOS / PWA — see scripts/generate-pwa-assets.mjs for asset pipeline -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Instaplay" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/pwa-assets/apple-touch-icon-120.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/pwa-assets/apple-touch-icon-152.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/pwa-assets/apple-touch-icon-167.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/pwa-assets/apple-touch-icon-180.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" />
+    <link rel="apple-touch-startup-image" href="/pwa-assets/splash-iphone-16-pro-max.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/pwa-assets/splash-iphone-15-16-plus.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/pwa-assets/splash-iphone-16-pro.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/pwa-assets/splash-iphone-15-pro.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/pwa-assets/splash-iphone-12-13-14.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/pwa-assets/splash-iphone-x-xs-11-pro.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/pwa-assets/splash-iphone-xr-11.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/pwa-assets/splash-iphone-se.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/pwa-assets/splash-ipad-pro-12.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/pwa-assets/splash-ipad-11.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+    <meta name="description" content="Instaplay is the free AI game maker at instaplay.ai for turning text prompts into playable browser games. No coding, no download, no game engine to learn." />
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <meta name="keywords" content="Instaplay, InstaPlay, instaplay.ai, AI game maker, free AI game maker, no-code game maker, browser game maker, AI game generator, text to game" />
+    <style>
+      html[data-theme="dark"][data-instaplay-shell="data"] body {
+        background: #050505 !important;
+      }
+
+      html[data-instaplay-shell="data"] #root > [data-root-paint-fallback] {
+        display: none !important;
+      }
+
+      html[data-instaplay-shell="native"] #root > [data-root-paint-fallback] {
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        background: #08070c !important;
+      }
+
+      html[data-instaplay-shell="native"] [data-root-wordmark-fallback] {
+        display: none !important;
+      }
+
+      html[data-instaplay-shell="native"] [data-root-native-paint-fallback] {
+        display: flex !important;
+      }
+
+      html[data-instaplay-shell="native"][data-instaplay-route="create"] [data-root-native-paint-fallback] {
+        display: none !important;
+      }
+
+      html[data-instaplay-shell="native"][data-instaplay-route="create"] [data-root-create-paint-fallback] {
+        display: flex !important;
+      }
+
+      /* The five primary tabs are parser-painted before any application
+         JavaScript downloads. This copy is deliberately inert: React makes
+         the real bar interactive only after the destination shell is ready. */
+      @media (max-width: 767px), (pointer: coarse) {
+        html[data-instaplay-nav] [data-root-wordmark-fallback] {
+          display: none !important;
+        }
+
+        html[data-instaplay-nav] [data-root-mobile-nav-fallback] {
+          display: grid !important;
+        }
+
+        [data-root-mobile-nav-pressable] {
+          -webkit-tap-highlight-color: transparent;
+          cursor: default;
+          touch-action: manipulation;
+          transition:
+            color 80ms linear,
+            opacity 80ms linear,
+            transform 80ms ease-out;
+          user-select: none;
+        }
+
+        [data-root-mobile-nav-pressable]:active {
+          color: #f15b72 !important;
+          opacity: 0.7;
+          transform: scale(0.94);
+        }
+
+        html[data-instaplay-nav="play"] [data-root-mobile-nav-tab="play"],
+        html[data-instaplay-nav="search"] [data-root-mobile-nav-tab="search"],
+        html[data-instaplay-nav="library"] [data-root-mobile-nav-tab="library"],
+        html[data-instaplay-nav="profile"] [data-root-mobile-nav-tab="profile"] {
+          color: #f15b72 !important;
+        }
+
+        /* Experiment assignments arrive with the hydrated app. Until then the
+           parser paint must use the safe control behavior on Create. */
+        html[data-instaplay-nav="create"] [data-root-mobile-nav-create-plus] {
+          display: none !important;
+        }
+
+        html[data-instaplay-nav="create"] [data-root-mobile-nav-create-play] {
+          display: block !important;
+        }
+
+      }
+
+      /* Cold `/play` paints the same quiet action-bar bridge React uses, from
+         HTML alone. It gives a constrained connection a stable first surface
+         while the app/query entry gets the bandwidth window ahead of the
+         heavy player graph. Portrait-only: landscape owns a side rail and
+         must never flash the centered down-arrow layout. */
+      @media (max-width: 767px) and (orientation: portrait) {
+        html[data-instaplay-route="play"] [data-root-wordmark-fallback],
+        html[data-instaplay-route="play"] [data-root-native-paint-fallback] {
+          display: none !important;
+        }
+
+        html[data-instaplay-route="play"] [data-root-play-paint-fallback] {
+          display: flex !important;
+        }
+      }
+    </style>
+    <script>
+      (function () {
+        var hostname = location.hostname.toLowerCase();
+        var isDataPortal =
+          hostname === "data.localhost" || hostname.indexOf("data.") === 0;
+        var isInternal =
+          hostname === "internal.localhost" || hostname.indexOf("internal.") === 0;
+        // Embed documents (/embed/:gameId, /embed/feed/:gameId) are a bare game
+        // frame, not the app. They must never paint the app-shell boot chrome
+        // below — search bar, tile grid, bottom tab bar — which the native game
+        // surface would otherwise show behind every game it loads.
+        var isEmbed = location.pathname.indexOf("/embed/") === 0;
+        var isNativeApp = window.__INSTAPLAY_NATIVE_SHELL__ && !isEmbed;
+        var isPlayRoute =
+          location.pathname === "/play" ||
+          (location.pathname.indexOf("/play/") === 0 &&
+            location.pathname !== "/play/battle") ||
+          location.pathname.indexOf("/game/") === 0;
+        var navTab = null;
+
+        if (!navTab && isNativeApp) {
+          navTab = "search";
+        }
+
+        if (isPlayRoute) {
+          navTab = "play";
+        } else if (
+          location.pathname === "/search" ||
+          location.pathname === "/explore" ||
+          location.pathname.indexOf("/explore/") === 0
+        ) {
+          navTab = "search";
+        } else if (
+          location.pathname === "/create" ||
+          (isNativeApp && location.pathname.indexOf("/edit/") === 0)
+        ) {
+          navTab = "create";
+        } else if (
+          location.pathname === "/my-games" ||
+          location.pathname.indexOf("/my-games/") === 0
+        ) {
+          navTab = "library";
+        } else if (
+          location.pathname === "/profile" ||
+          location.pathname.indexOf("/@") === 0 ||
+          location.pathname.indexOf("/settings") === 0 ||
+          location.pathname.indexOf("/friends") === 0 ||
+          location.pathname.indexOf("/social") === 0
+        ) {
+          navTab = "profile";
+        }
+
+        if (isPlayRoute) {
+          document.documentElement.dataset.instaplayRoute = "play";
+        } else if (location.pathname === "/create") {
+          document.documentElement.dataset.instaplayRoute = "create";
+        }
+        if (navTab) {
+          document.documentElement.dataset.instaplayNav = navTab;
+        }
+
+        if (isDataPortal) {
+          document.documentElement.dataset.instaplayShell = "data";
+        }
+        if (isInternal) {
+          document.documentElement.dataset.instaplayShell = "internal";
+          document.querySelector('meta[name="robots"]').content = "noindex,nofollow";
+        } else if (isNativeApp) {
+          document.documentElement.dataset.instaplayShell = "native";
+        }
+      })();
+    </script>
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Instaplay - Free AI Game Maker, No Coding" />
+    <meta property="og:description" content="Instaplay is the free AI game maker at instaplay.ai for turning text prompts into playable browser games. No coding, no download, no game engine to learn." />
+    <meta property="og:image" content="https://www.instaplay.ai/instaplay-logo-white-background.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="Instaplay logo" />
+    <meta property="og:url" content="https://www.instaplay.ai/" />
+    <meta property="og:site_name" content="Instaplay" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter / iMessage -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@instaplayGG" />
+    <meta name="twitter:title" content="Instaplay - Free AI Game Maker, No Coding" />
+    <meta name="twitter:description" content="Instaplay is the free AI game maker at instaplay.ai for turning text prompts into playable browser games. No coding, no download, no game engine to learn." />
+    <meta name="twitter:image" content="https://www.instaplay.ai/instaplay-logo-white-background.png" />
+    <meta name="twitter:image:alt" content="Instaplay logo" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://www.instaplay.ai/#organization",
+          "name": "Instaplay",
+          "alternateName": [
+            "InstaPlay",
+            "Insta Play",
+            "Instaplay.ai",
+            "Instaplay Free AI Game Maker",
+            "Instaplay AI Game Maker"
+          ],
+          "url": "https://www.instaplay.ai/",
+          "logo": "https://www.instaplay.ai/instaplay-logo-white-background.png",
+          "image": "https://www.instaplay.ai/instaplay-logo-white-background.png",
+          "description": "Instaplay is the free AI game maker at instaplay.ai for turning text prompts into playable browser games. No coding, no download, no game engine to learn.",
+          "disambiguatingDescription": "Instaplay at instaplay.ai is the official AI game maker for turning text prompts into playable browser games.",
+          "sameAs": [
+            "https://x.com/instaplayGG"
+          ],
+          "slogan": "Free AI game maker",
+          "mainEntityOfPage": "https://www.instaplay.ai/"
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://www.instaplay.ai/#website",
+          "name": "Instaplay",
+          "alternateName": [
+            "Instaplay Free AI Game Maker",
+            "Instaplay AI Game Maker",
+            "instaplay.ai"
+          ],
+          "url": "https://www.instaplay.ai/",
+          "description": "Instaplay is the free AI game maker at instaplay.ai for turning text prompts into playable browser games. No coding, no download, no game engine to learn.",
+          "publisher": {
+            "@id": "https://www.instaplay.ai/#organization"
+          },
+          "inLanguage": "en-US"
+        }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "@id": "https://www.instaplay.ai/#software",
+      "name": "Instaplay",
+      "alternateName": [
+        "InstaPlay",
+        "Instaplay Free AI Game Maker",
+        "Instaplay AI Game Maker",
+        "instaplay.ai"
+      ],
+      "url": "https://www.instaplay.ai/",
+      "applicationCategory": "GameApplication",
+      "applicationSubCategory": "AI game maker",
+      "description": "Instaplay is the free AI game maker at instaplay.ai for turning text prompts into playable browser games. No coding, no download, no game engine to learn.",
+      "image": "https://www.instaplay.ai/instaplay-logo-white-background.png",
+      "disambiguatingDescription": "Instaplay at instaplay.ai is the official AI game maker for turning text prompts into playable browser games.",
+      "operatingSystem": "Web",
+      "publisher": {
+        "@id": "https://www.instaplay.ai/#organization"
+      },
+      "brand": {
+        "@id": "https://www.instaplay.ai/#organization"
+      },
+      "keywords": "Instaplay, AI game maker, free AI game maker, browser game maker, no-code game creator, text to game",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+
+    <title>Instaplay - Free AI Game Maker, No Coding</title>
+    <noscript>
+      <style>
+        #root { display: none !important; }
+      </style>
+    </noscript>
+    <script type="module" crossorigin src="/assets/app-CqvH2Scy.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+    <link rel="modulepreload" crossorigin href="/assets/index-Ci6FWkp8.js">
+    <link rel="modulepreload" crossorigin href="/assets/discordActivityRuntime-CmiznqUj.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-B_ODsqCV.css" onerror="window.__arcadeCssLoadError&&window.__arcadeCssLoadError()">
+  <script>(function(){var key='__arcade_css_reload__';function cleanup(){try{sessionStorage.removeItem(key);var url=new URL(window.location.href);var dirty=false;if(url.searchParams.has('_cssRetry')){url.searchParams.delete('_cssRetry');dirty=true;}if(url.searchParams.get('app')==='1'){url.searchParams.delete('app');dirty=true;}if(dirty){window.history.replaceState(window.history.state,'',url.toString());}}catch(e){}}window.__arcadeCssLoadError=function(){try{if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');var url=new URL(window.location.href);url.searchParams.set('_cssRetry',Date.now().toString(36));window.location.replace(url.toString());}catch(e){window.location.reload();}};window.addEventListener('load',cleanup);})();</script>
+    <script>(function(){var appMountHrefs=["/assets/RouteFallbacks-DANErCLd.js","/assets/firebase-DIapDxM2.js","/assets/lazyRoute-txzTgd2j.js","/assets/useInternalAccess-xqAI8Gbj.js","/assets/context-D_rvr0Hv.js","/assets/chunk-B7RQU5TL-yTxHRY6y.js","/assets/deferredTrack-CwSd_T5O.js","/assets/createLucideIcon-iGSrjfO-.js","/assets/thumbnailPosition-BvFKR5ZV.js","/assets/userConfig-ChiSAl2I.js","/assets/scrollActivity--GDGx4dZ.js","/assets/ErrorBoundary-iP7J6MtC.js","/assets/deployRefresh-BWWa5uij.js","/assets/usePresenceHeartbeat-D5nH01jf.js","/assets/useGameWatch-mLEUSvjm.js","/assets/profileSocial-CcSbz5K2.js","/assets/createEntryExperiment-D_Joo6XC.js","/assets/generationWorkspace-4CkiW13n.js","/assets/use_paginated_query-BjZyg6cP.js","/assets/playTrackingModel-B3vdJRFY.js","/assets/opsIntegrationsArena-C3XURpIf.js","/assets/testUserLoginSession-_NdIYx7-.js","/assets/player-progress-CxBr7CAT.js","/assets/InstaplayLogo-P3-F3AAe.js","/assets/index-C30SQJfc.js","/assets/LazyAuthProviderButtons-DAgI_Beb.js","/assets/users-CEEisvhO.js","/assets/useClickOutside-Z7H6jjOY.js","/assets/x-BoHrwFz4.js","/assets/Card-DcDXJAzu.js","/assets/leaderboardPlayerStats-DtPdPSxH.js","/assets/chatSyntheticProgress-CqSftkWb.js","/assets/createHandoffs-BqVwROUA.js","/assets/index-h3I4Tiha.js","/assets/desktopExploreCatalogExperiment-riizzA8b.js","/assets/useRouteResource-g5Cz52Y_.js","/assets/PixelBadge-DVkcRDN8.js","/assets/lobbyJoinNotifications-QD4UHwhi.js","/assets/EphemeralSurface-CH98_vZZ.js","/assets/playerLifecycleEvents-BX1PzmWO.js"];var browseAppMountHrefs=["/assets/NormalAppRoot-XWYY1sDN.js","/assets/RouteFallbacks-DANErCLd.js","/assets/firebase-DIapDxM2.js","/assets/lazyRoute-txzTgd2j.js","/assets/useInternalAccess-xqAI8Gbj.js","/assets/context-D_rvr0Hv.js","/assets/App-Bw8trWaP.js","/assets/chunk-B7RQU5TL-yTxHRY6y.js","/assets/deferredTrack-CwSd_T5O.js","/assets/createLucideIcon-iGSrjfO-.js","/assets/SelfProfileRoute-e5PFOdRA.js","/assets/thumbnailPosition-BvFKR5ZV.js","/assets/userConfig-ChiSAl2I.js","/assets/scrollActivity--GDGx4dZ.js","/assets/buildFunnel-DkN9OCPN.js","/assets/ErrorBoundary-iP7J6MtC.js","/assets/NativePushNotifications-yoxvn6hu.js","/assets/deployRefresh-BWWa5uij.js","/assets/usePresenceHeartbeat-D5nH01jf.js","/assets/useGameWatch-mLEUSvjm.js","/assets/PixelBadge-DVkcRDN8.js","/assets/backgroundGameBuild-Cvq0ONHz.js","/assets/profileSocial-CcSbz5K2.js","/assets/createEntryExperiment-D_Joo6XC.js","/assets/generationWorkspace-4CkiW13n.js","/assets/lobbyJoinNotifications-QD4UHwhi.js","/assets/SeoHeadManager-x_vDg89m.js","/assets/use_paginated_query-BjZyg6cP.js","/assets/playTrackingModel-B3vdJRFY.js","/assets/opsIntegrationsArena-C3XURpIf.js","/assets/testUserLoginSession-_NdIYx7-.js","/assets/player-progress-CxBr7CAT.js","/assets/EphemeralSurface-CH98_vZZ.js","/assets/InstaplayLogo-P3-F3AAe.js","/assets/useInternalAnalyticsActorTracking-BgWLXinc.js","/assets/index-C30SQJfc.js","/assets/NotFoundPage-myFsyo9O.js","/assets/AccountAppActions-2Fr2bcQV.js","/assets/desktopExploreCatalogExperiment-riizzA8b.js","/assets/trophy-PqSLgNg9.js","/assets/playerLifecycleEvents-BX1PzmWO.js","/assets/pixelProAutomatic-B20a2SPc.js","/assets/LazyAuthProviderButtons-DAgI_Beb.js","/assets/useRouteResource-g5Cz52Y_.js","/assets/users-CEEisvhO.js","/assets/bell-BiMfY110.js","/assets/useClickOutside-Z7H6jjOY.js","/assets/useOwnProfile-BStKjtPi.js","/assets/x-BoHrwFz4.js","/assets/Card-DcDXJAzu.js","/assets/leaderboardPlayerStats-DtPdPSxH.js","/assets/normalAppBoot-BEr-BYZj.js","/assets/chatSyntheticProgress-CqSftkWb.js","/assets/mountApp-agqn1Bie.js","/assets/createHandoffs-BqVwROUA.js","/assets/index-h3I4Tiha.js"];var dataPortalHrefs=["/assets/DataPortalAppRoot-hfIzKGKR.js","/assets/DataPortalPage-CrRsUTdy.js","/assets/SignedOutPortal-ccQYNVnf.js","/assets/AuthProviderButtons-D-LlN1nS.js","/assets/firebase-DIapDxM2.js","/assets/lazyRoute-txzTgd2j.js","/assets/useInternalAccess-xqAI8Gbj.js","/assets/context-D_rvr0Hv.js","/assets/chunk-B7RQU5TL-yTxHRY6y.js","/assets/userConfig-ChiSAl2I.js","/assets/ErrorBoundary-iP7J6MtC.js","/assets/deployRefresh-BWWa5uij.js","/assets/usePresenceHeartbeat-D5nH01jf.js","/assets/profileSocial-CcSbz5K2.js","/assets/generationWorkspace-4CkiW13n.js","/assets/SeoHeadManager-x_vDg89m.js","/assets/testUserLoginSession-_NdIYx7-.js","/assets/useInternalAnalyticsActorTracking-BgWLXinc.js","/assets/index-C30SQJfc.js","/assets/normalAppBoot-BEr-BYZj.js","/assets/createLucideIcon-iGSrjfO-.js","/assets/PortalShell-Cnva0Fc-.js","/assets/ModelOrgIcon-DGwThqPV.js","/assets/opsIntegrationsArena-C3XURpIf.js","/assets/PortalMarketingChrome-CW2rwLy6.js","/assets/documentColorTheme-CacFGrVw.js","/assets/sun-BEKpJTDf.js","/assets/gameDataPortalApi-DFbNiKpG.js","/assets/LazyAuthProviderButtons-DAgI_Beb.js","/assets/moon-DM7xB1UR.js","/assets/thinkingMachinesLogo-D0OVxViH.js","/assets/LabEvalsV2Section-7FamhUs_.js","/assets/RouteFallbacks-DANErCLd.js","/assets/deferredTrack-CwSd_T5O.js","/assets/thumbnailPosition-BvFKR5ZV.js","/assets/scrollActivity--GDGx4dZ.js","/assets/createEntryExperiment-D_Joo6XC.js","/assets/InstaplayLogo-P3-F3AAe.js","/assets/users-CEEisvhO.js","/assets/useClickOutside-Z7H6jjOY.js","/assets/createHandoffs-BqVwROUA.js","/assets/index-h3I4Tiha.js"];var landingEntryHrefs=["/assets/LandingPage-C8ryS5Ip.js","/assets/GameFrame-DtESvoRo.js","/assets/llm-pricing-CDMuckP_.js","/assets/PromptComposer-Abr53LNA.js","/assets/LandingPlayHome-BpELndUR.js","/assets/useCreateAppGate-CmuFsa34.js","/assets/myGamesPageModel-DzB_97n9.js","/assets/playTracking-D33jgK66.js","/assets/landingPageModel-DGy0CCOC.js","/assets/editorStore--mKib3AV.js","/assets/useDiscoveryRefreshEpoch-CLmx1neo.js","/assets/playerApi-BQsmecXQ.js","/assets/PlayableGamePreview-nZa_lWtb.js","/assets/editProgress-D3UwRznO.js","/assets/chatMessageProtocol-Cv7l1B03.js","/assets/PromptComposerDictation-DlTtiLbk.js","/assets/useGhostWriterPlaceholder-Ca34qrR5.js","/assets/LandingShelf-sb5SCoJp.js","/assets/pendingCreateIntent-CTGY327B.js","/assets/game-frame-init-DMMMWsyj.js","/assets/myGames-BXA24Dob.js","/assets/GamePreviewClip-CkpK5WeY.js","/assets/chatAttachments-CHVbA1qU.js","/assets/ShelfScrollControls-DPAwPr98.js","/assets/audioPrefs-Btf4eXio.js","/assets/featuredShelfSampling-DRmu2V5P.js","/assets/gameCardModel-DWCaejWC.js","/assets/VolumeControl-DyITx6ip.js","/assets/thinGameFrameModel-B5RA1F6G.js","/assets/useAnchoredPopoverLayout-C1kTWZyv.js","/assets/workspace-job-env-BaKSEXTr.js","/assets/playAttemptCorrelation-DWZmBaT4.js","/assets/multiplayer-T5A3S68v.js","/assets/imessageBridge-p0aQPnH0.js","/assets/assets-Db_0kpiP.js","/assets/editorGeneration-CYUHwwye.js","/assets/createTriagePrefetch-DBfT9XaX.js","/assets/createAnalytics-DJJgqRmR.js","/assets/feedStartCard-9k47IwVr.js","/assets/ShelfDragHandle-IQqiAlO1.js","/assets/editorPreviewPhoneChromeModel-CirJn1Xu.js","/assets/cspSrcDoc-Bbr5XU2G.js","/assets/createBoltLane-DokctZV0.js","/assets/PhoneViewport-CqAX1MAw.js","/assets/builtGameArtifact-h-gRVNbB.js","/assets/react-BTQ2jiDF.js","/assets/imeComposition-Bez8arEt.js","/assets/gameDisplay-CknC7oMN.js","/assets/gameCard-UVuCB7Yy.js","/assets/runtime-error-context-BvBHhr8W.js","/assets/relativeTime-DbTIgD74.js","/assets/convexSiteOrigin-B1QVOuWa.js","/assets/useBoltCreateAccess-qp0q2r2T.js","/assets/useLeaderboardSubmission-BV4xFjoF.js","/assets/square-CiBR7Vp7.js","/assets/GameCardPreviewClip-CUijofnD.js","/assets/useMultiplayerGenerationAccess-DIIDvYXG.js","/assets/chevron-down-nfpnN0XW.js","/assets/check-CdffPymY.js","/assets/scrollableAncestor-4AE7z1m2.js","/assets/gameStatVisibility-DUtiXsNU.js","/assets/multiplayerAccess-C7uWnhYP.js","/assets/game-frame-contract-J4naQ7Gd.js","/assets/playerRoutePreload-B6yQLP0X.js","/assets/mobileDiscovery-C11PuTFv.js","/assets/formatNumber-CLRooR19.js","/assets/profileIdentity-CDVkY1jZ.js","/assets/corePlatform-CO1Evc_D.js"];var browseEntryHrefs=["/assets/ExplorePage-bBkJV7sg.js","/assets/playerPageModel-DljY3UH0.js","/assets/useDiscoveryRefreshEpoch-CLmx1neo.js","/assets/GameCard-DUcK0dIU.js","/assets/MobileExploreCard-BjZdP1fG.js","/assets/GamePreviewClip-CkpK5WeY.js","/assets/feedRuntimePolicy-CPsSN9bp.js","/assets/ShelfScrollControls-DPAwPr98.js","/assets/featuredShelfSampling-DRmu2V5P.js","/assets/gameCardModel-DWCaejWC.js","/assets/multiplayer-T5A3S68v.js","/assets/ShelfDragHandle-IQqiAlO1.js","/assets/FrozenGameOverlay-uKVy8Kde.js","/assets/feedSnapshotPolicy-Cdo5bwPK.js","/assets/tagStripModel-CVYsGfOc.js","/assets/tagBrowseApi-DP967vUS.js","/assets/gameDisplay-CknC7oMN.js","/assets/segmentedControlModel-DiptqE-T.js","/assets/GameCardPreviewClip-CUijofnD.js","/assets/scrollableAncestor-4AE7z1m2.js","/assets/gameStatVisibility-DUtiXsNU.js","/assets/playerRoutePreload-B6yQLP0X.js","/assets/mobileDiscovery-C11PuTFv.js","/assets/formatNumber-CLRooR19.js","/assets/searchFieldModel-BVRKN8Hm.js"];var createEntryHrefs=["/assets/CreateAppRoot-Dv8HyJf1.js"];var createEditorHrefs=["/assets/EditorPage-5zQ1smTC.js"];var playEntryHrefs=["/assets/PlayEntry-B9FauNWm.js","/assets/PlayRedirect-BZ0s2Axe.js","/assets/playerPageModel-DljY3UH0.js","/assets/stableFeedSession-h4pL-2Zq.js","/assets/useOccludePlayFeedTabs-BP6jAFZp.js","/assets/compactFeedActionBarModel-sI4Ailax.js","/assets/multiplayer-T5A3S68v.js","/assets/feedStartCard-9k47IwVr.js","/assets/formatNumber-CLRooR19.js"];var playSurfaceHrefs=["/assets/PlayerPage-Bx9jYZFR.js","/assets/GameFrame-DtESvoRo.js","/assets/useFeedRuntimePolicy-C-0fMJoT.js","/assets/three.core-UYETHisd.js","/assets/three.module-D1o2Rojt.js","/assets/EditorWaitBattleSurface-CVae6YBO.js","/assets/ProfileShareButton-CilGSc4S.js","/assets/GLTFLoader-CSUJvW-q.js","/assets/capacitorx-battle-pool-D1Y5EIcG.js","/assets/OrbitControls-Bq-l3yTl.js","/assets/useGameSlidePostGamePresentation-CscoFYTn.js","/assets/GameOverShareCta-c6CcZrMC.js","/assets/gameDescription-Bbq4M_AX.js","/assets/desktopGameActionRailModel-nx2jfeK6.js","/assets/playTracking-D33jgK66.js","/assets/editorStore--mKib3AV.js","/assets/playerApi-BQsmecXQ.js","/assets/editProgress-D3UwRznO.js","/assets/chatMessageProtocol-Cv7l1B03.js","/assets/GameOverResultOverlay-B4VH05XR.js","/assets/adminUsers-DOqfZAhd.js","/assets/partyErrorMessages-9YtrmO5O.js","/assets/UserReportModal-jkEl-_sW.js","/assets/vendor-libs-CQpuJNbN.js","/assets/game-frame-init-DMMMWsyj.js","/assets/chatAttachments-CHVbA1qU.js","/assets/feedRuntimePolicy-CPsSN9bp.js","/assets/instajamVoteStarModel-BjroZ8Vi.js","/assets/puzzlesEntryModel-BOHmoUpD.js","/assets/gameModeration-DEoNSEl-.js","/assets/audioPrefs-Btf4eXio.js","/assets/editorBuilds-C8pqpTdU.js","/assets/CreatorBadges-DzFKPN9e.js","/assets/ArenaVoteBar-c-UJb-V9.js","/assets/VolumeControl-DyITx6ip.js","/assets/thinGameFrameModel-B5RA1F6G.js","/assets/userSafety-5_awbn6M.js","/assets/pixelGuestPlayModel-DnkTGFzI.js","/assets/StoreBadgeLinks-2IGbBJCN.js","/assets/playAttemptCorrelation-DWZmBaT4.js","/assets/imessageBridge-p0aQPnH0.js","/assets/sound-BjXdXiwN.js","/assets/assets-Db_0kpiP.js","/assets/friendPresence-DDy5L8yc.js","/assets/shareGrowth-BfQPBcsx.js","/assets/editorGeneration-CYUHwwye.js","/assets/usePlayerPageScrollLock-BnWR16qJ.js","/assets/usePublicRoomList-we2FN9kp.js","/assets/gameLoadDeviceProbe-BoTJCQFE.js","/assets/compactGameActionBarModel-D73s8CDp.js","/assets/userReportModalModel-zyqq61VB.js","/assets/cspSrcDoc-Bbr5XU2G.js","/assets/builtGameArtifact-h-gRVNbB.js","/assets/gameDistributionModel-DGdtEA_e.js","/assets/gameReportsApi-BBRYCZTJ.js","/assets/feedSnapshotPolicy-Cdo5bwPK.js","/assets/react-BTQ2jiDF.js","/assets/share-2-kuCDGk2e.js","/assets/gameChallengeResults-McI9XHVU.js","/assets/relay-C7U3yJF5.js","/assets/meshoptGltfLoader-Cyo7bbyJ.js","/assets/gameDisplay-CknC7oMN.js","/assets/gameCard-UVuCB7Yy.js","/assets/relativeTime-DbTIgD74.js","/assets/runtime-error-context-BvBHhr8W.js","/assets/soundBrowseApi-BCGdu5xC.js","/assets/history-BhyEh8wI.js","/assets/copy-DIDb9vzo.js","/assets/convexSiteOrigin-B1QVOuWa.js","/assets/useLeaderboardSubmission-BV4xFjoF.js","/assets/square-CiBR7Vp7.js","/assets/check-CdffPymY.js","/assets/profileShare-CRetZaK-.js","/assets/gameStatVisibility-DUtiXsNU.js","/assets/game-frame-contract-J4naQ7Gd.js","/assets/mobileDiscovery-C11PuTFv.js","/assets/profileIdentity-CDVkY1jZ.js"];var browseWarmHrefs=["/assets/PlayEntry-B9FauNWm.js","/assets/PlayRedirect-BZ0s2Axe.js","/assets/stableFeedSession-h4pL-2Zq.js","/assets/useOccludePlayFeedTabs-BP6jAFZp.js","/assets/compactFeedActionBarModel-sI4Ailax.js"];var desktopRootExplore=false;var mobileRootBuildRoute="direct_play";var added={};function add(hrefs){for(var i=0;i<hrefs.length;i++){if(added[hrefs[i]])continue;added[hrefs[i]]=true;var link=document.createElement("link");link.rel="modulepreload";link.crossOrigin="";link.href=hrefs[i];document.head.appendChild(link);}}var connection=navigator.connection;var effectiveType=connection&&connection.effectiveType||"";var constrained=!!(connection&&(connection.saveData||effectiveType==="slow-2g"||effectiveType==="2g"||effectiveType==="3g"));var path=location.pathname;var phoneEntry=typeof window.matchMedia==="function"&&window.matchMedia("(max-width: 767px), (pointer: coarse)").matches;var coarsePointer=typeof window.matchMedia==="function"&&window.matchMedia("(pointer: coarse)").matches;var mobileUserAgent=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent||"");var mobileRootEntry=path==="/"&&(coarsePointer||mobileUserAgent);var hostname=(location.hostname||"").toLowerCase();var rootParams=new URLSearchParams(location.search||"");var frameIds=rootParams.getAll("frame_id");var instanceIds=rootParams.getAll("instance_id");var platforms=rootParams.getAll("platform");var discordLaunch=frameIds.length===1&&!!frameIds[0].trim()&&instanceIds.length===1&&!!instanceIds[0].trim()&&platforms.length===1&&(platforms[0].trim()==="desktop"||platforms[0].trim()==="mobile");var discordProxy=hostname.length>".discordsays.com".length&&hostname.endsWith(".discordsays.com");var dataRoot=hostname==="data.localhost"||hostname.indexOf("data.")===0;var nativeShell=!!window.__INSTAPLAY_NATIVE_SHELL__;if(discordProxy||path==="/__test-user/login")return;if(dataRoot&&((path==="/"&&!discordLaunch)||path==="/admin"||path.indexOf("/admin/")===0)){add(dataPortalHrefs);return;}if(path==="/"&&(nativeShell||dataRoot||discordLaunch)){add(appMountHrefs);return;}var rootBuildRoute=mobileRootEntry?mobileRootBuildRoute:(desktopRootExplore?"explore":"landing");if(mobileRootEntry)document.documentElement.dataset.instaplayNav=rootBuildRoute==="direct_play"?"play":rootBuildRoute==="explore"?"search":rootBuildRoute==="create"?"create":"root";var rootCreateFirst=mobileRootEntry&&rootBuildRoute==="create";var isCreate=path==="/create";var effectiveCreate=isCreate||rootCreateFirst;var committedCreate=false;if(effectiveCreate){var queryPrompt=new URLSearchParams(location.search||"").get("prompt");committedCreate=!!(queryPrompt&&queryPrompt.trim());if(!committedCreate){try{var storedPrompt=window.sessionStorage.getItem("arcade_pending_prompt");committedCreate=!!(storedPrompt&&storedPrompt.trim());}catch(_error){}}}var createFirst=((isCreate&&phoneEntry)||rootCreateFirst)&&!nativeShell;if(createFirst){add(createEntryHrefs);if(committedCreate)add(createEditorHrefs);return;}add(path==="/explore"||path==="/search"?browseAppMountHrefs:appMountHrefs);var isPlay=path==="/play"||path.indexOf("/play/")===0||path.indexOf("/game/")===0||(path==="/"&&rootBuildRoute==="direct_play");if(isPlay&&path!=="/play/battle"){add(playEntryHrefs);if(!constrained)add(playSurfaceHrefs);return;}if(isCreate){if(committedCreate)add(createEditorHrefs);return;}var isLanding=path==="/"&&rootBuildRoute==="landing";var isBrowse=path==="/explore"||path.indexOf("/explore/")===0||path==="/search"||(path==="/"&&rootBuildRoute==="explore");if(!isLanding&&!isBrowse)return;add(isLanding?landingEntryHrefs:browseEntryHrefs);if(path==="/search"||constrained)return;var done=false;function once(){if(done)return;done=true;add(browseWarmHrefs);}function idle(){if("requestIdleCallback" in window){requestIdleCallback(once,{timeout:2000});}else{setTimeout(once,1500);}}if(document.readyState==="complete"){idle();}else{addEventListener("load",idle,{once:true});}})();</script>
+    <script>(function(){var path=location.pathname;var isPlay=path==="/play"||(path.indexOf("/play/")===0&&path!=="/play/battle")||path.indexOf("/game/")===0;if(isPlay)return;var hrefs=["/assets/geist-pixel-square-B0mEoKr8.woff2?dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1","/assets/space-grotesk-latin-DPT1xrvW.woff2?dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1"];for(var i=0;i<hrefs.length;i++){var link=document.createElement("link");link.rel="preload";link.as="font";link.type="font/woff2";link.crossOrigin="";link.href=hrefs[i];document.head.appendChild(link);}})();</script>
+  </head>
+  <body style="margin:0;background:var(--color-arcade-bg,#0f0d13)">
+    <script>
+      (function () {
+        function updateArcadeRouteMarker() {
+          if (location.pathname.startsWith("/edit/")) {
+            document.documentElement.dataset.arcadeRoute = "edit";
+          } else {
+            delete document.documentElement.dataset.arcadeRoute;
+          }
+        }
+        var pushState = history.pushState;
+        var replaceState = history.replaceState;
+        history.pushState = function () {
+          var result = pushState.apply(this, arguments);
+          updateArcadeRouteMarker();
+          return result;
+        };
+        history.replaceState = function () {
+          var result = replaceState.apply(this, arguments);
+          updateArcadeRouteMarker();
+          return result;
+        };
+        window.addEventListener("popstate", updateArcadeRouteMarker);
+        updateArcadeRouteMarker();
+      })();
+    </script>
+    <div id="root">
+      <div
+        aria-label="Loading Instaplay"
+        data-root-paint-fallback
+        style="box-sizing:border-box;min-height:100dvh;display:flex;align-items:center;justify-content:center;background:#0f0d13;color:#f7f3ee;font-family:var(--font-body,'Geist Pixel Square',Inter,ui-sans-serif,system-ui,sans-serif)"
+      >
+        <!-- Persistent tab bar: keep this first in #root so constrained
+             document streaming reaches it before every other shell surface.
+             It stays inert until React replaces it with MobileNav. -->
+        <div
+          aria-hidden="true"
+          data-root-mobile-nav-fallback
+          style="box-sizing:border-box;position:absolute;z-index:5;left:0;right:0;bottom:0;height:calc(45px + max(4px, calc(var(--instaplay-native-safe-area-bottom, env(safe-area-inset-bottom,0px)) - 8px)));display:none;grid-template-columns:repeat(5,minmax(0,1fr));align-items:start;border-top:1px solid rgba(255,255,255,0.06);background:#0f0d13;padding:4px 8px max(4px, calc(var(--instaplay-native-safe-area-bottom, env(safe-area-inset-bottom,0px)) - 8px));color:rgba(255,255,255,0.82)"
+        >
+          <span
+            data-root-mobile-nav-pressable
+            data-root-mobile-nav-tab="play"
+            style="height:40px;display:flex;align-items:center;justify-content:center"
+          >
+            <svg width="27" height="27" viewBox="-4 -8 104 104" fill="none" shape-rendering="crispEdges">
+              <path d="M46 1H50V2H46ZM43 2H53V3H43ZM41 3H55V4H41ZM40 4H56V5H40ZM39 5H57V6H39ZM38 6H58V7H38ZM37 7H59V8H37ZM36 8H60V9H36ZM35 9H45V10H35ZM51 9H61V10H51ZM34 10H44V11H34ZM52 10H62V11H52ZM33 11H43V12H33ZM53 11H63V12H53ZM32 12H42V13H32ZM54 12H64V13H54ZM31 13H41V14H31ZM55 13H65V14H55ZM30 14H40V15H30ZM56 14H66V15H56ZM29 15H39V16H29ZM57 15H67V16H57ZM28 16H38V17H28ZM58 16H68V17H58ZM27 17H37V18H27ZM59 17H69V18H59ZM26 18H36V19H26ZM60 18H70V19H60ZM25 19H35V20H25ZM61 19H71V20H61ZM24 20H34V21H24ZM62 20H72V21H62ZM23 21H33V22H23ZM63 21H73V22H63ZM22 22H32V23H22ZM64 22H74V23H64ZM21 23H31V24H21ZM65 23H75V24H65ZM20 24H30V25H20ZM66 24H76V25H66ZM19 25H29V26H19ZM67 25H77V26H67ZM18 26H28V27H18ZM68 26H78V27H68ZM17 27H27V28H17ZM69 27H79V28H69ZM16 28H26V29H16ZM70 28H80V29H70ZM15 29H25V30H15ZM71 29H81V30H71ZM14 30H24V31H14ZM72 30H82V31H72ZM13 31H23V32H13ZM73 31H83V32H73ZM12 32H22V33H12ZM74 32H84V33H74ZM11 33H21V34H11ZM75 33H85V34H75ZM10 34H20V35H10ZM76 34H86V35H76ZM10 35H19V36H10ZM77 35H86V36H77ZM9 36H18V37H9ZM78 36H87V37H78ZM9 37H17V38H9ZM79 37H87V38H79ZM9 38H16V39H9ZM80 38H87V39H80ZM8 39H16V40H8ZM80 39H88V40H80ZM8 40H16V41H8ZM80 40H88V41H80ZM8 41H16V42H8ZM80 41H88V42H80ZM8 42H16V43H8ZM80 42H88V43H80ZM8 43H16V44H8ZM80 43H88V44H80ZM8 44H16V45H8ZM39 44H57V45H39ZM80 44H88V45H80ZM8 45H16V46H8ZM36 45H60V46H36ZM80 45H88V46H80ZM8 46H16V47H8ZM35 46H61V47H35ZM80 46H88V47H80ZM8 47H16V48H8ZM34 47H62V48H34ZM80 47H88V48H80ZM8 48H16V49H8ZM33 48H63V49H33ZM80 48H88V49H80ZM8 49H16V50H8ZM33 49H63V50H33ZM80 49H88V50H80ZM8 50H16V51H8ZM33 50H63V51H33ZM80 50H88V51H80ZM8 51H16V52H8ZM32 51H64V52H32ZM80 51H88V52H80ZM8 52H16V53H8ZM32 52H40V53H32ZM56 52H64V53H56ZM80 52H88V53H80ZM8 53H16V54H8ZM32 53H40V54H32ZM56 53H64V54H56ZM80 53H88V54H80ZM8 54H16V55H8ZM32 54H40V55H32ZM56 54H64V55H56ZM80 54H88V55H80ZM8 55H16V56H8ZM32 55H40V56H32ZM56 55H64V56H56ZM80 55H88V56H80ZM8 56H16V57H8ZM32 56H40V57H32ZM56 56H64V57H56ZM80 56H88V57H80ZM8 57H16V58H8ZM32 57H40V58H32ZM56 57H64V58H56ZM80 57H88V58H80ZM8 58H16V59H8ZM32 58H40V59H32ZM56 58H64V59H56ZM80 58H88V59H80ZM8 59H16V60H8ZM32 59H40V60H32ZM56 59H64V60H56ZM80 59H88V60H80ZM8 60H16V61H8ZM32 60H40V61H32ZM56 60H64V61H56ZM80 60H88V61H80ZM8 61H16V62H8ZM32 61H40V62H32ZM56 61H64V62H56ZM80 61H88V62H80ZM8 62H16V63H8ZM32 62H40V63H32ZM56 62H64V63H56ZM80 62H88V63H80ZM8 63H16V64H8ZM32 63H40V64H32ZM56 63H64V64H56ZM80 63H88V64H80ZM8 64H16V65H8ZM32 64H40V65H32ZM56 64H64V65H56ZM80 64H88V65H80ZM8 65H16V66H8ZM32 65H40V66H32ZM56 65H64V66H56ZM80 65H88V66H80ZM8 66H16V67H8ZM32 66H40V67H32ZM56 66H64V67H56ZM80 66H88V67H80ZM8 67H16V68H8ZM32 67H40V68H32ZM56 67H64V68H56ZM80 67H88V68H80ZM8 68H16V69H8ZM32 68H40V69H32ZM56 68H64V69H56ZM80 68H88V69H80ZM8 69H16V70H8ZM32 69H40V70H32ZM56 69H64V70H56ZM80 69H88V70H80ZM8 70H16V71H8ZM32 70H40V71H32ZM56 70H64V71H56ZM80 70H88V71H80ZM8 71H16V72H8ZM32 71H40V72H32ZM56 71H64V72H56ZM80 71H88V72H80ZM8 72H16V73H8ZM32 72H40V73H32ZM56 72H64V73H56ZM80 72H88V73H80ZM8 73H16V74H8ZM32 73H40V74H32ZM56 73H64V74H56ZM80 73H88V74H80ZM8 74H16V75H8ZM32 74H40V75H32ZM56 74H64V75H56ZM80 74H88V75H80ZM8 75H16V76H8ZM32 75H40V76H32ZM56 75H64V76H56ZM80 75H88V76H80ZM8 76H16V77H8ZM32 76H40V77H32ZM56 76H64V77H56ZM80 76H88V77H80ZM9 77H16V78H9ZM32 77H40V78H32ZM56 77H64V78H56ZM80 77H87V78H80ZM9 78H16V79H9ZM32 78H40V79H32ZM56 78H64V79H56ZM80 78H87V79H80ZM9 79H17V80H9ZM32 79H40V80H32ZM56 79H64V80H56ZM79 79H87V80H79ZM9 80H87V81H9ZM10 81H86V82H10ZM10 82H86V83H10ZM11 83H85V84H11ZM12 84H84V85H12ZM13 85H83V86H13ZM15 86H81V87H15ZM19 87H77V88H19Z" fill="currentColor" fill-rule="nonzero"/>
+            </svg>
+          </span>
+          <span
+            data-root-mobile-nav-pressable
+            data-root-mobile-nav-tab="search"
+            style="height:40px;display:flex;align-items:center;justify-content:center"
+          >
+            <svg width="27" height="27" viewBox="0 -3.5 52 52" fill="none" shape-rendering="crispEdges">
+              <path d="M15 1H23V2H15ZM12 2H26V3H12ZM10 3H28V4H10ZM8 4H30V5H8ZM7 5H31V6H7ZM6 6H15V7H6ZM23 6H32V7H23ZM5 7H13V8H5ZM25 7H33V8H25ZM4 8H11V9H4ZM27 8H34V9H27ZM4 9H10V10H4ZM28 9H34V10H28ZM3 10H9V11H3ZM29 10H35V11H29ZM3 11H8V12H3ZM30 11H35V12H30ZM2 12H8V13H2ZM30 12H36V13H30ZM2 13H7V14H2ZM31 13H36V14H31ZM2 14H7V15H2ZM31 14H36V15H31ZM1 15H6V16H1ZM32 15H37V16H32ZM1 16H6V17H1ZM32 16H37V17H32ZM1 17H6V18H1ZM32 17H37V18H32ZM1 18H6V19H1ZM32 18H37V19H32ZM1 19H6V20H1ZM32 19H37V20H32ZM1 20H6V21H1ZM32 20H37V21H32ZM1 21H6V22H1ZM32 21H37V22H32ZM1 22H6V23H1ZM32 22H37V23H32ZM2 23H7V24H2ZM31 23H36V24H31ZM2 24H7V25H2ZM31 24H36V25H31ZM2 25H8V26H2ZM30 25H36V26H30ZM3 26H8V27H3ZM30 26H35V27H30ZM3 27H9V28H3ZM29 27H35V28H29ZM4 28H10V29H4ZM28 28H34V29H28ZM4 29H11V30H4ZM27 29H34V30H27ZM5 30H13V31H5ZM25 30H33V31H25ZM6 31H15V32H6ZM23 31H32V32H23ZM7 32H31V33H7ZM8 33H30V34H8ZM10 34H28V35H10ZM12 35H26V36H12ZM15 36H23V37H15Z" fill="currentColor" fill-rule="nonzero"/>
+              <path d="M29 28H33V29H29ZM28 29H34V30H28ZM28 30H35V31H28ZM28 31H36V32H28ZM28 32H37V33H28ZM29 33H38V34H29ZM30 34H39V35H30ZM31 35H40V36H31ZM32 36H41V37H32ZM33 37H42V38H33ZM34 38H43V39H34ZM35 39H44V40H35ZM36 40H44V41H36ZM37 41H44V42H37ZM38 42H44V43H38ZM39 43H43V44H39Z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span
+            data-root-mobile-nav-pressable
+            data-root-mobile-nav-tab="create"
+            style="height:40px;display:flex;align-items:center;justify-content:center"
+          >
+            <span
+              style="width:48px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:#e94560;color:#fff"
+            >
+              <svg data-root-mobile-nav-create-plus width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12h14M12 5v14" stroke="currentColor" stroke-linecap="round" stroke-width="2"/>
+              </svg>
+              <svg data-root-mobile-nav-create-play width="16" height="16" viewBox="0 0 24 24" fill="none" style="display:none">
+                <path d="M7 4.8 19.5 12 7 19.2Z" fill="currentColor" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </span>
+          <span
+            data-root-mobile-nav-pressable
+            data-root-mobile-nav-tab="library"
+            style="height:40px;display:flex;align-items:center;justify-content:center"
+          >
+            <svg width="27" height="27" viewBox="1 1 22 22" fill="none" shape-rendering="crispEdges">
+              <path d="M4 3h6v1h1v6h-1v1H4v-1H3V4h1ZM5 5h4v4H5Z" fill="currentColor" fill-rule="evenodd"/>
+              <path d="M14 3h6v1h1v6h-1v1h-6v-1h-1V4h1ZM15 5h4v4h-4Z" fill="currentColor" fill-rule="evenodd"/>
+              <path d="M4 13h6v1h1v6h-1v1H4v-1H3v-6h1ZM5 15h4v4H5Z" fill="currentColor" fill-rule="evenodd"/>
+              <path d="M14 13h6v1h1v6h-1v1h-6v-1h-1v-6h1ZM15 15h4v4h-4Z" fill="currentColor" fill-rule="evenodd"/>
+            </svg>
+          </span>
+          <span
+            data-root-mobile-nav-pressable
+            data-root-mobile-nav-tab="profile"
+            style="height:40px;display:flex;align-items:center;justify-content:center"
+          >
+            <svg width="29" height="29" viewBox="-0.5 -0.5 53 53" fill="none">
+              <path d="M21 2H31V3H34V4H37V5H38V6H40V7H41V8H42V9H43V10H44V11H45V12H46V13H46V14H47V15H48V16H48V17H48V18H49V19H49V20H49V21H50V22H50V23H50V24H50V25H50V26H50V27H50V28H50V29H50V30H50V31H49V32H49V33H49V34H48V35H48V36H48V37H47V38H46V39H46V40H45V41H44V42H43V43H42V44H41V45H40V46H38V47H37V48H34V49H31V50H21V49H18V48H15V47H14V46H12V45H11V44H10V43H9V42H8V41H7V40H6V39H6V38H5V37H4V36H4V35H4V34H3V33H3V32H3V31H2V30H2V29H2V28H2V27H2V26H2V25H2V24H2V23H2V22H2V21H3V20H3V19H3V18H4V17H4V16H4V15H5V14H6V13H6V12H7V11H8V10H9V9H10V8H11V7H12V6H14V5H15V4H18V3H21V2ZM22 6H30V7H34V8H36V9H37V10H39V11H40V12H41V13H42V14H42V15H43V16H44V17H44V18H45V19H45V20H45V21H45V22H46V23H46V24H46V25H46V26H46V27H46V28H46V29H46V30H45V31H45V32H45V33H45V34H44V35H44V36H43V37H42V38H42V39H41V40H40V41H39V42H37V43H36V44H34V45H30V46H22V45H18V44H16V43H15V42H13V41H12V40H11V39H10V38H10V37H9V36H8V35H8V34H7V33H7V32H7V31H7V30H6V29H6V28H6V27H6V26H6V25H6V24H6V23H6V22H7V21H7V20H7V19H7V18H8V17H8V16H9V15H10V14H10V13H11V12H12V11H13V10H15V9H16V8H18V7H22V6Z" fill="currentColor" fill-rule="evenodd" shape-rendering="crispEdges"/>
+              <path d="M23 12H29V13H31V14H32V15H33V16H33V17H34V18H34V19H34V20H34V21H34V22H34V23H33V24H33V25H32V26H31V27H29V28H23V27H21V26H20V25H19V24H19V23H18V22H18V21H18V20H18V19H18V18H18V17H19V16H19V15H20V14H21V13H23V12ZM24 15H28V16H30V17H30V18H31V19H31V20H31V21H31V22H30V23H30V24H28V25H24V24H22V23H22V22H21V21H21V20H21V19H21V18H22V17H22V16H24V15Z" fill="currentColor" fill-rule="evenodd" shape-rendering="crispEdges" transform="translate(0 1)"/>
+              <path d="M15 42V39H16V37H17V35H19V34H21V33H24V32H28V33H31V34H33V35H35V37H36V39H37V42" fill="none" stroke="currentColor" stroke-linecap="square" stroke-linejoin="miter" stroke-width="3" shape-rendering="crispEdges" transform="translate(0 1)"/>
+            </svg>
+          </span>
+        </div>
+        <div data-root-wordmark-fallback style="display:flex;align-items:center;gap:10px">
+          <img
+            alt=""
+            aria-hidden="true"
+            decoding="async"
+            height="30"
+            src="/icon-512.png?v=20260630b&dpl=dpl_DtRa3fVj1rWUWMEgG1tHRh4CdVQ1"
+            style="display:block;border-radius:7px"
+            width="30"
+          />
+          <span style="color:#E94560;font-family:var(--font-logo,'Space Grotesk',Inter,ui-sans-serif,system-ui,sans-serif);font-size:22px;font-weight:800;line-height:1;letter-spacing:0">instaplay</span>
+        </div>
+        <div
+          aria-hidden="true"
+          data-root-play-paint-fallback
+          style="box-sizing:border-box;display:none;position:absolute;inset:0;width:100%;min-height:100dvh;flex-direction:column;overflow:hidden;background:#000"
+        >
+          <div style="min-height:0;flex:1;background:#000"></div>
+          <div
+            data-root-play-action-bar-placeholder
+            style="box-sizing:border-box;position:relative;height:var(--compact-action-bar-content-height,3rem);flex-shrink:0;display:flex;align-items:center;overflow:hidden;border-top:1px solid rgba(255,255,255,0.06);background:#000;padding:0 12px"
+          >
+            <div
+              style="box-sizing:border-box;width:100%;display:flex;align-items:center;justify-content:space-between;padding-left:52px;padding-right:8px;opacity:0.35"
+            >
+              <div style="display:flex;align-items:center;gap:12px">
+                <span style="width:20px;height:20px;border-radius:5px;background:rgba(255,255,255,0.20)"></span>
+                <span style="width:20px;height:20px;border-radius:5px;background:rgba(255,255,255,0.20)"></span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px">
+                <span style="box-sizing:border-box;width:20px;height:20px;border:2px solid rgba(255,255,255,0.20);border-radius:50%"></span>
+                <span style="width:24px;height:20px;border-radius:5px;background:rgba(255,255,255,0.20)"></span>
+              </div>
+            </div>
+            <span
+              data-root-play-center-arrow-placeholder
+              style="box-sizing:border-box;position:absolute;left:50%;top:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);border:1px solid rgba(255,255,255,0.15);border-radius:10px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.45)"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M12 5.5v13.5M17.5 13.5l-5.5 5.5-5.5-5.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+          <div
+            style="box-sizing:border-box;height:var(--mobile-nav-height,3rem);flex-shrink:0;border-top:1px solid rgba(255,255,255,0.06);background:#0f0d13"
+          ></div>
+        </div>
+        <div
+          aria-hidden="true"
+          data-root-create-paint-fallback
+          style="box-sizing:border-box;display:none;min-height:100dvh;width:100%;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:#0f0d13"
+        >
+          <span style="width:180px;height:12px;margin-bottom:24px;background:rgba(255,255,255,0.12)"></span>
+          <span style="box-sizing:border-box;width:100%;max-width:560px;height:108px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.03)"></span>
+        </div>
+        <div
+          aria-hidden="true"
+          data-root-native-paint-fallback
+          style="box-sizing:border-box;display:none;min-height:100dvh;width:100%;flex-direction:column;overflow:hidden;background:#08070c"
+        >
+          <div
+            style="box-sizing:border-box;padding:16px 16px 16px;display:flex;align-items:center;gap:6px"
+          >
+            <span style="width:40px;height:44px;flex-shrink:0"></span>
+            <div
+              style="box-sizing:border-box;flex:1;height:44px;display:flex;align-items:center;gap:11px;border:1px solid rgba(255,255,255,0.12);border-radius:3px;background:#0a0c0d;padding:0 14px"
+            >
+              <span
+                style="box-sizing:border-box;width:17px;height:17px;border:2px solid rgba(255,255,255,0.45);border-radius:50%;position:relative;display:block"
+              >
+                <span
+                  style="position:absolute;width:7px;height:2px;right:-5px;bottom:-3px;background:rgba(255,255,255,0.45);transform:rotate(45deg);border-radius:2px"
+                ></span>
+              </span>
+              <span
+                style="display:block;width:92px;height:8px;border-radius:999px;background:#393640"
+              ></span>
+            </div>
+          </div>
+          <div
+            style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;min-height:0;flex:1;overflow:hidden;background:#08070c"
+          >
+            <span style="aspect-ratio:4/5;background:#17161c"></span>
+            <span style="aspect-ratio:4/5;background:#15141a"></span>
+            <span style="aspect-ratio:4/5;background:#17161c"></span>
+            <span style="aspect-ratio:4/5;background:#15141a"></span>
+            <span style="aspect-ratio:4/5;background:#17161c"></span>
+            <span style="aspect-ratio:4/5;background:#15141a"></span>
+            <span style="aspect-ratio:4/5;background:#17161c"></span>
+            <span style="aspect-ratio:4/5;background:#15141a"></span>
+            <span style="aspect-ratio:4/5;background:#17161c"></span>
+            <span style="aspect-ratio:4/5;background:#15141a"></span>
+            <span style="aspect-ratio:4/5;background:#17161c"></span>
+            <span style="aspect-ratio:4/5;background:#15141a"></span>
+          </div>
+          <!-- The shared parser-painted bar is positioned over this reserved
+               slot so native and web use one static glyph source. -->
+          <div
+            aria-hidden="true"
+            style="height:calc(45px + max(4px, calc(var(--instaplay-native-safe-area-bottom, env(safe-area-inset-bottom,0px)) - 8px)));flex-shrink:0"
+          ></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Player and My Games routes use a true-black canvas from the first
+      // parser paint. React continues this through useShellBlackCanvas; doing
+      // the same work here prevents the generic purple wordmark fallback from
+      // flashing before the route bundle and thumbnail are ready.
+      (function () {
+        var path = location.pathname;
+        var pureBlackRoute =
+          path === "/play" ||
+          path.indexOf("/play/") === 0 ||
+          path.indexOf("/game/") === 0 ||
+          path === "/my-games" ||
+          path.indexOf("/my-games/") === 0;
+        if (!pureBlackRoute) return;
+        document.documentElement.style.background = "#000";
+        document.body.style.background = "#000";
+        var fallback = document.querySelector("[data-root-paint-fallback]");
+        if (fallback) fallback.style.background = "#000";
+        var wordmark = document.querySelector("[data-root-wordmark-fallback]");
+        if (wordmark) wordmark.style.display = "none";
+        var themeColor = document.querySelector('meta[name="theme-color"]');
+        if (themeColor) themeColor.setAttribute("content", "#000000");
+      })();
+    </script>
+    <noscript>
+      <div style="min-height:100dvh;background:#0f0d13;color:#f7f3ee;font-family:var(--font-body,'Geist Pixel Square',Inter,ui-sans-serif,system-ui,sans-serif)">
+        <header style="border-bottom:1px solid rgba(255,255,255,0.08)">
+          <nav style="max-width:1080px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:24px">
+            <a href="/" style="font-family:var(--font-logo,'Space Grotesk',Inter,ui-sans-serif,system-ui,sans-serif);font-size:22px;font-weight:700;color:#E94560;text-decoration:none">instaplay</a>
+            <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:14px">
+              <a href="/explore" style="color:#ff5c77;text-decoration:none">Explore</a>
+              <a href="/about" style="color:#ff5c77;text-decoration:none">About</a>
+              <a href="/blog" style="color:#ff5c77;text-decoration:none">Blog</a>
+              <a href="/create" style="color:#ff5c77;text-decoration:none">Create</a>
+            </div>
+          </nav>
+        </header>
+        <main style="max-width:1080px;margin:0 auto;padding:54px 24px 80px">
+          <section style="display:flex;flex-direction:column;gap:20px;max-width:760px">
+            <p style="margin:0;color:#8b8495;font-family:var(--font-pixel,'Geist Pixel Square',Inter,ui-sans-serif,system-ui,sans-serif);font-size:13px;text-transform:uppercase;letter-spacing:0.08em">Text to game in the browser</p>
+            <h1 style="margin:0;color:#fff9f2;font-size:clamp(40px,7vw,76px);line-height:0.98;letter-spacing:0">Instaplay: Free AI Game Maker</h1>
+            <p style="margin:0;color:#cfc6d8;font-size:21px;line-height:1.6">Describe a game in plain English and turn it into a playable browser game. No coding, no download, no game engine to learn.</p>
+            <div style="display:flex;flex-wrap:wrap;gap:12px">
+              <a href="/create" style="display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 20px;border-radius:8px;background:#e94560;color:#fff;font-weight:700;text-decoration:none">Make a Game</a>
+              <a href="/explore" style="display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 20px;border-radius:8px;background:#24202b;border:1px solid rgba(255,255,255,0.12);color:#f7f3ee;font-weight:700;text-decoration:none">Play Instaplay games</a>
+            </div>
+          </section>
+          <section style="margin-top:52px;padding-top:34px;border-top:1px solid rgba(255,255,255,0.08)">
+            <h2 style="margin:0 0 14px;color:#fff9f2;font-size:32px;line-height:1.12">No-code game generator</h2>
+            <p style="margin:0;color:#cfc6d8;font-size:18px;line-height:1.6">Create arcade games, puzzles, runners, racers, party games, and multiplayer experiences from simple text prompts. Start from an idea, browse playable examples, then make your own game.</p>
+            <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:18px">
+              <a href="/about" style="color:#ff5c77;text-decoration:none">Official Instaplay identity</a>
+              <a href="/blog/what-is-instaplay" style="color:#ff5c77;text-decoration:none">What is Instaplay?</a>
+              <a href="/ai-multiplayer-game-maker" style="color:#ff5c77;text-decoration:none">Multiplayer AI game maker</a>
+              <a href="/blog" style="color:#ff5c77;text-decoration:none">Instaplay blog</a>
+              <a href="/blog/how-to-make-a-game-with-ai" style="color:#ff5c77;text-decoration:none">How to make a game with AI</a>
+              <a href="/blog/best-ai-game-generators" style="color:#ff5c77;text-decoration:none">Best AI game generators</a>
+              <a href="/blog/turn-any-idea-into-a-game" style="color:#ff5c77;text-decoration:none">Turn any idea into a browser game</a>
+              <a href="/ai-game-maker" style="color:#ff5c77;text-decoration:none">AI game maker guide</a>
+              <a href="/make-browser-games-with-ai" style="color:#ff5c77;text-decoration:none">Make browser games with AI</a>
+              <a href="/social" style="color:#ff5c77;text-decoration:none">Community</a>
+              <a href="/demo" style="color:#ff5c77;text-decoration:none">Live demo</a>
+              <a href="https://developer.mozilla.org/en-US/docs/Games" rel="noopener" style="color:#ff5c77;text-decoration:none">MDN game development</a>
+              <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API" rel="noopener" style="color:#ff5c77;text-decoration:none">Canvas API</a>
+            </div>
+          </section>
+        </main>
+      </div>
+    </noscript>
+  </body>
+  </html>

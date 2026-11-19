@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bombeiro: Cidade em Alerta</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101820;color:#f4f7fb;font-family:system-ui,Arial,sans-serif}
+header{padding:12px 18px;background:#172635;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{font-size:20px;margin:0;color:#ffcf66}.stats{display:flex;gap:14px;flex-wrap:wrap;font-size:14px}
+main{max-width:1100px;margin:14px auto;padding:0 12px}.gamewrap{position:relative;background:#263b37;border:3px solid #52656a;border-radius:12px;overflow:hidden}
+canvas{display:block;width:100%;height:auto;background:#7a9b74;image-rendering:pixelated}
+#toast{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:#13212ddd;padding:9px 14px;border-radius:8px;text-align:center;max-width:90%;font-size:14px;pointer-events:none}
+.panel{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}.card{background:#172635;border:1px solid #33495a;border-radius:10px;padding:12px;flex:1;min-width:220px}
+.card h2{font-size:16px;margin:0 0 7px;color:#ffcf66}.card p{margin:4px 0;font-size:14px;line-height:1.4}
+button{background:#e45b32;color:white;border:0;border-radius:7px;padding:9px 13px;font-weight:700;cursor:pointer}button:hover{background:#ff7548}
+.small{color:#b8c7d4;font-size:12px}.bar{height:9px;background:#40515c;border-radius:10px;overflow:hidden;margin-top:5px}.fill{height:100%;background:#45c78a;width:100%}
+#start{position:absolute;inset:0;background:#0c1722eF;display:grid;place-items:center;text-align:center;padding:22px}
+#start .box{max-width:520px}#start h2{color:#ffcf66;font-size:28px;margin:0 0 8px}#start p{line-height:1.5}
+kbd{background:#344653;padding:2px 6px;border-radius:4px}
+@media(max-width:600px){.stats{font-size:12px}header{align-items:flex-start}#toast{font-size:12px}}
+</style>
+</head>
+<body>
+<header><h1>🚒 BOMBEIRO: CIDADE EM ALERTA</h1><div class="stats">
+<span>⭐ Pontos: <b id="score">0</b></span><span>🧯 Água: <b id="water">100</b>%</span><span>🚨 Chamados: <b id="calls">0/5</b></span>
+</div></header>
+<main>
+<div class="gamewrap">
+<canvas id="game" width="960" height="600"></canvas>
+<div id="toast">Explore a cidade e atenda aos chamados!</div>
+<div id="start"><div class="box"><h2>🚒 Cidade em Alerta</h2><p>Você é o bombeiro de plantão! Explore um mapa aberto, dirija o caminhão, ajude moradores e resolva emergências fictícias pela cidade.</p><p><b>Controles:</b> <kbd>WASD</kbd> ou setas para andar · <kbd>E</kbd> interagir / apagar fogo · <kbd>F</kbd> entrar ou sair do caminhão · <kbd>R</kbd> reabastecer na estação</p><button id="play">INICIAR PLANTÃO</button><p class="small">Jogo de aventura fictício. Siga as missões e divirta-se!</p></div></div>
+</div>
+<div class="panel">
+<div class="card"><h2>📟 Central de operações</h2><p id="mission">Aguardando início do plantão.</p><p class="small" id="hint">Procure o ícone vermelho no mapa para localizar o próximo chamado.</p></div>
+<div class="card"><h2>🧭 Como jogar</h2><p>• Caminhe pela cidade ou use <b>F</b> para dirigir o caminhão.</p><p>• Chegue perto de um chamado e pressione <b>E</b>.</p><p>• Em incêndios, mantenha <b>E</b> pressionado até apagar as chamas.</p><p>• Volte à estação para recuperar água.</p></div>
+<div class="card"><h2>💧 Reservatório</h2><p>Água disponível: <b id="water2">100%</b></p><div class="bar"><div class="fill" id="waterbar"></div></div><p class="small">A água é usada apenas nas missões de incêndio.</p></div>
+</div>
+</main>
+<script>
+const c=document.getElementById('game'),ctx=c.getContext('2d');
+const W=960,H=600,world={w:1800,h:1300};
+let player={x:850,y:650,speed:2.5},truck={x:850,y:720,active:false},cam={x:0,y:0};
+let keys={},score=0,water=100,done=0,started=false,toastTimer=0,missionIndex=0;
+const station={x:850,y:720};
+const roads=[{x:0,y:570,w:1800,h:100},{x:0,y:950,w:1800,h:90},{x:420,y:0,w:100,h:1300},{x:1250,y:0,w:100,h:1300}];
+const buildings=[
+{x:100,y:100,w:230,h:180,color:'#d9a36f',name:'Mercado'},{x:600,y:100,w:250,h:180,color:'#d9c58b',name:'Escola'},
+{x:1450,y:100,w:230,h:180,color:'#c98d83',name:'Biblioteca'},{x:100,y:760,w:230,h:140,color:'#c8b4a0',name:'Oficina'},
+{x:600,y:1060,w:250,h:150,color:'#c7a1bd',name:'Hospital'},{x:1450,y:760,w:230,h:160,color:'#d4b36c',name:'Parque de eventos'},
+{x:600,y:350,w:220,h:150,color:'#b5c5d4',name:'Prefeitura'},{x:1450,y:350,w:220,h:150,color:'#c9a98c',name:'Casa'}
+];
+let calls=[
+{x:250,y:400,type:'fire',title:'Incêndio no mercado',desc:'Um pequeno foco de fogo apareceu perto do mercado.',progress:0},
+{x:1080,y:220,type:'rescue',title:'Resgate no parque',desc:'Um morador precisa de ajuda para encontrar o caminho até a estação.',progress:0},
+{x:1570,y:620,type:'fire',title:'Fogo na área de eventos',desc:'Há chamas fictícias perto do palco. Use o botão E para apagar.',progress:0},
+{x:720,y:1150,type:'rescue',title:'Ajuda no hospital',desc:'Leve o caminhão até o hospital e converse com a equipe.',progress:0},
+{x:300,y:1080,type:'fire',title:'Incêndio na oficina',desc:'Um foco de fogo precisa ser controlado.',progress:0}
+];
+function msg(t){document.getElementById('toast').textContent=t;toastTimer=180}
+function near(a,b,d=65){return Math.hypot(a.x-b.x,a.y-b.y)<d}
+function updateUI(){
+ document.getElementById('score').textContent=score;document.getElementById('water').textContent=water;
+ document.getElementById('water2').textContent=water+'%';document.getElementById('waterbar').style.width=water+'%';
+ document.getElementById('calls').textContent=done+'/5';
+ let m=calls[missionIndex];document.getElementById('mission').textContent=m?m.title+' — '+m.desc:'Plantão concluído! Você ajudou toda a cidade. Parabéns!';
+ document.getElementById('hint').textContent=m?'Destino: '+Math.round(Math.hypot(m.x-player.x,m.y-player.y))+' m de distância.':'Todas as ocorrências foram resolvidas!';
+}
+function drawWorld(){
+ ctx.fillStyle='#78a36f';ctx.fillRect(0,0,world.w,world.h);
+ // park patches
+ for(let i=0;i<22;i++){let x=(i*173+60)%world.w,y=(i*239+40)%world.h;ctx.fillStyle=i%2?'#83ad76':'#6f9869';ctx.fillRect(x,y,90,70)}
+ // roads
+ roads.forEach(r=>{ctx.fillStyle='#59666a';ctx.fillRect(r.x,r.y,r.w,r.h);ctx.fillStyle='#e5d7a0';
+  if(r.w>r.h){for(let x=0;x<world.w;x+=65)ctx.fillRect(x,r.y+r.h/2-3,32,6)}
+  else{for(let y=0;y<world.h;y+=65)ctx.fillRect(r.x+r.w/2-3,y,6,32)}
+ });
+ // sidewalks and buildings
+ buildings.forEach(b=>{ctx.fillStyle='#d7d4c6';ctx.fillRect(b.x-8,b.y-8,b.w+16,b.h+16);ctx.fillStyle=b.color;ctx.fillRect(b.x,b.y,b.w,b.h);
+ ctx.fillStyle='#59616a';ctx.fillRect(b.x+b.w/2-22,b.y+b.h-35,44,35);
+ ctx.fillStyle='#9ed3e4';for(let x=b.x+20;x<b.x+b.w-20;x+=55)ctx.fillRect(x,b.y+22,24,27);
+ ctx.fillStyle='#26333a';ctx.font='16px Arial';ctx.fillText(b.name,b.x+10,b.y+b.h+20)});
+ // station
+ ctx.fillStyle='#f0eee5';ctx.fillRect(770,690,160,90);ctx.fillStyle='#d94a32';ctx.fillRect(770,690,160,18);
+ ctx.fillStyle='#24313a';ctx.font='bold 16px Arial';ctx.fillText('CORPO DE BOMBEIROS',776,744);ctx.fillStyle='#d94a32';ctx.fillRect(825,750,48,30);
+ // calls
+ calls.forEach((m,i)=>{if(i<missionIndex)return;let pulse=5+Math.sin(Date.now()/180)*3;ctx.fillStyle=m.type==='fire'?'#ed533b':'#358ee0';ctx.beginPath();ctx.arc(m.x,m.y,15+pulse,0,Math.PI*2);ctx.fill();ctx.fillStyle='white';ctx.font='bold 18px Arial';ctx.textAlign='center';ctx.fillText(m.type==='fire'?'!':'+',m.x,m.y+6);ctx.textAlign='left'});
+ // trees
+ for(let i=0;i<30;i++){let x=(i*211+80)%world.w,y=(i*137+300)%world.h;if(roads.some(r=>x>r.x-10&&x<r.x+r.w+10&&y>r.y-10&&y<r.y+r.h+10))continue;
+ ctx.fillStyle='#315f43';ctx.beginPath();ctx.arc(x,y,17,0,Math.PI*2);ctx.fill();ctx.fillStyle='#4e8955';ctx.beginPath();ctx.arc(x-5,y-5,12,0,Math.PI*2);ctx.fill()}
+}
+function draw(){
+ ctx.clearRect(0,0,W,H);ctx.save();ctx.translate(-cam.x,-cam.y);drawWorld();
+ // truck
+ ctx.fillStyle='#c83f2d';ctx.fillRect(truck.x-28,truck.y-17,56,34);ctx.fillStyle='#f2f3ed';ctx.fillRect(truck.x-7,truck.y-14,24,13);ctx.fillStyle='#26333a';ctx.fillRect(truck.x-20,truck.y+12,12,8);ctx.fillRect(truck.x+12,truck.y+12,12,8);ctx.fillStyle='white';ctx.font='bold 12px Arial';ctx.fillText('BOMBEIROS',truck.x-27,truck.y+4);
+ // player
+ if(!truck.active){ctx.fillStyle='#243b69';ctx.beginPath();ctx.arc(player.x,player.y,12,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f0c6a0';ctx.beginPath();ctx.arc(player.x,player.y-5,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f0b52e';ctx.fillRect(player.x-9,player.y-17,18,5)}
+ ctx.restore();
+ // minimap
+ ctx.fillStyle='#13212ddd';ctx.fillRect(W-175,12,160,118);ctx.strokeStyle='#d6e1e8';ctx.strokeRect(W-175,12,160,118);
+ ctx.fillStyle='#7ca574';ctx.fillRect(W-169,18,148,106);
+ ctx.fillStyle='#626e72';ctx.fillRect(W-169,18+570/world.h*106,148,100/world.h*106);
+ ctx.fillRect(W-169+420/world.w*148,18,100/world.w*148,106);ctx.fillRect(W-169+1250/world.w*148,18,100/world.w*148,106);
+ calls.forEach((m,i)=>{if(i>=missionIndex){ctx.fillStyle='#ff654c';ctx.fillRect(W-169+m.x/world.w*148-2,18+m.y/world.h*106-2,5,5)}});
+ ctx.fillStyle='#fff';ctx.fillRect(W-169+player.x/world.w*148-3,18+player.y/world.h*106-3,6,6);
+}
+function interact(){
+ let target=calls[missionIndex];if(!target){msg('Plantão concluído! Cidade segura!');return}
+ if(target.type==='fire'&&near(player,target,75)){
+   if(water<=0){msg('Sem água! Volte à estação dos bombeiros para reabastecer.');return}
+   target.progress+=1;water=Math.max(0,water-0.22);
+   if(target.progress>115){score+=150;done++;missionIndex++;msg('Incêndio controlado! +150 pontos. Próximo chamado recebido.');}
+ }else if(target.type==='rescue'&&near(player,target,75)){
+   score+=100;done++;missionIndex++;msg('Morador ajudado! +100 pontos. Excelente trabalho!');
+ }else if(near(player,station,100)){water=100;msg('Reservatório reabastecido!');}
+ else msg('Chegue mais perto do chamado ou da estação para interagir.');
+ updateUI();
+}
+function tick(){
+ if(!started)return;
+ let speed=truck.active?4:player.speed;
+ let dx=0,dy=0;if(keys['ArrowUp']||keys['w'])dy-=1;if(keys['ArrowDown']||keys['s'])dy+=1;if(keys['ArrowLeft']||keys['a'])dx-=1;if(keys['ArrowRight']||keys['d'])dx+=1;
+ if(dx||dy){let len=Math.hypot(dx,dy);dx=dx/len*speed;dy=dy/len*speed}
+ if(truck.active){truck.x=Math.max(20,Math.min(world.w-20,truck.x+dx));truck.y=Math.max(20,Math.min(world.h-20,truck.y+dy));player.x=truck.x;player.y=truck.y}
+ else{player.x=Math.max(15,Math.min(world.w-15,player.x+dx));player.y=Math.max(15,Math.min(world.h-15,player.y+dy))}
+ cam.x=Math.max(0,Math.min(world.w-W,player.x-W/2));cam.y=Math.max(0,Math.min(world.h-H,player.y-H/2));
+ let target=calls[missionIndex];if(target&&target.type==='fire'&&near(player,target,75)&&keys['e'])interact();
+ if(near(player,station,100)&&keys['r']){water=100;updateUI()}
+ if(toastTimer>0)toastTimer--;else document.getElementById('toast').textContent=target?'Chamado ativo: '+target.title:'Todas as ocorrências resolvidas!';
+ draw();requestAnimationFrame(tick);
+}
+document.addEventListener('keydown',e=>{let k=e.key.toLowerCase();keys[k]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
+ if(k==='f'&&started){if(!truck.active&&near(player,truck,60)){truck.active=true;msg('Você entrou no caminhão!');}else if(truck.active){truck.active=false;msg('Você saiu do caminhão.');}}
+ if(k==='e'&&started){let t=calls[missionIndex];if(t&&t.type==='rescue'&&near(player,t,75))interact();else if(near(player,station,100))interact();else if(!t)interact();}
+ if(k==='r'&&started&&near(player,station,100)){water=100;msg('Reservatório cheio!');updateUI()}
+});
+document.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+document.getElementById('play').onclick=()=>{document.getElementById('start').style.display='none';started=true;msg('Plantão iniciado! Siga o marcador vermelho.');updateUI();tick()};
+draw();updateUI();
+</script>
+</body></html>

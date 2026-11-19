@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Missão Resgate: Primeiros Socorros</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #101820;
+      color: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 16px;
+    }
+    .game-box {
+      background: #1b2836;
+      border: 2px solid #2e4358;
+      border-radius: 12px;
+      max-width: 640px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      background: #121c26;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      font-weight: bold;
+    }
+    .bar-bg {
+      background: #2c3e50;
+      border-radius: 8px;
+      height: 14px;
+      overflow: hidden;
+      margin: 8px 0 18px;
+    }
+    .bar-fill {
+      background: #2ecc71;
+      height: 100%;
+      width: 100%;
+      transition: width 0.3s, background 0.3s;
+    }
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 15px;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #1d4ed8; }
+    .feedback {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #121c26;
+      border-left: 4px solid #38bdf8;
+      min-height: 44px;
+    }
+    .disclaimer {
+      margin-top: 18px;
+      font-size: 12px;
+      color: #9fb3c8;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-box">
+    <div class="hud">
+      <span id="phase">Ocorrência 1/2</span>
+      <span id="score">Pontos: 0</span>
+      <span id="timer">Tempo: 25s</span>
+    </div>
+
+    <div>Estabilidade da vítima:</div>
+    <div class="bar-bg"><div class="bar-fill" id="stabilityBar"></div></div>
+
+    <h2 id="title">Carregando...</h2>
+    <p id="description"></p>
+
+    <div class="choices" id="choices"></div>
+    <div class="feedback" id="feedback">Escolha uma ação com atenção!</div>
+    <div class="disclaimer">
+      Simulação educativa: na vida real, priorize a segurança e acione o serviço de emergência (192 / 193).
+    </div>
+  </div>
+
+  <script>
+    const scenarios = [
+      {
+        title: "Queda em oficina com cabo solto",
+        description: "Um trabalhador caiu no chão e há um cabo elétrico energizado próximo a uma poça d'água. Ele está consciente e com sangramento no antebraço.",
+        options: [
+          {
+            text: "Correr direto até a vítima para estancar o sangue",
+            stabilityDelta: -45,
+            pointsDelta: -10,
+            feedback: "Perigo! Entrar em área com risco elétrico e água coloca você em risco imediato. Segurança da cena vem primeiro!"
+          },
+          {
+            text: "Isolar/desligar a energia primeiro, acionar emergência e aplicar pressão direta com pano limpo",
+            stabilityDelta: 15,
+            pointsDelta: 30,
+            feedback: "Excelente! Você garantiu a segurança da cena, pediu ajuda e controlou o sangramento com pressão direta."
+          },
+          {
+            text: "Dar água para ele se acalmar e deixá-lo deitado sem avaliar o ferimento",
+            stabilityDelta: -20,
+            pointsDelta: 0,
+            feedback: "Atenção: o sangramento precisa ser avaliado e contido, e oferecer líquidos pode não ser indicado em várias emergências."
+          }
+        ]
+      },
+      {
+        title: "Engasgo durante refeição",
+        description: "Uma pessoa está tossindo pouco, leva as mãos ao pescoço e não consegue falar nem respirar direito.",
+        options: [
+          {
+            text: "Aplicar compressões abdominais (manobra de desobstrução) se estiver consciente e engasgada gravemente",
+            stabilityDelta: 20,
+            pointsDelta: 30,
+            feedback: "Muito bem! Em obstrução grave das vias aéreas com a pessoa consciente, agir rápido na desobstrução é essencial."
+          },
+          {
+            text: "Mandar ela correr para tentar 'soltar' o alimento sozinha",
+            stabilityDelta: -25,
+            pointsDelta: -10,
+            feedback: "Cuidado! Isso pode agravar a falta de ar e causar queda."
+          },
+          {
+            text: "Esperar alguns minutos sem agir para ver se passa sozinho",
+            stabilityDelta: -30,
+            pointsDelta: -10,
+            feedback: "Falta de oxigênio exige ação imediata e acionamento de emergência."
+          }
+        ]
+      }
+    ];
+
+    let currentIdx = 0;
+    let stability = 100;
+    let score = 0;
+    let timeLeft = 25;
+    let timerId = null;
+    let locked = false;
+
+    const titleEl = document.getElementById("title");
+    const descEl = document.getElementById("description");
+    const choicesEl = document.getElementById("choices");
+    const feedbackEl = document.getElementById("feedback");
+    const phaseEl = document.getElementById("phase");
+    const scoreEl = document.getElementById("score");
+    const timerEl = document.getElementById("timer");
+    const barEl = document.getElementById("stabilityBar");
+
+    function updateHud() {
+      stability = Math.max(0, Math.min(100, stability));
+      phaseEl.textContent = `Ocorrência ${Math.min(currentIdx + 1, scenarios.length)}/${scenarios.length}`;
+      scoreEl.textContent = `Pontos: ${score}`;
+      timerEl.textContent = `Tempo: ${timeLeft}s`;
+      barEl.style.width = `${stability}%`;
+      barEl.style.background = stability > 60 ? "#2ecc71" : stability > 30 ? "#f1c40f" : "#e74c3c";
+    }
+
+    function renderScenario() {
+      locked = false;
+      clearInterval(timerId);
+      timeLeft = 25;
+      updateHud();
+
+      const sc = scenarios[currentIdx];
+      titleEl.textContent = sc.title;
+      descEl.textContent = sc.description;
+      choicesEl.innerHTML = "";
+      feedbackEl.textContent = "Escolha uma ação com atenção!";
+
+      sc.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.textContent = opt.text;
+        btn.onclick = () => selectOption(opt);
+        choicesEl.appendChild(btn);
+      });
+
+      timerId = setInterval(() => {
+        if (locked) return;
+        timeLeft--;
+        stability -= 2;
+        updateHud();
+        if (timeLeft <= 0 || stability <= 0) {
+          finishGame(stability <= 0 ? "A estabilidade da vítima chegou a zero!" : "O tempo da ocorrência acabou!");
+        }
+      }, 1000);
+    }
+
+    function selectOption(opt) {
+      if (locked) return;
+      locked = true;
+      clearInterval(timerId);
+
+      stability += opt.stabilityDelta;
+      score += opt.pointsDelta;
+      feedbackEl.textContent = opt.feedback;
+      updateHud();
+
+      setTimeout(() => {
+        if (stability <= 0) {
+          finishGame("A estabilidade da vítima chegou a zero antes do resgate.");
+        } else if (currentIdx + 1 < scenarios.length) {
+          currentIdx++;
+          renderScenario();
+        } else {
+          finishGame("Missões concluídas! Veja seu desempenho final.");
+        }
+      }, 2400);
+    }
+
+    function finishGame(reason) {
+      clearInterval(timerId);
+      locked = true;
+      updateHud();
+      titleEl.textContent = "Fim da Simulação";
+      descriptionEl.textContent = `${reason} Pontuação final: ${score} pontos | Estabilidade restante: ${stability}%.`;
+      choicesEl.innerHTML = `<button onclick="restartGame()">Jogar novamente</button>`;
+    }
+
+    function restartGame() {
+      currentIdx = 0;
+      stability = 100;
+      score = 0;
+      renderScenario();
+    }
+
+    renderScenario();
+  </script>
+</body>
+</html>
