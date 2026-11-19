@@ -1,0 +1,2946 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Resgate 193 - Comando de Emergências</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --fire-orange: #ff5500;
+      --fire-amber: #ffaa00;
+      --tactical-dark: #090d14;
+      --tactical-panel: rgba(13, 19, 31, 0.92);
+      --hud-cyan: #00e5ff;
+      --hud-green: #10b981;
+      --hud-red: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--tactical-dark);
+      font-family: 'Inter', sans-serif;
+      color: #e2e8f0;
+    }
+
+    .font-tactical {
+      font-family: 'Chakra Petch', sans-serif;
+    }
+
+    .font-mono-tech {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Efeito de visor de capacete e scanlines sutis */
+    .visor-overlay {
+      pointer-events: none;
+      background: radial-gradient(circle at center, transparent 58%, rgba(0, 0, 0, 0.65) 100%);
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.85);
+    }
+
+    .scanlines {
+      pointer-events: none;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.22) 50%
+      );
+      background-size: 100% 4px;
+    }
+
+    /* Pulso de emergência */
+    @keyframes sirenPulse {
+      0%, 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.5), inset 0 0 10px rgba(239, 68, 68, 0.3); border-color: #ef4444; }
+      50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(59, 130, 246, 0.3); border-color: #3b82f6; }
+    }
+
+    .siren-border {
+      animation: sirenPulse 1.4s infinite;
+    }
+
+    @keyframes blinkCritical {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.25; }
+    }
+
+    .blink-critical {
+      animation: blinkCritical 0.6s infinite;
+    }
+
+    /* Botões táticos */
+    .btn-tactical {
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      transition: all 0.15s ease;
+    }
+
+    .btn-tactical:hover:not(:disabled) {
+      border-color: #f97316;
+      background: linear-gradient(180deg, rgba(51, 65, 85, 0.95) 0%, rgba(30, 41, 59, 0.98) 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+    }
+
+    .btn-tactical:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .btn-tactical.active {
+      border-color: #f97316;
+      background: linear-gradient(180deg, rgba(234, 88, 12, 0.35) 0%, rgba(154, 52, 18, 0.45) 100%);
+      box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+    }
+
+    .glass-hud {
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.88), rgba(9, 13, 22, 0.94));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.65);
+    }
+
+    /* Scrollbar customizada */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.5);
+      border-radius: 3px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body class="relative w-screen h-screen overflow-hidden select-none">
+
+  <!-- CANVAS PRINCIPAL DA OPERAÇÃO TÁTICA -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- OVERLAY DE VISOR DE CAPACETE E SCANLINES -->
+  <div class="visor-overlay fixed inset-0 z-10"></div>
+  <div class="scanlines fixed inset-0 z-10 opacity-40"></div>
+
+  <!-- HUD SUPERIOR (TELEMETRIA DO OPERADOR & COBOM 193) -->
+  <div id="hudTop" class="hidden fixed top-0 left-0 right-0 z-20 p-2 sm:p-3 flex flex-wrap items-start justify-between gap-2 pointer-events-none">
+    
+    <!-- Painel Esquerdo: EPR (Cilindro de Ar), Temperatura, Batimentos e Patente -->
+    <div class="pointer-events-auto glass-hud rounded-2xl p-2.5 sm:p-3 flex items-center gap-3 sm:gap-4">
+      <!-- Cilindro EPR -->
+      <div class="flex flex-col">
+        <div class="flex items-center justify-between gap-2 text-[10px] sm:text-xs font-mono-tech text-slate-400">
+          <span>EPR / AR</span>
+          <span id="hudAirBar" class="text-cyan-400 font-bold">300 BAR</span>
+        </div>
+        <div class="w-24 sm:w-32 h-2.5 bg-slate-800 rounded-full overflow-hidden mt-1 border border-slate-700">
+          <div id="hudAirFill" class="h-full bg-gradient-to-r from-cyan-500 to-blue-400 transition-all duration-200" style="width: 100%;"></div>
+        </div>
+        <span id="hudAirStatus" class="text-[9px] font-mono-tech text-emerald-400 mt-0.5">PRESSÃO NOMINAL</span>
+      </div>
+
+      <div class="h-8 w-px bg-slate-800"></div>
+
+      <!-- Temperatura Ambiente / Traje -->
+      <div class="flex flex-col">
+        <span class="text-[10px] sm:text-xs font-mono-tech text-slate-400">TEMP. EXT</span>
+        <div class="flex items-baseline gap-1">
+          <span id="hudTemp" class="text-base sm:text-lg font-mono-tech font-bold text-amber-400">28°C</span>
+        </div>
+        <span id="hudHeatWarn" class="text-[9px] font-mono-tech text-slate-400">ESTÁVEL</span>
+      </div>
+
+      <div class="h-8 w-px bg-slate-800 hidden sm:block"></div>
+
+      <!-- Batimentos Cardíacos Operador -->
+      <div class="hidden sm:flex flex-col">
+        <span class="text-[10px] sm:text-xs font-mono-tech text-slate-400">BPM OPERADOR</span>
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+          <span id="hudBpm" class="text-base sm:text-lg font-mono-tech font-bold text-rose-400">84</span>
+        </div>
+        <span id="hudSquadMode" class="text-[9px] font-mono-tech text-cyan-400 font-bold">EQUIPE: SEGUIR</span>
+      </div>
+    </div>
+
+    <!-- Painel Central: Status da Ocorrência & Cronômetro -->
+    <div class="pointer-events-auto bg-slate-950/90 backdrop-blur-md border border-orange-500/50 rounded-xl px-3 py-2 shadow-2xl flex flex-col items-center">
+      <div class="flex items-center gap-2">
+        <span class="px-1.5 py-0.5 text-[10px] font-bold bg-red-600 text-white rounded uppercase tracking-wider">193 COBOM</span>
+        <span id="hudMissionTitle" class="font-tactical font-bold text-xs sm:text-sm text-orange-400 uppercase tracking-wide">INCÊNDIO ESTRUTURAL</span>
+      </div>
+      <div class="flex items-center gap-3 sm:gap-4 mt-1 text-xs font-mono-tech">
+        <span class="text-slate-300">TEMPO: <strong id="hudTimer" class="text-white">00:00</strong></span>
+        <span class="text-slate-300">FOCOS: <strong id="hudFires" class="text-orange-400">0</strong></span>
+        <span class="text-slate-300">FUMAÇA: <strong id="hudSmokePct" class="text-amber-300">40%</strong></span>
+        <span class="text-slate-300">VÍTIMAS: <strong id="hudVictims" class="text-emerald-400">0/0</strong></span>
+      </div>
+    </div>
+
+    <!-- Painel Direito: Rádio Comunicador & Controles de Áudio/Central -->
+    <div class="pointer-events-auto flex items-center gap-2">
+      <div class="hidden xl:flex flex-col bg-slate-950/90 backdrop-blur-md border border-slate-700/80 rounded-xl p-2.5 max-w-xs shadow-2xl">
+        <div class="flex items-center justify-between text-[10px] font-mono-tech text-amber-400 mb-1">
+          <span>📻 RÁDIO TÁTICO - CANAL 01</span>
+          <span class="text-emerald-400">● TX/RX</span>
+        </div>
+        <p id="radioLog" class="text-xs text-slate-200 font-mono-tech leading-tight line-clamp-2">
+          QAP Guarnição! Prioridade absoluta: isolamento, controle de riscos e busca primária.
+        </p>
+      </div>
+
+      <button id="btnToggleSound" onclick="toggleAudio()" title="Alternar Áudio" class="btn-tactical p-2.5 rounded-xl text-slate-200 flex items-center justify-center">
+        <span id="soundIcon" class="text-base">🔊</span>
+      </button>
+      <button onclick="returnToDispatch()" title="Voltar à Central COBOM" class="btn-tactical px-3 py-2.5 rounded-xl text-xs font-tactical font-bold text-amber-400 border-amber-500/40">
+        CENTRAL
+      </button>
+    </div>
+  </div>
+
+  <!-- MINIMAPA TÁTICO (CANTO SUPERIOR DIREITO ABAIXO DO HUD) -->
+  <div id="minimapContainer" class="hidden fixed top-24 right-3 z-20 pointer-events-none bg-slate-950/90 backdrop-blur-md border border-slate-700/80 rounded-xl p-1.5 shadow-2xl">
+    <div class="flex items-center justify-between text-[9px] font-mono-tech text-slate-400 px-1 mb-1">
+      <span>RADAR TÁTICO</span>
+      <span class="text-emerald-400">GPS-193</span>
+    </div>
+    <canvas id="minimapCanvas" width="160" height="110" class="rounded-lg bg-slate-900 border border-slate-800"></canvas>
+  </div>
+
+  <!-- BANNER DE RÁDIO FLUTUANTE (PARA MOBILE E ALERTAS CRÍTICOS) -->
+  <div id="radioAlertBanner" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-20 max-w-md w-[92%] glass-hud border-amber-500/80 rounded-2xl px-4 py-2.5 pointer-events-none">
+    <div class="flex items-center gap-2 text-xs font-mono-tech text-amber-400 font-bold">
+      <span>📻 TRANSMISSÃO COBOM // 193</span>
+    </div>
+    <p id="radioAlertText" class="text-xs sm:text-sm text-white font-medium mt-0.5"></p>
+  </div>
+
+  <!-- DICA CONTEXTUAL INTELIGENTE (GUIA RÁPIDO NA TELA) -->
+  <div id="contextPrompt" class="hidden fixed bottom-32 sm:bottom-36 left-1/2 -translate-x-1/2 z-20 pointer-events-none px-4 py-1.5 rounded-full bg-slate-950/90 border border-cyan-400/60 text-cyan-200 text-xs font-mono-tech font-bold shadow-xl transition-all">
+    <span id="contextPromptText"></span>
+  </div>
+
+  <!-- HUD INFERIOR: BARRA DE EQUIPAMENTOS TÁTICOS (1-5) + COMANDO DE EQUIPE + ÁGUA -->
+  <div id="hudBottom" class="hidden fixed bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 w-[96%] max-w-4xl pointer-events-none flex flex-col items-center gap-2">
+    
+    <!-- Barra de Água / Pressão da Linha & Ordens da Guarnição -->
+    <div class="pointer-events-auto flex flex-wrap items-center justify-center gap-2 sm:gap-3 glass-hud px-3.5 py-2 rounded-full text-xs font-mono-tech">
+      <div class="flex items-center gap-2">
+        <span class="text-blue-400">💧 TANQUE ABTR:</span>
+        <div class="w-20 sm:w-28 h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div id="hudWaterFill" class="h-full bg-blue-500 transition-all duration-150" style="width: 100%;"></div>
+        </div>
+        <span id="hudWaterLiters" class="text-blue-300 font-bold">4000L</span>
+      </div>
+      <span class="text-slate-600 hidden sm:inline">|</span>
+      <button id="btnNozzleMode" onclick="toggleNozzleMode()" class="text-cyan-300 hover:text-white font-bold underline decoration-dotted">
+        ESGUICHO: JATO [R]
+      </button>
+      <span class="text-slate-600">|</span>
+      <button onclick="ventilationAction()" class="text-emerald-300 hover:text-white font-bold underline decoration-dotted" title="Abrir/Quebrar Janela Próxima para Exaustão de Fumaça">
+        VENTILAR [V]
+      </button>
+      <span class="text-slate-600">|</span>
+      <div class="flex items-center gap-1">
+        <button id="squad-FOLLOW" onclick="setSquadOrder('FOLLOW')" class="px-2 py-0.5 rounded bg-cyan-600/40 border border-cyan-400 text-[10px] text-white font-bold">EQUIPE: SEGUIR [Q]</button>
+        <button id="squad-SUPPRESS" onclick="setSquadOrder('SUPPRESS')" class="px-2 py-0.5 rounded bg-slate-800 border border-slate-600 text-[10px] text-slate-300 hover:text-white font-bold">COMBATER [G]</button>
+        <button id="squad-EXTRACT" onclick="setSquadOrder('EXTRACT')" class="px-2 py-0.5 rounded bg-slate-800 border border-slate-600 text-[10px] text-slate-300 hover:text-white font-bold">EXTRAIR [H]</button>
+      </div>
+    </div>
+
+    <!-- Slots de Equipamentos -->
+    <div class="pointer-events-auto grid grid-cols-5 gap-1.5 sm:gap-2.5 w-full glass-hud p-1.5 sm:p-2 rounded-2xl">
+      
+      <button id="tool-0" onclick="selectTool(0)" class="btn-tactical active rounded-xl p-2 flex flex-col items-center justify-center relative">
+        <span class="absolute top-1 left-1.5 text-[10px] font-mono-tech text-slate-400">1</span>
+        <span class="text-lg sm:text-xl">🚒</span>
+        <span class="text-[10px] sm:text-xs font-tactical font-bold mt-0.5 text-center leading-tight">MANGUEIRA</span>
+      </button>
+
+      <button id="tool-1" onclick="selectTool(1)" class="btn-tactical rounded-xl p-2 flex flex-col items-center justify-center relative">
+        <span class="absolute top-1 left-1.5 text-[10px] font-mono-tech text-slate-400">2</span>
+        <span class="text-lg sm:text-xl">🪓</span>
+        <span class="text-[10px] sm:text-xs font-tactical font-bold mt-0.5 text-center leading-tight">HALLIGAN</span>
+      </button>
+
+      <button id="tool-2" onclick="selectTool(2)" class="btn-tactical rounded-xl p-2 flex flex-col items-center justify-center relative">
+        <span class="absolute top-1 left-1.5 text-[10px] font-mono-tech text-slate-400">3</span>
+        <span class="text-lg sm:text-xl">⚙️</span>
+        <span class="text-[10px] sm:text-xs font-tactical font-bold mt-0.5 text-center leading-tight">DESENCARC.</span>
+      </button>
+
+      <button id="tool-3" onclick="selectTool(3)" class="btn-tactical rounded-xl p-2 flex flex-col items-center justify-center relative">
+        <span class="absolute top-1 left-1.5 text-[10px] font-mono-tech text-slate-400">4</span>
+        <span class="text-lg sm:text-xl">🌡️</span>
+        <span class="text-[10px] sm:text-xs font-tactical font-bold mt-0.5 text-center leading-tight">CÂM. TÉRMICA</span>
+      </button>
+
+      <button id="tool-4" onclick="selectTool(4)" class="btn-tactical rounded-xl p-2 flex flex-col items-center justify-center relative">
+        <span class="absolute top-1 left-1.5 text-[10px] font-mono-tech text-slate-400">5</span>
+        <span class="text-lg sm:text-xl">⛑️</span>
+        <span class="text-[10px] sm:text-xs font-tactical font-bold mt-0.5 text-center leading-tight">KIT APH</span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- CONTROLES TOUCH PARA DISPOSITIVOS MÓVEIS -->
+  <div id="mobileControls" class="hidden fixed bottom-28 left-4 right-4 z-20 flex justify-between items-end pointer-events-none md:hidden">
+    <!-- D-Pad Virtual -->
+    <div class="pointer-events-auto grid grid-cols-3 gap-1 w-32 h-32 opacity-80">
+      <div></div>
+      <button onpointerdown="keys['KeyW']=true" onpointerup="keys['KeyW']=false" onpointerleave="keys['KeyW']=false" class="bg-slate-800/90 border border-slate-600 rounded-lg flex items-center justify-center text-white font-bold">▲</button>
+      <div></div>
+      <button onpointerdown="keys['KeyA']=true" onpointerup="keys['KeyA']=false" onpointerleave="keys['KeyA']=false" class="bg-slate-800/90 border border-slate-600 rounded-lg flex items-center justify-center text-white font-bold">◀</button>
+      <button onclick="interactAction()" class="bg-orange-600/90 border border-orange-400 rounded-lg flex items-center justify-center text-xs font-bold text-white">AÇÃO</button>
+      <button onpointerdown="keys['KeyD']=true" onpointerup="keys['KeyD']=false" onpointerleave="keys['KeyD']=false" class="bg-slate-800/90 border border-slate-600 rounded-lg flex items-center justify-center text-white font-bold">▶</button>
+      <div></div>
+      <button onpointerdown="keys['KeyS']=true" onpointerup="keys['KeyS']=false" onpointerleave="keys['KeyS']=false" class="bg-slate-800/90 border border-slate-600 rounded-lg flex items-center justify-center text-white font-bold">▼</button>
+      <div></div>
+    </div>
+
+    <!-- Botão de Ação Principal Mobile -->
+    <div class="pointer-events-auto flex flex-col gap-2">
+      <button onclick="interactAction()" class="px-4 py-3 bg-amber-600/90 border border-amber-400 rounded-xl font-tactical font-bold text-xs text-white shadow-lg">
+        INTERAGIR [E]
+      </button>
+      <button onpointerdown="mouse.down=true" onpointerup="mouse.down=false" onpointerleave="mouse.down=false" class="px-4 py-4 bg-red-600/90 border border-red-400 rounded-xl font-tactical font-bold text-sm text-white shadow-lg">
+        OPERAR FERRAMENTA
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- TELA INICIAL & CENTRAL DE DESPACHO COBOM 193                           -->
+  <!-- ===================================================================== -->
+  <div id="dispatchScreen" class="fixed inset-0 z-30 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="max-w-5xl w-full bg-slate-900/95 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden my-auto">
+      
+      <!-- Cabeçalho Institucional -->
+      <div class="bg-gradient-to-r from-red-950 via-slate-900 to-slate-900 border-b border-red-500/40 p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-red-600/20 border-2 border-red-500 siren-border flex items-center justify-center text-3xl shadow-lg">
+            🚒
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 text-[10px] font-mono-tech font-bold bg-red-600 text-white rounded">CORPO DE BOMBEIROS MILITAR</span>
+              <span class="text-xs font-mono-tech text-amber-400">COBOM // 193</span>
+            </div>
+            <h1 class="font-tactical text-2xl sm:text-3xl font-bold text-white tracking-wide mt-0.5">
+              RESGATE 193 <span class="text-orange-500">- COMANDO DE EMERGÊNCIAS</span>
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-400">Simulador Tático de Combate a Incêndio, Salvamento Veicular e Atendimento Pré-Hospitalar</p>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-end text-right font-mono-tech text-xs">
+          <span class="text-emerald-400 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> GUARNIÇÃO DE PRONTIDÃO
+          </span>
+          <span id="careerRankBadge" class="mt-1 px-2.5 py-0.5 rounded bg-amber-500/20 border border-amber-400/50 text-amber-300 font-bold">
+            PATENTE: SOLDADO BM • 0 XP
+          </span>
+          <span class="text-slate-400 mt-1">VIATURAS: ABTR-42 • ASU-19 • ASE-07</span>
+        </div>
+      </div>
+
+      <!-- Corpo da Central de Despacho -->
+      <div class="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Coluna Esquerda: Briefing Operacional & Controles -->
+        <div class="lg:col-span-1 flex flex-col justify-between bg-slate-950/70 border border-slate-800 rounded-xl p-4">
+          <div>
+            <h2 class="font-tactical text-sm font-bold text-orange-400 uppercase tracking-wider border-b border-slate-800 pb-2 mb-3">
+              📋 Protocolos de Operação
+            </h2>
+            <ul class="space-y-2.5 text-xs text-slate-300">
+              <li class="flex items-start gap-2">
+                <span class="text-orange-500 font-bold">01.</span>
+                <span><strong>Risco de Backdraft:</strong> Nunca abra portas quentes (>150°C) sem resfriar antes com neblina de água ou checar com a <strong>Câmera Térmica [4]</strong>.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-orange-500 font-bold">02.</span>
+                <span><strong>Ventilação Tática [V]:</strong> Abra janelas para dissipar fumaça tóxica, mas somente após iniciar o combate ao foco para não alimentar o incêndio com O2!</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-orange-500 font-bold">03.</span>
+                <span><strong>Comando da Guarnição [Q/G/H]:</strong> Ordene aos 2 bombeiros parceiros para lhe seguir, combater focos de fogo ou extrair vítimas estabilizadas.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-orange-500 font-bold">04.</span>
+                <span><strong>Protocolo APH (XABCDE):</strong> Estabilize vítimas no monitor multiparamétrico e evacue até a ambulância ASU na zona fria externa.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="mt-5 pt-3 border-t border-slate-800">
+            <div class="text-[11px] font-mono-tech text-slate-400 mb-2">COMANDOS TÁTICOS:</div>
+            <div class="grid grid-cols-2 gap-1.5 text-[11px] font-mono-tech text-slate-300">
+              <div class="bg-slate-900 px-2 py-1 rounded border border-slate-800"><span class="text-amber-400">WASD/Setas</span> Mover</div>
+              <div class="bg-slate-900 px-2 py-1 rounded border border-slate-800"><span class="text-amber-400">Mouse/Clique</span> Operar</div>
+              <div class="bg-slate-900 px-2 py-1 rounded border border-slate-800"><span class="text-amber-400">1 a 5</span> Equipamentos</div>
+              <div class="bg-slate-900 px-2 py-1 rounded border border-slate-800"><span class="text-amber-400">E / V</span> Interagir / Ventilar</div>
+              <div class="bg-slate-900 px-2 py-1 rounded border border-slate-800"><span class="text-amber-400">Q / G / H</span> Ordens Equipe</div>
+              <div class="bg-slate-900 px-2 py-1 rounded border border-slate-800"><span class="text-amber-400">R / Shift</span> Neblina / Correr</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coluna Direita: Seleção de Ocorrências 193 -->
+        <div class="lg:col-span-2 flex flex-col gap-3 max-h-[68vh] overflow-y-auto pr-1">
+          <div class="flex items-center justify-between">
+            <h2 class="font-tactical text-sm font-bold text-white uppercase tracking-wider">
+              🚨 Chamados Ativos no Despacho (Selecione a Ocorrência)
+            </h2>
+            <span class="text-xs font-mono-tech text-slate-400">TURNO ALFA • 193</span>
+          </div>
+
+          <!-- Ocorrência 1 -->
+          <div onclick="startMission(0)" class="group cursor-pointer bg-slate-950/80 hover:bg-slate-900 border border-slate-800 hover:border-orange-500 rounded-xl p-4 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+              <div class="w-12 h-12 rounded-xl bg-orange-500/15 border border-orange-500/40 flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform">
+                🏢
+              </div>
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="px-2 py-0.5 text-[10px] font-mono-tech font-bold bg-red-600/20 text-red-400 border border-red-500/40 rounded">CÓDIGO VERMELHO</span>
+                  <span class="text-xs font-mono-tech text-slate-400">OCORRÊNCIA #1042</span>
+                </div>
+                <h3 class="font-tactical text-base sm:text-lg font-bold text-white group-hover:text-orange-400 transition-colors mt-0.5">
+                  Incêndio Estrutural em Edifício Residencial
+                </h3>
+                <p class="text-xs text-slate-400 mt-1">
+                  Fogo confinado no 1º pavimento com alta carga térmica, risco iminente de <strong>Backdraft</strong> nas portas internas, vazamento de GLP e 3 moradores presos na fumaça.
+                </p>
+              </div>
+            </div>
+            <button class="shrink-0 w-full sm:w-auto px-4 py-2.5 bg-orange-600 group-hover:bg-orange-500 text-white font-tactical font-bold text-xs rounded-lg shadow-lg transition-colors">
+              DESPACHAR ➔
+            </button>
+          </div>
+
+          <!-- Ocorrência 2 -->
+          <div onclick="startMission(1)" class="group cursor-pointer bg-slate-950/80 hover:bg-slate-900 border border-slate-800 hover:border-amber-500 rounded-xl p-4 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+              <div class="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform">
+                🚗
+              </div>
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="px-2 py-0.5 text-[10px] font-mono-tech font-bold bg-amber-600/20 text-amber-400 border border-amber-500/40 rounded">SALVAMENTO VEICULAR</span>
+                  <span class="text-xs font-mono-tech text-slate-400">OCORRÊNCIA #1089</span>
+                </div>
+                <h3 class="font-tactical text-base sm:text-lg font-bold text-white group-hover:text-amber-400 transition-colors mt-0.5">
+                  Colisão Frontal Grave com Encarceramento
+                </h3>
+                <p class="text-xs text-slate-400 mt-1">
+                  Dois veículos colidiram na rodovia. Vazamento de combustível com princípio de incêndio, vítimas presas nas ferragens exigindo <strong>Desencarcerador Hidráulico</strong> e trauma grave.
+                </p>
+              </div>
+            </div>
+            <button class="shrink-0 w-full sm:w-auto px-4 py-2.5 bg-amber-600 group-hover:bg-amber-500 text-white font-tactical font-bold text-xs rounded-lg shadow-lg transition-colors">
+              DESPACHAR ➔
+            </button>
+          </div>
+
+          <!-- Ocorrência 3 -->
+          <div onclick="startMission(2)" class="group cursor-pointer bg-slate-950/80 hover:bg-slate-900 border border-slate-800 hover:border-cyan-500 rounded-xl p-4 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+              <div class="w-12 h-12 rounded-xl bg-cyan-500/15 border border-cyan-500/40 flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform">
+                🏗️
+              </div>
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="px-2 py-0.5 text-[10px] font-mono-tech font-bold bg-cyan-600/20 text-cyan-400 border border-cyan-500/40 rounded">BREC / DESABAMENTO</span>
+                  <span class="text-xs font-mono-tech text-slate-400">OCORRÊNCIA #1103</span>
+                </div>
+                <h3 class="font-tactical text-base sm:text-lg font-bold text-white group-hover:text-cyan-400 transition-colors mt-0.5">
+                  Colapso Estrutural e Busca Térmica em Galpão
+                </h3>
+                <p class="text-xs text-slate-400 mt-1">
+                  Explosão de caldeira causou desabamento parcial e focos químicos. Utilize <strong>Câmera Térmica</strong> para localizar soterrados, rompa escombros e estabilize vítimas críticas.
+                </p>
+              </div>
+            </div>
+            <button class="shrink-0 w-full sm:w-auto px-4 py-2.5 bg-cyan-600 group-hover:bg-cyan-500 text-white font-tactical font-bold text-xs rounded-lg shadow-lg transition-colors">
+              DESPACHAR ➔
+            </button>
+          </div>
+
+          <!-- Ocorrência 4 (NOVA: HAZMAT & MEZANINO INDUSTRIAL) -->
+          <div onclick="startMission(3)" class="group cursor-pointer bg-slate-950/80 hover:bg-slate-900 border border-slate-800 hover:border-purple-500 rounded-xl p-4 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+              <div class="w-12 h-12 rounded-xl bg-purple-500/15 border border-purple-500/40 flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform">
+                ☣️
+              </div>
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="px-2 py-0.5 text-[10px] font-mono-tech font-bold bg-purple-600/20 text-purple-400 border border-purple-500/40 rounded">HAZMAT / ALTURA</span>
+                  <span class="text-xs font-mono-tech text-slate-400">OCORRÊNCIA #1145</span>
+                </div>
+                <h3 class="font-tactical text-base sm:text-lg font-bold text-white group-hover:text-purple-400 transition-colors mt-0.5">
+                  Vazamento Químico Inflamável e Resgate em Mezanino
+                </h3>
+                <p class="text-xs text-slate-400 mt-1">
+                  Empilhadeira tombada rompeu dutos de solvente industrial. Contenha o vazamento, use <strong>Neblina</strong> contra vapores inflamáveis e resgate 3 operadores no mezanino.
+                </p>
+              </div>
+            </div>
+            <button class="shrink-0 w-full sm:w-auto px-4 py-2.5 bg-purple-600 group-hover:bg-purple-500 text-white font-tactical font-bold text-xs rounded-lg shadow-lg transition-colors">
+              DESPACHAR ➔
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL INTERATIVO DE ATENDIMENTO PRÉ-HOSPITALAR (APH / XABCDE)         -->
+  <!-- ===================================================================== -->
+  <div id="aphModal" class="hidden fixed inset-0 z-40 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
+    <div class="max-w-2xl w-full bg-slate-900 border-2 border-emerald-500/70 rounded-2xl shadow-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 border-b border-emerald-500/40 p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🚑</span>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-mono-tech uppercase px-2 py-0.5 bg-emerald-600 text-white rounded font-bold">PROTOCOLO APH // XABCDE</span>
+              <span id="aphTriageBadge" class="text-[10px] font-mono-tech uppercase px-2 py-0.5 bg-red-600 text-white rounded font-bold">START: VERMELHO</span>
+            </div>
+            <h3 id="aphVictimName" class="font-tactical text-lg font-bold text-white mt-0.5">Vítima #01 - Adulto</h3>
+          </div>
+        </div>
+        <button onclick="closeAphModal()" class="text-slate-400 hover:text-white text-sm font-mono-tech px-2 py-1 rounded bg-slate-800">
+          [ESC]
+        </button>
+      </div>
+
+      <!-- Monitor Multiparamétrico de Sinais Vitais -->
+      <div class="p-4 sm:p-5 space-y-4">
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono-tech items-center">
+          <div class="col-span-2 sm:col-span-1 bg-slate-900/90 border border-emerald-500/30 rounded-lg p-1.5">
+            <span class="text-[9px] text-emerald-400 block mb-0.5">TRAÇADO ECG II</span>
+            <canvas id="ecgCanvas" width="120" height="36" class="w-full h-9 rounded bg-slate-950"></canvas>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 block">FREQ. CARDÍACA</span>
+            <span id="aphHr" class="text-lg font-bold text-rose-400">138 BPM</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 block">SATURAÇÃO SpO2</span>
+            <span id="aphSpo2" class="text-lg font-bold text-cyan-400">84%</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 block">PRESSÃO ART.</span>
+            <span id="aphBp" class="text-lg font-bold text-amber-400">85/50</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 block">GLASGOW / CONSC.</span>
+            <span id="aphConscious" class="text-sm font-bold text-orange-300">CONFUSO (12)</span>
+          </div>
+        </div>
+
+        <!-- Avaliação Clínica -->
+        <div class="bg-slate-800/60 border border-slate-700/80 rounded-xl p-3">
+          <span class="text-[10px] font-mono-tech text-amber-400 uppercase font-bold">ACHADOS DA AVALIAÇÃO PRIMÁRIA:</span>
+          <p id="aphConditionDesc" class="text-xs sm:text-sm text-slate-200 mt-1">
+            Vítima apresenta obstrução parcial por fumaça densa, queimadura de 2º grau e hemorragia moderada.
+          </p>
+        </div>
+
+        <!-- Procedimentos Táticos de Estabilização -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-tactical font-bold text-emerald-400 uppercase">Execute os procedimentos na ordem correta:</span>
+            <span id="aphStepIndicator" class="text-xs font-mono-tech text-slate-400">ETAPA 1 DE 3</span>
+          </div>
+          <div id="aphActionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <!-- Botões inseridos dinamicamente -->
+          </div>
+        </div>
+
+        <div id="aphFeedback" class="text-xs font-mono-tech text-center text-cyan-300 min-h-[18px]"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- RELATÓRIO TÉCNICO PÓS-OCORRÊNCIA (DEBRIEFING)                         -->
+  <!-- ===================================================================== -->
+  <div id="debriefModal" class="hidden fixed inset-0 z-40 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
+    <div class="max-w-xl w-full bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b border-slate-800 p-5 text-center">
+        <span class="px-2.5 py-1 text-[10px] font-mono-tech font-bold bg-orange-600/20 text-orange-400 border border-orange-500/40 rounded uppercase">
+          RELATÓRIO OPERACIONAL // COBOM 193
+        </span>
+        <h2 id="debriefTitle" class="font-tactical text-2xl font-bold text-white mt-2">OCORRÊNCIA ENCERRADA</h2>
+        <p id="debriefSubtitle" class="text-xs text-slate-400 mt-0.5">Avaliação de Desempenho Técnico e Segurança da Guarnição</p>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <!-- Nota & Classificação -->
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-mono-tech text-slate-400 uppercase">CONCEITO DO COMANDO</span>
+            <div id="debriefRank" class="font-tactical text-xl font-bold text-emerald-400">PADRÃO OURO</div>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] font-mono-tech text-slate-400 uppercase">PONTUAÇÃO TÁTICA</span>
+            <div id="debriefScore" class="font-mono-tech text-2xl font-bold text-amber-400">980 PTS</div>
+          </div>
+        </div>
+
+        <!-- Métricas Detalhadas -->
+        <div class="space-y-2 text-xs sm:text-sm font-mono-tech">
+          <div class="flex justify-between py-1.5 border-b border-slate-800">
+            <span class="text-slate-400">⏱️ Tempo Total de Resposta:</span>
+            <span id="debriefTime" class="text-white font-bold">02:14</span>
+          </div>
+          <div class="flex justify-between py-1.5 border-b border-slate-800">
+            <span class="text-slate-400">🚑 Vidas Salvas & Evacuadas:</span>
+            <span id="debriefVictims" class="text-emerald-400 font-bold">3 / 3</span>
+          </div>
+          <div class="flex justify-between py-1.5 border-b border-slate-800">
+            <span class="text-slate-400">🛡️ Protocolos de Segurança:</span>
+            <span id="debriefSafety" class="text-cyan-400 font-bold">100% CUMPRIDOS</span>
+          </div>
+          <div class="flex justify-between py-1.5 border-b border-slate-800">
+            <span class="text-slate-400">💧 Eficiência Hídrica & EPR:</span>
+            <span id="debriefResources" class="text-blue-400 font-bold">88%</span>
+          </div>
+        </div>
+
+        <!-- Observações do Comando -->
+        <div id="debriefNotes" class="bg-slate-800/50 border border-slate-700 rounded-xl p-3 text-xs text-slate-300 leading-relaxed">
+          Excelente controle de temperatura antes da entrada tática e priorização exemplar no atendimento pré-hospitalar.
+        </div>
+
+        <!-- Ações -->
+        <div class="flex flex-col sm:flex-row gap-2.5 pt-2">
+          <button onclick="restartCurrentMission()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-tactical font-bold text-xs rounded-xl border border-slate-600 transition-colors">
+            REPETIR OCORRÊNCIA
+          </button>
+          <button onclick="returnToDispatch()" class="flex-1 py-3 bg-orange-600 hover:bg-orange-500 text-white font-tactical font-bold text-xs rounded-xl shadow-lg transition-colors">
+            NOVA OCORRÊNCIA (CENTRAL 193)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MOTOR DE ÁUDIO PROCEDURAL (WEB AUDIO API) & LÓGICA DO SIMULADOR       -->
+  <!-- ===================================================================== -->
+  <script>
+    // =========================================================================
+    // 1. SISTEMA DE ÁUDIO SINTETIZADO REALISTA (WEB AUDIO API)
+    // =========================================================================
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+        this.fireGain = null;
+        this.hoseGain = null;
+        this.initialized = false;
+      }
+
+      init() {
+        if (this.initialized) {
+          if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+          return;
+        }
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioCtx();
+          this.initialized = true;
+          this.setupAmbientLoops();
+        } catch (e) {
+          console.warn('Web Audio API não suportada:', e);
+        }
+      }
+
+      setupAmbientLoops() {
+        if (!this.ctx) return;
+
+        // Ruído marrom/rosa para crepitar de fogo e jato de mangueira
+        const bufferSize = this.ctx.sampleRate * 2;
+        const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          output[i] = (lastOut + (0.04 * white)) / 1.04;
+          lastOut = output[i];
+          output[i] *= 2.5;
+        }
+
+        // Loop do Fogo (Filtro Passa-Banda grave/médio)
+        const fireSource = this.ctx.createBufferSource();
+        fireSource.buffer = noiseBuffer;
+        fireSource.loop = true;
+        const fireFilter = this.ctx.createBiquadFilter();
+        fireFilter.type = 'bandpass';
+        fireFilter.frequency.value = 320;
+        fireFilter.Q.value = 1.2;
+        this.fireGain = this.ctx.createGain();
+        this.fireGain.gain.value = 0;
+        fireSource.connect(fireFilter);
+        fireFilter.connect(this.fireGain);
+        this.fireGain.connect(this.ctx.destination);
+        fireSource.start();
+
+        // Loop da Mangueira de Alta Pressão (Filtro Passa-Alta)
+        const hoseSource = this.ctx.createBufferSource();
+        hoseSource.buffer = noiseBuffer;
+        hoseSource.loop = true;
+        const hoseFilter = this.ctx.createBiquadFilter();
+        hoseFilter.type = 'highpass';
+        hoseFilter.frequency.value = 1100;
+        this.hoseGain = this.ctx.createGain();
+        this.hoseGain.gain.value = 0;
+        hoseSource.connect(hoseFilter);
+        hoseFilter.connect(this.hoseGain);
+        this.hoseGain.connect(this.ctx.destination);
+        hoseSource.start();
+      }
+
+      updateContinuous(fireIntensity, isSpraying) {
+        if (!this.initialized || !this.ctx || this.muted) {
+          if (this.fireGain) this.fireGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.1);
+          if (this.hoseGain) this.hoseGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.05);
+          return;
+        }
+        const targetFire = Math.min(0.22, fireIntensity * 0.22);
+        this.fireGain.gain.setTargetAtTime(targetFire, this.ctx.currentTime, 0.15);
+        this.hoseGain.gain.setTargetAtTime(isSpraying ? 0.16 : 0, this.ctx.currentTime, 0.05);
+      }
+
+      playSiren() {
+        if (!this.initialized || this.muted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(620, now);
+        osc.frequency.linearRampToValueAtTime(920, now + 0.45);
+        osc.frequency.linearRampToValueAtTime(620, now + 0.9);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.95);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.95);
+      }
+
+      playRadioBeep() {
+        if (!this.initialized || this.muted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1450, now);
+        osc.frequency.setValueAtTime(1850, now + 0.06);
+        gain.gain.setValueAtTime(0.07, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.14);
+      }
+
+      playImpact(type = 'metal') {
+        if (!this.initialized || this.muted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type === 'hydraulic' ? 'sawtooth' : 'triangle';
+        osc.frequency.setValueAtTime(type === 'hydraulic' ? 140 : 240, now);
+        osc.frequency.exponentialRampToValueAtTime(45, now + 0.22);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.24);
+      }
+
+      playExplosion() {
+        if (!this.initialized || this.muted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(110, now);
+        osc.frequency.exponentialRampToValueAtTime(22, now + 0.85);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.9);
+      }
+
+      playHeartMonitor(isSuccess = true) {
+        if (!this.initialized || this.muted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(isSuccess ? 880 : 320, now);
+        gain.gain.setValueAtTime(0.09, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      }
+
+      playLowAirAlarm() {
+        if (!this.initialized || this.muted) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(2100, now);
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.12);
+      }
+
+      playGlassBreak() {
+        if (!this.initialized || this.muted) return;
+        const now = this.ctx.currentTime;
+        for (let i = 0; i < 4; i++) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(1800 + Math.random() * 2400, now + i * 0.03);
+          osc.frequency.exponentialRampToValueAtTime(600, now + i * 0.03 + 0.12);
+          gain.gain.setValueAtTime(0.08, now + i * 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.03 + 0.13);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + i * 0.03);
+          osc.stop(now + i * 0.03 + 0.13);
+        }
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    function toggleAudio() {
+      sound.init();
+      sound.muted = !sound.muted;
+      document.getElementById('soundIcon').textContent = sound.muted ? '🔇' : '🔊';
+    }
+
+    // =========================================================================
+    // SISTEMA DE PATENTES E PROGRESSÃO DE CARREIRA (LOCALSTORAGE)
+    // =========================================================================
+    const RANKS = [
+      { name: 'SOLDADO BM', minXp: 0 },
+      { name: 'CABO BM', minXp: 900 },
+      { name: '3º SARGENTO BM', minXp: 2000 },
+      { name: '1º TENENTE BM', minXp: 3400 },
+      { name: 'CAPITÃO COMANDANTE', minXp: 5000 }
+    ];
+
+    let careerXp = parseInt(localStorage.getItem('resgate193_xp') || '0', 10);
+
+    function getCurrentRank() {
+      let current = RANKS[0];
+      for (const r of RANKS) {
+        if (careerXp >= r.minXp) current = r;
+      }
+      return current;
+    }
+
+    function updateCareerUI() {
+      const rank = getCurrentRank();
+      const badge = document.getElementById('careerRankBadge');
+      if (badge) {
+        badge.textContent = `PATENTE: ${rank.name} • ${careerXp} XP`;
+      }
+    }
+    updateCareerUI();
+
+    // =========================================================================
+    // 2. DEFINIÇÃO DAS MISSÕES REALISTAS (CENÁRIOS, RISCOS, JANELAS E VÍTIMAS)
+    // =========================================================================
+    const MISSIONS = [
+      {
+        id: 0,
+        code: 'OCORRÊNCIA #1042',
+        title: 'INCÊNDIO ESTRUTURAL - EDIFÍCIO RESIDENCIAL',
+        briefing: 'QAP Guarnição! Incêndio no 1º pavimento. Verifique temperatura das portas antes de abrir para evitar Backdraft, use [V] para ventilar após controlar o fogo e resgate os 3 moradores.',
+        worldWidth: 1400,
+        worldHeight: 950,
+        playerStart: { x: 180, y: 480 },
+        truckZone: { x: 40, y: 340, w: 140, h: 280, label: 'VIATURA ABTR-42 / ASU-19' },
+        floorType: 'tile',
+        smokeDensity: 0.65,
+        walls: [
+          // Perímetro do Edifício
+          { x: 300, y: 120, w: 980, h: 24 },
+          { x: 300, y: 810, w: 980, h: 24 },
+          { x: 300, y: 120, w: 24, h: 310 }, // Parede esquerda sup
+          { x: 300, y: 530, w: 24, h: 304 }, // Parede esquerda inf
+          { x: 1256, y: 120, w: 24, h: 714 }, // Parede direita
+          // Divisórias internas
+          { x: 640, y: 144, w: 20, h: 230 },
+          { x: 640, y: 474, w: 20, h: 336 },
+          { x: 940, y: 144, w: 20, h: 350 },
+          { x: 940, y: 594, w: 20, h: 216 },
+          { x: 660, y: 474, w: 140, h: 20 }
+        ],
+        furniture: [
+          { x: 380, y: 180, w: 90, h: 45, label: 'SOFÁ' },
+          { x: 740, y: 170, w: 110, h: 40, label: 'BANCADA COZINHA' },
+          { x: 1080, y: 165, w: 110, h: 75, label: 'CAMA CASAL' },
+          { x: 1080, y: 710, w: 95, h: 65, label: 'CAMA SOLT.' }
+        ],
+        windows: [
+          { id: 'w1', x: 460, y: 120, w: 80, h: 24, open: false, label: 'Janela Sala' },
+          { id: 'w2', x: 1050, y: 120, w: 85, h: 24, open: false, label: 'Janela Suíte' },
+          { id: 'w3', x: 460, y: 810, w: 80, h: 24, open: false, label: 'Janela Fundos' }
+        ],
+        doors: [
+          { id: 'd1', x: 300, y: 430, w: 24, h: 100, open: false, locked: true, temp: 65, backdraftRisk: false, label: 'Porta Principal' },
+          { id: 'd2', x: 640, y: 374, w: 20, h: 100, open: false, locked: true, temp: 240, backdraftRisk: true, label: 'Porta Cozinha (QUENTE!)' },
+          { id: 'd3', x: 940, y: 494, w: 20, h: 100, open: false, locked: false, temp: 185, backdraftRisk: true, label: 'Porta Suíte Master' }
+        ],
+        hazards: [
+          { id: 'h_elec', type: 'electric', x: 340, y: 165, active: true, label: 'Quadro Elétrico Energizado', desc: 'Desligue o disjuntor geral antes de usar jato compacto próximo!' },
+          { id: 'h_gas', type: 'gas', x: 880, y: 175, active: true, label: 'Central de Gás GLP Vazando', desc: 'Feche a válvula de gás para impedir reignição explosiva!' }
+        ],
+        fires: [
+          { x: 450, y: 260, intensity: 0.75, radius: 75 },
+          { x: 520, y: 660, intensity: 0.85, radius: 85 },
+          { x: 790, y: 270, intensity: 1.0, radius: 105 },
+          { x: 840, y: 360, intensity: 0.9, radius: 90 },
+          { x: 1080, y: 290, intensity: 0.85, radius: 85 },
+          { x: 1120, y: 650, intensity: 0.7, radius: 75 }
+        ],
+        victims: [
+          {
+            id: 'v1', name: 'Carlos Mendes (42 anos)', x: 480, y: 720, triage: 'AMARELO',
+            hr: 118, spo2: 88, bp: '105/70', conscious: 'TORPOROSO (13)',
+            desc: 'Inalação moderada de fumaça e queimadura de 2º grau no antebraço. Consciente, mas desorientado pela fumaça.',
+            trapped: false, rescued: false, stabilized: false,
+            steps: [
+              { label: '1. Fornecer Oxigênio 15L/min (Máscara)', hint: 'Oxigenação imediata combate hipóxia por monóxido de carbono.' },
+              { label: '2. Resfriar Queimadura com Soro Fisiológico', hint: 'Interrompe o processo térmico sem causar hipotermia.' },
+              { label: '3. Evacuar com Apoio até a Ambulância ASU', hint: 'Conduzir vítima para zona fria segura.' }
+            ],
+            currentStep: 0
+          },
+          {
+            id: 'v2', name: 'Helena Costa (68 anos)', x: 1150, y: 220, triage: 'VERMELHO',
+            hr: 142, spo2: 81, bp: '80/45', conscious: 'INCONSCIENTE (8)',
+            desc: 'Vítima caída próxima à janela. Intoxicação severa por fumaça tóxica e queda com suspeita de trauma craniano/cervical.',
+            trapped: false, rescued: false, stabilized: false,
+            steps: [
+              { label: '1. Abrir Vias Aéreas + Colar Cervical', hint: 'Proteção da coluna cervical e desobstrução respiratória.' },
+              { label: '2. Ventilação Assistida com Ambu + O2', hint: 'Saturação crítica (81%) exige suporte ventilatório.' },
+              { label: '3. Imobilizar em Prancha Rígida e Evacuar', hint: 'Transporte em bloco para estabilização avançada.' }
+            ],
+            currentStep: 0
+          },
+          {
+            id: 'v3', name: 'Lucas Mendes (9 anos)', x: 1140, y: 730, triage: 'VERDE',
+            hr: 126, spo2: 95, bp: '110/75', conscious: 'ALERTA (15)',
+            desc: 'Criança abrigada no quarto dos fundos. Sem ferimentos graves, apresentando crise aguda de ansiedade e tosse leve.',
+            trapped: false, rescued: false, stabilized: false,
+            steps: [
+              { label: '1. Acalmar Vítima e Avaliar Respiração', hint: 'Triagem START: deambulando, sem sangramentos.' },
+              { label: '2. Colocar Máscara de Proteção e Evacuar', hint: 'Retirar imediatamente da zona quente/morna.' }
+            ],
+            currentStep: 0
+          }
+        ]
+      },
+      {
+        id: 1,
+        code: 'OCORRÊNCIA #1089',
+        title: 'ACIDENTE VEICULAR GRAVE COM ENCARCERAMENTO',
+        briefing: 'QAP Guarnição! Colisão frontal na BR-116. Contenha o vazamento de combustível com neblina, estabilize os veículos e use o Desencarcerador [3] para liberar os ocupantes.',
+        worldWidth: 1400,
+        worldHeight: 900,
+        playerStart: { x: 200, y: 450 },
+        truckZone: { x: 40, y: 300, w: 140, h: 300, label: 'VIATURA ASE-07 / ASU-19' },
+        floorType: 'asphalt',
+        smokeDensity: 0.35,
+        walls: [
+          // Guard-rails da rodovia
+          { x: 260, y: 110, w: 1060, h: 22 },
+          { x: 260, y: 770, w: 1060, h: 22 },
+          // Carro 1 (Sedan Prata)
+          { x: 560, y: 310, w: 190, h: 110, isVehicle: true, color: '#64748b', label: 'SEDAN COLIDIDO' },
+          // Carro 2 (Utilitário Vermelho)
+          { x: 755, y: 340, w: 210, h: 120, isVehicle: true, color: '#991b1b', label: 'UTILITÁRIO' }
+        ],
+        furniture: [],
+        windows: [],
+        doors: [
+          { id: 'car_door1', x: 630, y: 420, w: 70, h: 22, open: false, locked: true, hydraulicOnly: true, temp: 45, backdraftRisk: false, label: 'Porta Motorista Encarcerada' },
+          { id: 'car_door2', x: 820, y: 460, w: 75, h: 22, open: false, locked: true, hydraulicOnly: true, temp: 55, backdraftRisk: false, label: 'Ferragem Utilitário' }
+        ],
+        hazards: [
+          { id: 'h_fuel', type: 'gas', x: 740, y: 485, active: true, label: 'Vazamento de Combustível / Bateria', desc: 'Isole a linha de combustível e desconecte a bateria do veículo!' },
+          { id: 'h_stab', type: 'electric', x: 550, y: 365, active: true, label: 'Veículo Instável (Sem Calços)', desc: 'Aplique calços de estabilização antes de cortar as ferragens!' }
+        ],
+        fires: [
+          { x: 730, y: 290, intensity: 0.85, radius: 75 },
+          { x: 860, y: 280, intensity: 0.75, radius: 70 },
+          { x: 680, y: 520, intensity: 0.65, radius: 65 }
+        ],
+        victims: [
+          {
+            id: 'v_car1', name: 'Roberto Alves (35 anos - Motorista)', x: 655, y: 365, triage: 'VERMELHO',
+            hr: 146, spo2: 86, bp: '75/40', conscious: 'CONFUSO (11)',
+            desc: 'Preso nas ferragens pelo painel. Hemorragia arterial severa na coxa direita e trauma torácico pelo volante.',
+            trapped: true, doorReq: 'car_door1', rescued: false, stabilized: false,
+            steps: [
+              { label: '1. Aplicar Torniquete Tático (Controle X)', hint: 'Hemorragia exsanguinante tem prioridade absoluta (X do XABCDE).' },
+              { label: '2. Colocar Colar Cervical e Estabilizar Coluna', hint: 'Cinemática de colisão frontal exige restrição cervical.' },
+              { label: '3. Extrair em Ângulo Zero na Prancha Rígida', hint: 'Retirada técnica após abertura hidráulica da porta.' }
+            ],
+            currentStep: 0
+          },
+          {
+            id: 'v_car2', name: 'Mariana Silva (29 anos - Condutora)', x: 850, y: 400, triage: 'AMARELO',
+            hr: 122, spo2: 92, bp: '100/65', conscious: 'ALERTA (14)',
+            desc: 'Encarcerada no utilitário com fratura fechada de fêmur esquerdo e dor cervical intensa.',
+            trapped: true, doorReq: 'car_door2', rescued: false, stabilized: false,
+            steps: [
+              { label: '1. Restrição da Coluna Cervical (Colar)', hint: 'Imobilizar antes de qualquer movimentação.' },
+              { label: '2. Imobilizar Membro Fraturado + O2', hint: 'Evita embolia gordurosa e reduz choque neurogênico.' },
+              { label: '3. Extrair com Prancha Longa para ASU', hint: 'Vítima liberada das ferragens e pronta para transporte.' }
+            ],
+            currentStep: 0
+          }
+        ]
+      },
+      {
+        id: 2,
+        code: 'OCORRÊNCIA #1103',
+        title: 'DESABAMENTO E BUSCA TÉRMICA EM GALPÃO',
+        briefing: 'QAP Guarnição! Explosão industrial provocou colapso parcial. Use a Câmera Térmica [4] para localizar vítimas sob escombros e o Halligan/Desencarcerador para abrir acesso.',
+        worldWidth: 1450,
+        worldHeight: 950,
+        playerStart: { x: 180, y: 475 },
+        truckZone: { x: 40, y: 330, w: 140, h: 290, label: 'VIATURA ABTR-42 / BREC' },
+        floorType: 'concrete',
+        smokeDensity: 0.72,
+        walls: [
+          { x: 310, y: 100, w: 1040, h: 26 },
+          { x: 310, y: 820, w: 1040, h: 26 },
+          { x: 310, y: 100, w: 26, h: 320 },
+          { x: 310, y: 530, w: 26, h: 316 },
+          { x: 1324, y: 100, w: 26, h: 746 },
+          // Pilares e blocos colapsados
+          { x: 620, y: 240, w: 120, h: 90 },
+          { x: 890, y: 520, w: 140, h: 110 },
+          { x: 680, y: 580, w: 90, h: 90 }
+        ],
+        furniture: [],
+        windows: [
+          { id: 'w_galp1', x: 750, y: 100, w: 110, h: 26, open: false, label: 'Exaustor Superior' },
+          { id: 'w_galp2', x: 960, y: 820, w: 110, h: 26, open: false, label: 'Claraboia Lateral' }
+        ],
+        doors: [
+          { id: 'deb1', x: 310, y: 420, w: 26, h: 110, open: false, locked: true, temp: 90, backdraftRisk: false, label: 'Portão Metálico Retorcido' },
+          { id: 'deb2', x: 820, y: 330, w: 90, h: 30, open: false, locked: true, hydraulicOnly: true, temp: 130, backdraftRisk: false, label: 'Viga de Concreto Colapsada' }
+        ],
+        hazards: [
+          { id: 'h_chem', type: 'gas', x: 1180, y: 210, active: true, label: 'Válvula de Amônia / Vapor', desc: 'Feche o registro industrial para dissipar a nuvem tóxica!' },
+          { id: 'h_power', type: 'electric', x: 420, y: 160, active: true, label: 'Transformador em Curto', desc: 'Desarme a chave geral do galpão!' }
+        ],
+        fires: [
+          { x: 520, y: 200, intensity: 0.8, radius: 80 },
+          { x: 1060, y: 310, intensity: 0.95, radius: 95 },
+          { x: 1120, y: 690, intensity: 0.85, radius: 85 },
+          { x: 550, y: 710, intensity: 0.75, radius: 75 }
+        ],
+        victims: [
+          {
+            id: 'v_brec1', name: 'Eng. Tiago Rocha (44 anos)', x: 865, y: 255, triage: 'VERMELHO',
+            hr: 150, spo2: 83, bp: '70/40', conscious: 'TORPOROSO (10)',
+            desc: 'Soterrado sob viga de concreto (Síndrome do Esmagamento). Risco de hipercalemia e choque hipovolêmico após liberação.',
+            trapped: true, doorReq: 'deb2', rescued: false, stabilized: false,
+            steps: [
+              { label: '1. Aplicar Torniquete Proximal Antes de Levantar Viga', hint: 'Previne liberação súbita de toxinas da Síndrome do Esmagamento.' },
+              { label: '2. Administrar Oxigênio Alto Fluxo + Manta Térmica', hint: 'Combate choque e hipotermia traumática.' },
+              { label: '3. Imobilizar em Prancha Rígida e Evacuar', hint: 'Remoção prioritária para UTI móvel.' }
+            ],
+            currentStep: 0
+          },
+          {
+            id: 'v_brec2', name: 'Operador Paulo Lima (51 anos)', x: 1210, y: 720, triage: 'AMARELO',
+            hr: 115, spo2: 89, bp: '105/65', conscious: 'ALERTA (14)',
+            desc: 'Preso no fundo do galpão com fratura exposta em rádio/ulna e exposição leve a vapor químico.',
+            trapped: false, rescued: false, stabilized: false,
+            steps: [
+              { label: '1. Curativo Estéril Compressivo na Fratura Exposta', hint: 'Controla sangramento e evita contaminação.' },
+              { label: '2. Imobilizar Membro Superior + Oxigênio', hint: 'Estabilização pré-transporte.' },
+              { label: '3. Conduzir até a Área de Triagem Externa', hint: 'Evacuação concluída.' }
+            ],
+            currentStep: 0
+          }
+        ]
+      },
+      {
+        id: 3,
+        code: 'OCORRÊNCIA #1145',
+        title: 'HAZMAT QUÍMICO E RESGATE EM MEZANINO INDUSTRIAL',
+        briefing: 'QAP Guarnição! Empilhadeira colidiu contra tanques de solvente inflamável. Use Neblina [R] para abater vapores, isole o vazamento HAZMAT e resgate os 3 operadores no mezanino.',
+        worldWidth: 1500,
+        worldHeight: 980,
+        playerStart: { x: 180, y: 490 },
+        truckZone: { x: 40, y: 340, w: 140, h: 300, label: 'VIATURA ABTR-42 / HAZMAT' },
+        floorType: 'concrete',
+        smokeDensity: 0.78,
+        walls: [
+          { x: 310, y: 90, w: 1100, h: 24 },
+          { x: 310, y: 860, w: 1100, h: 24 },
+          { x: 310, y: 90, w: 24, h: 340 },
+          { x: 310, y: 550, w: 24, h: 334 },
+          { x: 1386, y: 90, w: 24, h: 794 },
+          // Tanques Químicos e Mezanino
+          { x: 540, y: 200, w: 110, h: 110, isVehicle: true, color: '#4c1d95', label: 'TANQUE SOLVENTE A' },
+          { x: 540, y: 650, w: 110, h: 110, isVehicle: true, color: '#4c1d95', label: 'TANQUE SOLVENTE B' },
+          { x: 960, y: 114, w: 22, h: 320 },
+          { x: 960, y: 534, w: 22, h: 326 }
+        ],
+        furniture: [
+          { x: 720, y: 440, w: 85, h: 55, label: 'EMPILHADEIRA TOMBADA' }
+        ],
+        windows: [
+          { id: 'w_haz1', x: 720, y: 90, w: 120, h: 24, open: false, label: 'Veneziana Industrial Norte' },
+          { id: 'w_haz2', x: 1140, y: 90, w: 120, h: 24, open: false, label: 'Veneziana Mezanino' }
+        ],
+        doors: [
+          { id: 'haz_d1', x: 310, y: 430, w: 24, h: 120, open: false, locked: true, temp: 80, backdraftRisk: false, label: 'Portão Setor Químico' },
+          { id: 'haz_d2', x: 960, y: 434, w: 22, h: 100, open: false, locked: true, hydraulicOnly: true, temp: 195, backdraftRisk: true, label: 'Acesso Mezanino (SUPERAQUECIDO)' }
+        ],
+        hazards: [
+          { id: 'h_haz_valve', type: 'gas', x: 675, y: 255, active: true, label: 'Ruptura Tubulação Solvente', desc: 'Feche o registro principal de bloqueio químico!' },
+          { id: 'h_haz_elec', type: 'electric', x: 375, y: 150, active: true, label: 'Painel Trifásico Subestação', desc: 'Desligue a subestação antes de combater chamas próximas!' },
+          { id: 'h_haz_fork', type: 'gas', x: 760, y: 515, active: true, label: 'Cilindro GLP Empilhadeira', desc: 'Feche a válvula do cilindro da empilhadeira tombada!' }
+        ],
+        fires: [
+          { x: 680, y: 340, intensity: 0.95, radius: 90 },
+          { x: 760, y: 630, intensity: 0.85, radius: 85 },
+          { x: 1120, y: 260, intensity: 1.0, radius: 100 },
+          { x: 1180, y: 690, intensity: 0.9, radius: 90 }
+        ],
+        victims: [
+          {
+            id: 'v_haz1', name: 'Téc. Químico Rafael Souza (38 anos)', x: 790, y: 410, triage: 'VERMELHO',
+            hr: 148, spo2: 82, bp: '78/42', conscious: 'CONFUSO (10)',
+            desc: 'Operador da empilhadeira com queimadura química em tórax e broncoespasmo severo por vapores tóxicos.',
+            trapped: false, rescued: false, stabilized: false,
+            steps: [
+              { label: '1. Descontaminação Rápida + Oxigênio 15L/min', hint: 'Remove resíduo químico e reverte hipóxia aguda.' },
+              { label: '2. Colar Cervical + Imobilização de Coluna', hint: 'Queda de empilhadeira exige restrição cervical.' },
+              { label: '3. Evacuar para Zona Fria (ASU-19)', hint: 'Transporte prioritário.' }
+            ],
+            currentStep: 0
+          },
+          {
+            id: 'v_haz2', name: 'Sup. Camila Nogueira (41 anos)', x: 1240, y: 220, triage: 'VERMELHO',
+            hr: 136, spo2: 85, bp: '85/50', conscious: 'TORPOROSO (11)',
+            desc: 'Encurralada no mezanino superior com inalação severa de fumaça e trauma em membro inferior.',
+            trapped: false, rescued: false, stabilized: false,
+            steps: [
+              { label: '1. Abrir Vias Aéreas + Oxigenoterapia Alto Fluxo', hint: 'Prioridade respiratória imediata.' },
+              { label: '2. Tala Rígida em Membro Inferior + Manta Térmica', hint: 'Estabilização de fratura e controle de choque.' },
+              { label: '3. Extrair em Prancha Rígida para Ambulância', hint: 'Evacuação concluída.' }
+            ],
+            currentStep: 0
+          },
+          {
+            id: 'v_haz3', name: 'Aux. Diego Martins (27 anos)', x: 1250, y: 740, triage: 'AMARELO',
+            hr: 120, spo2: 91, bp: '105/70', conscious: 'ALERTA (14)',
+            desc: 'Abrigado na sala de controle do mezanino com corte profundo no braço direito e tosse irritativa.',
+            trapped: false, rescued: false, stabilized: false,
+            steps: [
+              { label: '1. Curativo Compressivo Estéril (Controle Sangramento)', hint: 'Estanca hemorragia venosa/arterial moderada.' },
+              { label: '2. Oxigênio Suplementar e Condução para Zona Fria', hint: 'Retirada segura da área contaminada.' }
+            ],
+            currentStep: 0
+          }
+        ]
+      }
+    ];
+
+    // =========================================================================
+    // 3. ESTADO GLOBAL DO JOGO E ENTIDADES
+    // =========================================================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let currentMissionIdx = 0;
+    let gameState = 'MENU'; // MENU, PLAYING, APH_MODAL, DEBRIEF
+    let mission = null;
+
+    // Estado do Bombeiro (Operador)
+    const player = {
+      x: 180,
+      y: 480,
+      radius: 18,
+      angle: 0,
+      speed: 195,
+      air: 300, // 300 Bar
+      maxAir: 300,
+      water: 100, // % do tanque ABT
+      bpm: 84,
+      ambientTemp: 28,
+      selectedTool: 0, // 0: Mangueira, 1: Halligan, 2: Desencarcerador, 3: Câmera Térmica, 4: Kit APH
+      nozzleMode: 'JET', // 'JET' (Jato Compacto) ou 'FOG' (Neblina Resfriamento)
+      carryingVictim: null
+    };
+
+    // Câmera e Controles
+    const camera = { x: 0, y: 0, shake: 0 };
+    const keys = {};
+    const mouse = { x: 0, y: 0, worldX: 0, worldY: 0, down: false };
+
+    // Partículas (Água, Fogo, Fumaça, Faíscas, Vapor) e Poças/Equipe IA
+    let particles = [];
+    let puddles = [];
+    let activeAphVictim = null;
+    let squadOrder = 'FOLLOW'; // 'FOLLOW', 'SUPPRESS', 'EXTRACT'
+    let squad = [];
+    let smokeLevel = 0.5;
+    let ecgPhase = 0;
+    let currentContextualHint = '';
+
+    // Métricas da Missão
+    let stats = {
+      elapsedTime: 0,
+      backdraftsTriggered: 0,
+      hazardsNeutralized: 0,
+      totalHazards: 0,
+      victimsSaved: 0,
+      totalVictims: 0,
+      protocolMistakes: 0,
+      lowAirWarned: false
+    };
+
+    // =========================================================================
+    // 4. INICIALIZAÇÃO E GERENCIAMENTO DE TELA / INPUTS
+    // =========================================================================
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Helper compatível com todos os navegadores para retângulos arredondados no Canvas
+    function drawRoundRect(context, x, y, w, h, r) {
+      if (typeof context.roundRect === 'function') {
+        context.beginPath();
+        context.roundRect(x, y, w, h, r);
+        return;
+      }
+      const radius = Math.min(r, w / 2, h / 2);
+      context.beginPath();
+      context.moveTo(x + radius, y);
+      context.arcTo(x + w, y, x + w, y + h, radius);
+      context.arcTo(x + w, y + h, x, y + h, radius);
+      context.arcTo(x, y + h, x, y, radius);
+      context.arcTo(x, y, x + w, y, radius);
+      context.closePath();
+    }
+
+    window.addEventListener('keydown', (e) => {
+      keys[e.code] = true;
+
+      if (gameState === 'PLAYING') {
+        if (e.code === 'Digit1') selectTool(0);
+        if (e.code === 'Digit2') selectTool(1);
+        if (e.code === 'Digit3') selectTool(2);
+        if (e.code === 'Digit4') selectTool(3);
+        if (e.code === 'Digit5') selectTool(4);
+        if (e.code === 'KeyR') toggleNozzleMode();
+        if (e.code === 'KeyV') ventilationAction();
+        if (e.code === 'KeyQ') setSquadOrder('FOLLOW');
+        if (e.code === 'KeyG') setSquadOrder('SUPPRESS');
+        if (e.code === 'KeyH') setSquadOrder('EXTRACT');
+        if (e.code === 'KeyE' || e.code === 'Space') {
+          e.preventDefault();
+          interactAction();
+        }
+      } else if (gameState === 'APH_MODAL' && e.code === 'Escape') {
+        closeAphModal();
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      keys[e.code] = false;
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    canvas.addEventListener('mousedown', (e) => {
+      if (e.button === 0 && gameState === 'PLAYING') {
+        sound.init();
+        mouse.down = true;
+        handleToolClick();
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      mouse.down = false;
+    });
+
+    function selectTool(idx) {
+      player.selectedTool = idx;
+      for (let i = 0; i < 5; i++) {
+        const el = document.getElementById(`tool-${i}`);
+        if (el) el.classList.toggle('active', i === idx);
+      }
+      const names = [
+        'Mangueira de Alta Pressão (1½ pol)',
+        'Alavanca Halligan & Machado Bombeiro',
+        'Desencarcerador Hidráulico Combinado',
+        'Câmera Termográfica (FLIR Tática)',
+        'Kit APH Avançado & Triagem START'
+      ];
+      pushRadio(`Equipamento selecionado: ${names[idx]}`);
+    }
+
+    function toggleNozzleMode() {
+      player.nozzleMode = player.nozzleMode === 'JET' ? 'FOG' : 'JET';
+      const btn = document.getElementById('btnNozzleMode');
+      if (player.nozzleMode === 'JET') {
+        btn.textContent = 'ESGUICHO: JATO [R]';
+        btn.className = 'text-cyan-300 hover:text-white font-bold underline decoration-dotted';
+      } else {
+        btn.textContent = 'ESGUICHO: NEBLINA [R]';
+        btn.className = 'text-amber-300 hover:text-white font-bold underline decoration-dotted';
+      }
+    }
+
+    function setSquadOrder(order) {
+      squadOrder = order;
+      ['FOLLOW', 'SUPPRESS', 'EXTRACT'].forEach(o => {
+        const btn = document.getElementById(`squad-${o}`);
+        if (btn) {
+          btn.className = o === order
+            ? 'px-2 py-0.5 rounded bg-cyan-600/50 border border-cyan-400 text-[10px] text-white font-bold'
+            : 'px-2 py-0.5 rounded bg-slate-800 border border-slate-600 text-[10px] text-slate-300 hover:text-white font-bold';
+        }
+      });
+      const labels = {
+        FOLLOW: 'SEGUIR COMANDANTE',
+        SUPPRESS: 'COMBATER FOCOS',
+        EXTRACT: 'EXTRAIR VÍTIMAS'
+      };
+      const hudSquad = document.getElementById('hudSquadMode');
+      if (hudSquad) hudSquad.textContent = `EQUIPE: ${labels[order]}`;
+      pushRadio(`📢 Ordem à Guarnição (CB Silva & SD Moura): ${labels[order]}!`, true);
+    }
+
+    function ventilationAction() {
+      if (gameState !== 'PLAYING' || !mission || !mission.windows) return;
+      for (const win of mission.windows) {
+        const cx = win.x + win.w / 2;
+        const cy = win.y + win.h / 2;
+        if (!win.open && Math.hypot(player.x - cx, player.y - cy) < 95) {
+          win.open = true;
+          sound.playGlassBreak();
+          for (let i = 0; i < 16; i++) spawnSpark(cx, cy);
+
+          // Se houver muito fogo ativo, abrir janela alimenta o fogo com oxigênio!
+          if (mission.fires.length >= 3) {
+            mission.fires.forEach(f => { f.intensity = Math.min(1.25, f.intensity + 0.14); });
+            pushRadio(`💨 VENTILAÇÃO TÁTICA (${win.label}): Fumaça evacuando, mas oxigênio alimentou os focos ativos!`, true);
+          } else {
+            pushRadio(`💨 VENTILAÇÃO TÁTICA (${win.label}): Exaustão de fumaça e queda de temperatura ambiente!`, true);
+          }
+          smokeLevel = Math.max(0.1, smokeLevel - 0.25);
+          return;
+        }
+      }
+      pushRadio('Aproxime-se de uma janela externa para executar Ventilação Tática [V].');
+    }
+
+    let radioBannerTimeout = null;
+    function pushRadio(msg, isAlert = false) {
+      const logEl = document.getElementById('radioLog');
+      if (logEl) logEl.textContent = msg;
+
+      if (isAlert) {
+        sound.playRadioBeep();
+        const banner = document.getElementById('radioAlertBanner');
+        const bannerText = document.getElementById('radioAlertText');
+        bannerText.textContent = msg;
+        banner.classList.remove('hidden');
+        clearTimeout(radioBannerTimeout);
+        radioBannerTimeout = setTimeout(() => {
+          banner.classList.add('hidden');
+        }, 4200);
+      }
+    }
+
+    // =========================================================================
+    // 5. CONTROLE DE FLUXO DAS MISSÕES (DESPACHO -> OPERAÇÃO -> DEBRIEF)
+    // =========================================================================
+    function startMission(idx) {
+      sound.init();
+      sound.playSiren();
+      currentMissionIdx = idx;
+
+      // Clonar profundamente os dados da missão selecionada
+      mission = JSON.parse(JSON.stringify(MISSIONS[idx]));
+
+      // Resetar jogador
+      player.x = mission.playerStart.x;
+      player.y = mission.playerStart.y;
+      player.angle = 0;
+      player.air = 300;
+      player.water = 100;
+      player.bpm = 86;
+      player.ambientTemp = 28;
+      player.carryingVictim = null;
+      selectTool(0);
+
+      // Resetar partículas e métricas
+      particles = [];
+      puddles = [];
+      smokeLevel = mission.smokeDensity || 0.5;
+      squadOrder = 'FOLLOW';
+      squad = [
+        { name: 'CB SILVA', x: player.x - 36, y: player.y - 45, angle: 0, role: 'NOZZLE', carrying: null, sprayTimer: 0 },
+        { name: 'SD MOURA', x: player.x - 36, y: player.y + 45, angle: 0, role: 'RESCUE', carrying: null, sprayTimer: 0 }
+      ];
+      setSquadOrder('FOLLOW');
+
+      stats = {
+        elapsedTime: 0,
+        backdraftsTriggered: 0,
+        hazardsNeutralized: 0,
+        totalHazards: mission.hazards.length,
+        victimsSaved: 0,
+        totalVictims: mission.victims.length,
+        protocolMistakes: 0,
+        lowAirWarned: false
+      };
+
+      // Gerar fumaça inicial nos ambientes com fogo
+      mission.fires.forEach(f => {
+        for (let i = 0; i < 14; i++) {
+          spawnSmoke(f.x + (Math.random() - 0.5) * 140, f.y + (Math.random() - 0.5) * 140);
+        }
+      });
+
+      // UI
+      document.getElementById('dispatchScreen').classList.add('hidden');
+      document.getElementById('debriefModal').classList.add('hidden');
+      document.getElementById('aphModal').classList.add('hidden');
+      document.getElementById('hudTop').classList.remove('hidden');
+      document.getElementById('hudBottom').classList.remove('hidden');
+      document.getElementById('minimapContainer').classList.remove('hidden');
+      if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        document.getElementById('mobileControls').classList.remove('hidden');
+      }
+
+      document.getElementById('hudMissionTitle').textContent = mission.title;
+      pushRadio(mission.briefing, true);
+      gameState = 'PLAYING';
+    }
+
+    function restartCurrentMission() {
+      startMission(currentMissionIdx);
+    }
+
+    function returnToDispatch() {
+      gameState = 'MENU';
+      sound.updateContinuous(0, false);
+      document.getElementById('hudTop').classList.add('hidden');
+      document.getElementById('hudBottom').classList.add('hidden');
+      document.getElementById('minimapContainer').classList.add('hidden');
+      document.getElementById('mobileControls').classList.add('hidden');
+      document.getElementById('aphModal').classList.add('hidden');
+      document.getElementById('debriefModal').classList.add('hidden');
+      document.getElementById('dispatchScreen').classList.remove('hidden');
+      updateCareerUI();
+    }
+
+    // =========================================================================
+    // 6. MECÂNICAS TÁTICAS DE INTERAÇÃO, ARROMBAMENTO, DESENCARCERAMENTO E APH
+    // =========================================================================
+    function handleToolClick() {
+      if (gameState !== 'PLAYING') return;
+
+      // Ferramenta 1: Halligan (Arrombar portas)
+      if (player.selectedTool === 1) {
+        tryBreachDoor(false);
+      }
+      // Ferramenta 2: Desencarcerador Hidráulico (Cortar ferragens / vigas)
+      else if (player.selectedTool === 2) {
+        tryBreachDoor(true);
+      }
+      // Ferramenta 4: Kit APH (Abrir atendimento médico)
+      else if (player.selectedTool === 4) {
+        interactAction();
+      }
+    }
+
+    function tryBreachDoor(isHydraulic) {
+      let acted = false;
+      for (const door of mission.doors) {
+        const cx = door.x + door.w / 2;
+        const cy = door.y + door.h / 2;
+        const dist = Math.hypot(player.x - cx, player.y - cy);
+
+        if (dist < 85 && !door.open) {
+          acted = true;
+
+          // Verificar se exige ferramenta hidráulica
+          if (door.hydraulicOnly && !isHydraulic) {
+            sound.playImpact('metal');
+            pushRadio('Estrutura metálica pesada! Utilize o DESENCARCERADOR HIDRÁULICO [3] para cortar.', true);
+            return;
+          }
+
+          // Verificar estabilização veicular antes de cortar ferragens
+          if (door.hydraulicOnly) {
+            const unstabilized = mission.hazards.find(h => h.id === 'h_stab' && h.active);
+            if (unstabilized) {
+              stats.protocolMistakes++;
+              pushRadio('ALERTA DE SEGURANÇA: Estabilize o veículo [E] antes de operar o desencarcerador!', true);
+              return;
+            }
+          }
+
+          // CHECAGEM REALISTA DE BACKDRAFT!
+          if (door.backdraftRisk && door.temp > 150) {
+            triggerBackdraft(door);
+            return;
+          }
+
+          door.open = true;
+          door.locked = false;
+          sound.playImpact(isHydraulic ? 'hydraulic' : 'metal');
+          for (let i = 0; i < 15; i++) {
+            spawnSpark(cx, cy);
+          }
+          pushRadio(`${door.label} aberta com segurança! Avançando na busca primária.`);
+          return;
+        }
+      }
+
+      if (!acted) {
+        sound.playImpact(isHydraulic ? 'hydraulic' : 'metal');
+      }
+    }
+
+    function triggerBackdraft(door) {
+      door.open = true;
+      door.backdraftRisk = false;
+      door.temp = 90;
+      stats.backdraftsTriggered++;
+      stats.protocolMistakes++;
+      camera.shake = 22;
+      sound.playExplosion();
+
+      const cx = door.x + door.w / 2;
+      const cy = door.y + door.h / 2;
+
+      // Onda expansiva de fogo e fumaça
+      mission.fires.push({ x: cx + 40, y: cy, intensity: 1.0, radius: 110 });
+      for (let i = 0; i < 45; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 80 + Math.random() * 240;
+        particles.push({
+          type: 'fire',
+          x: cx,
+          y: cy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          life: 0.9 + Math.random() * 0.6,
+          maxLife: 1.5,
+          size: 18 + Math.random() * 22
+        });
+      }
+
+      player.air = Math.max(20, player.air - 35);
+      player.bpm = Math.min(175, player.bpm + 35);
+      pushRadio('⚠️ BACKDRAFT! Porta aberta em superaquecimento (>150°C) sem resfriamento prévio com neblina!', true);
+    }
+
+    function interactAction() {
+      if (gameState !== 'PLAYING') return;
+
+      // 1. Se estiver carregando vítima, verificar se chegou na área da Ambulância ASU
+      if (player.carryingVictim) {
+        const tz = mission.truckZone;
+        if (player.x >= tz.x - 20 && player.x <= tz.x + tz.w + 40 &&
+            player.y >= tz.y - 20 && player.y <= tz.y + tz.h + 40) {
+          const v = player.carryingVictim;
+          v.rescued = true;
+          player.carryingVictim = null;
+          stats.victimsSaved++;
+          sound.playHeartMonitor(true);
+          pushRadio(`✅ Vítima ${v.name} entregue à equipe médica da ASU-19! (${stats.victimsSaved}/${stats.totalVictims})`, true);
+          checkMissionCompletion();
+          return;
+        }
+      }
+
+      // 2. Verificar Riscos Ambientais Próximos (Quadro Elétrico, Registro de Gás, Calços)
+      for (const h of mission.hazards) {
+        if (h.active && Math.hypot(player.x - h.x, player.y - h.y) < 75) {
+          h.active = false;
+          stats.hazardsNeutralized++;
+          sound.playImpact('metal');
+          pushRadio(`🛡️ Risco neutralizado: ${h.label}. Cena mais segura!`, true);
+          checkMissionCompletion();
+          return;
+        }
+      }
+
+      // 3. Verificar Vítimas Próximas para Atendimento APH ou Transporte
+      for (const v of mission.victims) {
+        if (v.rescued) continue;
+        if (Math.hypot(player.x - v.x, player.y - v.y) < 80) {
+          // Verificar se está encarcerada por porta/ferragem fechada
+          if (v.trapped && v.doorReq) {
+            const reqDoor = mission.doors.find(d => d.id === v.doorReq);
+            if (reqDoor && !reqDoor.open) {
+              pushRadio('Vítima encarcerada! Abra acesso com Desencarcerador [3] ou Halligan [2] primeiro.', true);
+              return;
+            }
+            v.trapped = false;
+          }
+
+          if (!v.stabilized) {
+            openAphModal(v);
+            return;
+          } else if (!player.carryingVictim) {
+            player.carryingVictim = v;
+            pushRadio(`🚑 Conduzindo ${v.name} em prancha rígida! Leve até a viatura ASU na área externa.`, true);
+            return;
+          }
+        }
+      }
+
+      // 4. Verificar Portas destrancadas
+      for (const door of mission.doors) {
+        const cx = door.x + door.w / 2;
+        const cy = door.y + door.h / 2;
+        if (Math.hypot(player.x - cx, player.y - cy) < 80 && !door.open) {
+          if (door.locked) {
+            pushRadio('Porta trancada/emperrada! Use Halligan [2] ou Desencarcerador [3] (verifique temperatura antes!).', true);
+          } else {
+            if (door.backdraftRisk && door.temp > 150) {
+              triggerBackdraft(door);
+            } else {
+              door.open = true;
+              pushRadio(`${door.label} aberta.`);
+            }
+          }
+          return;
+        }
+      }
+    }
+
+    // =========================================================================
+    // 7. PAINEL INTERATIVO DE ATENDIMENTO PRÉ-HOSPITALAR (APH)
+    // =========================================================================
+    function openAphModal(victim) {
+      activeAphVictim = victim;
+      gameState = 'APH_MODAL';
+      mouse.down = false;
+
+      document.getElementById('aphVictimName').textContent = victim.name;
+      document.getElementById('aphHr').textContent = `${victim.hr} BPM`;
+      document.getElementById('aphSpo2').textContent = `${victim.spo2}%`;
+      document.getElementById('aphBp').textContent = victim.bp;
+      document.getElementById('aphConscious').textContent = victim.conscious;
+      document.getElementById('aphConditionDesc').textContent = victim.desc;
+
+      const badge = document.getElementById('aphTriageBadge');
+      if (victim.triage === 'VERMELHO') {
+        badge.textContent = 'START: VERMELHO (EMERGÊNCIA)';
+        badge.className = 'text-[10px] font-mono-tech uppercase px-2 py-0.5 rounded font-bold bg-red-600 text-white';
+      } else if (victim.triage === 'AMARELO') {
+        badge.textContent = 'START: AMARELO (URGENTE)';
+        badge.className = 'text-[10px] font-mono-tech uppercase px-2 py-0.5 rounded font-bold bg-amber-500 text-slate-950';
+      } else {
+        badge.textContent = 'START: VERDE (POUCO URGENTE)';
+        badge.className = 'text-[10px] font-mono-tech uppercase px-2 py-0.5 rounded font-bold bg-emerald-500 text-slate-950';
+      }
+
+      renderAphSteps();
+      document.getElementById('aphModal').classList.remove('hidden');
+      sound.playHeartMonitor(true);
+    }
+
+    function renderAphSteps() {
+      const v = activeAphVictim;
+      if (!v) return;
+
+      const grid = document.getElementById('aphActionsGrid');
+      grid.innerHTML = '';
+
+      document.getElementById('aphStepIndicator').textContent = `ETAPA ${Math.min(v.currentStep + 1, v.steps.length)} DE ${v.steps.length}`;
+
+      // Embaralhar visualmente ou listar todos os passos para o jogador escolher na ordem certa
+      v.steps.forEach((step, idx) => {
+        const done = idx < v.currentStep;
+        const btn = document.createElement('button');
+        btn.className = done
+          ? 'p-3 rounded-xl border border-emerald-500/60 bg-emerald-950/50 text-emerald-300 text-left text-xs font-semibold flex items-center justify-between'
+          : 'btn-tactical p-3 rounded-xl text-left text-xs font-semibold text-white flex items-center justify-between';
+
+        btn.innerHTML = `<span>${step.label}</span><span>${done ? '✅' : '➔'}</span>`;
+        btn.disabled = done;
+
+        btn.onclick = () => {
+          if (idx === v.currentStep) {
+            v.currentStep++;
+            sound.playHeartMonitor(true);
+            // Melhorar sinais vitais progressivamente
+            v.spo2 = Math.min(99, v.spo2 + 5);
+            v.hr = Math.max(82, v.hr - 14);
+            document.getElementById('aphSpo2').textContent = `${v.spo2}%`;
+            document.getElementById('aphHr').textContent = `${v.hr} BPM`;
+            document.getElementById('aphFeedback').textContent = `✔ Procedimento correto: ${step.hint}`;
+
+            if (v.currentStep >= v.steps.length) {
+              v.stabilized = true;
+              setTimeout(() => {
+                closeAphModal();
+                player.carryingVictim = v;
+                pushRadio(`🚑 ${v.name} estabilizada! Leve-a até a viatura ASU na zona fria externa.`, true);
+              }, 650);
+            } else {
+              renderAphSteps();
+            }
+          } else {
+            stats.protocolMistakes++;
+            sound.playHeartMonitor(false);
+            document.getElementById('aphFeedback').textContent = `⚠️ Ordem incorreta no protocolo XABCDE! Siga a sequência prioritária.`;
+          }
+        };
+
+        grid.appendChild(btn);
+      });
+    }
+
+    function closeAphModal() {
+      document.getElementById('aphModal').classList.add('hidden');
+      activeAphVictim = null;
+      gameState = 'PLAYING';
+    }
+
+    // =========================================================================
+    // 8. FÍSICA DO FOGO, ÁGUA, FUMAÇA, EPR E ATUALIZAÇÃO POR FRAME
+    // =========================================================================
+    function spawnSmoke(x, y) {
+      if (particles.length > 550) return;
+      particles.push({
+        type: 'smoke',
+        x,
+        y,
+        vx: (Math.random() - 0.5) * 26,
+        vy: -12 - Math.random() * 24,
+        life: 3.5 + Math.random() * 2.5,
+        maxLife: 6.0,
+        size: 28 + Math.random() * 32
+      });
+    }
+
+    function spawnSpark(x, y) {
+      particles.push({
+        type: 'spark',
+        x,
+        y,
+        vx: (Math.random() - 0.5) * 220,
+        vy: (Math.random() - 0.5) * 220,
+        life: 0.35 + Math.random() * 0.25,
+        maxLife: 0.6,
+        size: 3
+      });
+    }
+
+    function updateSimulation(dt) {
+      if (gameState !== 'PLAYING' || !mission) return;
+
+      stats.elapsedTime += dt;
+
+      // 1. Movimentação do Bombeiro
+      let moveX = 0;
+      let moveY = 0;
+      if (keys['KeyW'] || keys['ArrowUp']) moveY -= 1;
+      if (keys['KeyS'] || keys['ArrowDown']) moveY += 1;
+      if (keys['KeyA'] || keys['ArrowLeft']) moveX -= 1;
+      if (keys['KeyD'] || keys['ArrowRight']) moveX += 1;
+
+      if (moveX !== 0 || moveY !== 0) {
+        const len = Math.hypot(moveX, moveY);
+        moveX /= len;
+        moveY /= len;
+
+        const sprintMult = (keys['ShiftLeft'] || keys['ShiftRight']) ? 1.35 : 1.0;
+        const carryMult = player.carryingVictim ? 0.72 : 1.0;
+        const currentSpeed = player.speed * sprintMult * carryMult;
+
+        const nextX = player.x + moveX * currentSpeed * dt;
+        const nextY = player.y + moveY * currentSpeed * dt;
+
+        if (!collidesWithWorld(nextX, player.y, player.radius)) player.x = nextX;
+        if (!collidesWithWorld(player.x, nextY, player.radius)) player.y = nextY;
+      }
+
+      // Atualizar mira com o mouse
+      mouse.worldX = mouse.x + camera.x;
+      mouse.worldY = mouse.y + camera.y;
+      player.angle = Math.atan2(mouse.worldY - player.y, mouse.worldX - player.x);
+
+      // 2. Reabastecimento de Ar (EPR) e Água junto à Viatura ABT
+      const tz = mission.truckZone;
+      const atTruck = (player.x >= tz.x - 10 && player.x <= tz.x + tz.w + 35 &&
+                       player.y >= tz.y - 10 && player.y <= tz.y + tz.h + 35);
+      if (atTruck) {
+        player.air = Math.min(player.maxAir, player.air + 55 * dt);
+        player.water = Math.min(100, player.water + 35 * dt);
+        if (player.carryingVictim) {
+          interactAction(); // Entrega automática ao encostar na viatura
+        }
+      }
+
+      // 3. Operação da Mangueira de Alta Pressão (Ferramenta 0)
+      const hoseDistToTruck = Math.hypot(player.x - (tz.x + tz.w), player.y - (tz.y + tz.h * 0.35));
+      const maxHoseReach = 1150;
+      const inHoseReach = hoseDistToTruck <= maxHoseReach;
+      const isSpraying = mouse.down && player.selectedTool === 0 && player.water > 0 && inHoseReach;
+
+      if (mouse.down && player.selectedTool === 0 && !inHoseReach && Math.random() < 0.05) {
+        pushRadio('⚠️ Limite máximo da linha de mangueira (115m) atingido!', true);
+      }
+
+      if (isSpraying) {
+        const waterCost = player.nozzleMode === 'JET' ? 2.4 : 3.5;
+        player.water = Math.max(0, player.water - waterCost * dt);
+
+        if (Math.random() < 0.18 && puddles.length < 75) {
+          puddles.push({
+            x: player.x + Math.cos(player.angle) * (60 + Math.random() * 90),
+            y: player.y + Math.sin(player.angle) * (60 + Math.random() * 90),
+            r: 14 + Math.random() * 14,
+            alpha: 0.35
+          });
+        }
+
+        const spread = player.nozzleMode === 'JET' ? 0.11 : 0.65;
+        const speed = player.nozzleMode === 'JET' ? 560 : 340;
+        const count = player.nozzleMode === 'JET' ? 3 : 5;
+
+        for (let i = 0; i < count; i++) {
+          const ang = player.angle + (Math.random() - 0.5) * spread;
+          particles.push({
+            type: player.nozzleMode === 'JET' ? 'water_jet' : 'water_fog',
+            x: player.x + Math.cos(player.angle) * 22,
+            y: player.y + Math.sin(player.angle) * 22,
+            vx: Math.cos(ang) * (speed + Math.random() * 60),
+            vy: Math.sin(ang) * (speed + Math.random() * 60),
+            life: player.nozzleMode === 'JET' ? 0.52 : 0.42,
+            maxLife: 0.55,
+            size: player.nozzleMode === 'JET' ? 6 : 14
+          });
+        }
+
+        // Neblina resfria portas quentes próximas (previne Backdraft!)
+        if (player.nozzleMode === 'FOG') {
+          for (const door of mission.doors) {
+            const dcx = door.x + door.w / 2;
+            const dcy = door.y + door.h / 2;
+            const dist = Math.hypot(player.x - dcx, player.y - dcy);
+            const angToDoor = Math.atan2(dcy - player.y, dcx - player.x);
+            const angDiff = Math.abs(normalizeAngle(angToDoor - player.angle));
+            if (dist < 170 && angDiff < 0.65 && door.temp > 40) {
+              door.temp = Math.max(40, door.temp - 85 * dt);
+              if (door.temp <= 150 && door.backdraftRisk) {
+                door.backdraftRisk = false;
+                pushRadio(`❄️ Temperatura da ${door.label} reduzida (<150°C). Risco de Backdraft neutralizado!`);
+              }
+            }
+          }
+        }
+      }
+
+      // 4. Dinâmica do Fogo e Temperatura Ambiente
+      let maxLocalTemp = 28;
+      let totalFireIntensity = 0;
+
+      for (let i = mission.fires.length - 1; i >= 0; i--) {
+        const f = mission.fires[i];
+        totalFireIntensity += f.intensity;
+
+        // Crescimento gradual se houver gás vazando
+        const gasActive = mission.hazards.some(h => h.type === 'gas' && h.active);
+        const growthRate = gasActive ? 0.032 : 0.012;
+        f.intensity = Math.min(1.2, f.intensity + growthRate * dt);
+
+        // Gerar partículas de chama e fumaça
+        if (Math.random() < 0.55) {
+          particles.push({
+            type: 'fire',
+            x: f.x + (Math.random() - 0.5) * f.radius * 0.8,
+            y: f.y + (Math.random() - 0.5) * f.radius * 0.8,
+            vx: (Math.random() - 0.5) * 25,
+            vy: -30 - Math.random() * 40,
+            life: 0.45 + Math.random() * 0.35,
+            maxLife: 0.8,
+            size: (14 + Math.random() * 18) * f.intensity
+          });
+        }
+        if (Math.random() < 0.25) {
+          spawnSmoke(f.x + (Math.random() - 0.5) * 50, f.y + (Math.random() - 0.5) * 50);
+        }
+
+        // Calcular calor irradiado no bombeiro
+        const distPlayer = Math.hypot(player.x - f.x, player.y - f.y);
+        if (distPlayer < 260) {
+          const heat = (1 - distPlayer / 260) * 340 * f.intensity;
+          maxLocalTemp = Math.max(maxLocalTemp, 28 + heat);
+        }
+
+        if (f.intensity <= 0.05) {
+          mission.fires.splice(i, 1);
+          checkMissionCompletion();
+        }
+      }
+
+      player.ambientTemp += (maxLocalTemp - player.ambientTemp) * Math.min(1, dt * 3);
+
+      // 5. Consumo do Cilindro EPR (Ar Respirável) & Estresse Cardíaco
+      const openWindows = mission.windows ? mission.windows.filter(w => w.open).length : 0;
+      const targetSmoke = Math.min(0.95, Math.max(0.05, (mission.fires.length * 0.14) - (openWindows * 0.16)));
+      smokeLevel += (targetSmoke - smokeLevel) * Math.min(1, dt * 0.6);
+
+      const smokeExposure = player.ambientTemp > 65 ? 2.2 : (1.0 + smokeLevel * 0.6);
+      const exertion = (keys['ShiftLeft'] || player.carryingVictim) ? 1.5 : 1.0;
+      player.air = Math.max(0, player.air - (1.35 * smokeExposure * exertion) * dt);
+
+      if (player.air < 60 && !stats.lowAirWarned) {
+        stats.lowAirWarned = true;
+        sound.playLowAirAlarm();
+        pushRadio('🚨 ALARME EPR: Reserva de ar abaixo de 60 BAR! Recarregue na viatura ABTR ou evacue!', true);
+      }
+
+      const targetBpm = Math.min(178, 82 + (player.ambientTemp - 28) * 0.35 + (player.carryingVictim ? 24 : 0));
+      player.bpm += (targetBpm - player.bpm) * Math.min(1, dt * 2);
+
+      // 6. Atualizar Partículas e Colisão Água x Fogo
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.life -= dt;
+
+        if (p.type === 'water_jet' || p.type === 'water_fog') {
+          // Verificar colisão com paredes
+          if (pointInWall(p.x, p.y)) {
+            p.life = 0;
+            continue;
+          }
+          // Verificar choque elétrico se jogar jato compacto em quadro energizado
+          if (p.type === 'water_jet') {
+            for (const h of mission.hazards) {
+              if (h.type === 'electric' && h.active && Math.hypot(p.x - h.x, p.y - h.y) < 35) {
+                p.life = 0;
+                camera.shake = 12;
+                stats.protocolMistakes++;
+                spawnSpark(h.x, h.y);
+                sound.playImpact('metal');
+                pushRadio('⚡ CHOQUE ELÉTRICO! Desligue o disjuntor [E] antes de aplicar jato compacto!', true);
+              }
+            }
+          }
+
+          // Extinguir focos de incêndio
+          for (const f of mission.fires) {
+            const hitRadius = f.radius * f.intensity + 18;
+            if (Math.hypot(p.x - f.x, p.y - f.y) < hitRadius) {
+              const power = p.type === 'water_jet' ? 0.14 : 0.09;
+              f.intensity -= power * dt * 10;
+              p.life = 0;
+              // Gerar vapor d'água
+              if (Math.random() < 0.35) {
+                particles.push({
+                  type: 'steam',
+                  x: p.x,
+                  y: p.y,
+                  vx: (Math.random() - 0.5) * 35,
+                  vy: -25 - Math.random() * 25,
+                  life: 0.7,
+                  maxLife: 0.7,
+                  size: 16
+                });
+              }
+              break;
+            }
+          }
+        }
+
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+
+      // 6.5. IA TÁTICA DA GUARNIÇÃO DE APOIO (CB SILVA & SD MOURA)
+      updateSquadAI(dt);
+
+      // 7. Atualizar Câmera Suave & Áudio Contínuo
+      const targetCamX = Math.max(0, Math.min(mission.worldWidth - canvas.width, player.x - canvas.width / 2));
+      const targetCamY = Math.max(0, Math.min(mission.worldHeight - canvas.height, player.y - canvas.height / 2));
+      camera.x += (targetCamX - camera.x) * Math.min(1, dt * 8);
+      camera.y += (targetCamY - camera.y) * Math.min(1, dt * 8);
+      if (camera.shake > 0) camera.shake = Math.max(0, camera.shake - 45 * dt);
+
+      sound.updateContinuous(Math.min(1, totalFireIntensity / 4), isSpraying);
+      updateContextualHint();
+      updateHud();
+    }
+
+    function updateContextualHint() {
+      const box = document.getElementById('contextPrompt');
+      const txt = document.getElementById('contextPromptText');
+      if (!box || !txt || !mission) return;
+
+      let hint = '';
+      const tz = mission.truckZone;
+      const inTruckZone = player.x >= tz.x - 20 && player.x <= tz.x + tz.w + 45 &&
+                          player.y >= tz.y - 20 && player.y <= tz.y + tz.h + 45;
+
+      if (player.carryingVictim) {
+        hint = inTruckZone
+          ? '✅ PRESSIONE [E] PARA ENTREGAR VÍTIMA NA ASU-19'
+          : '🚑 LEVE A VÍTIMA ATÉ A ZONA FRIA (ESQUERDA - ASU-19)';
+      } else if (inTruckZone && (player.air < 270 || player.water < 90)) {
+        hint = '🔄 RECARREGANDO AR (EPR) E ÁGUA DO TANQUE ABTR...';
+      } else {
+        // Checar vítima próxima
+        const nearVictim = mission.victims.find(v => !v.rescued && Math.hypot(player.x - v.x, player.y - v.y) < 82);
+        if (nearVictim) {
+          if (nearVictim.trapped && nearVictim.doorReq) {
+            const reqDoor = mission.doors.find(d => d.id === nearVictim.doorReq);
+            if (reqDoor && !reqDoor.open) {
+              hint = '⚙️ SELECIONE DESENCARCERADOR [3] E CLIQUE NA FERRAGEM PARA LIBERAR';
+            }
+          }
+          if (!hint) {
+            hint = nearVictim.stabilized
+              ? `🚑 PRESSIONE [E] PARA CARREGAR ${nearVictim.name.split(' (')[0]}`
+              : `⛑️ PRESSIONE [E] PARA INICIAR ATENDIMENTO APH (${nearVictim.triage})`;
+          }
+        }
+      }
+
+      if (!hint) {
+        const nearHazard = mission.hazards.find(h => h.active && Math.hypot(player.x - h.x, player.y - h.y) < 78);
+        if (nearHazard) hint = `🛡️ PRESSIONE [E] PARA NEUTRALIZAR: ${nearHazard.label.toUpperCase()}`;
+      }
+
+      if (!hint) {
+        const nearDoor = mission.doors.find(d => !d.open && Math.hypot(player.x - (d.x + d.w / 2), player.y - (d.y + d.h / 2)) < 85);
+        if (nearDoor) {
+          if (nearDoor.temp > 150) {
+            hint = '❄️ PORTA QUENTE (>150°C): USE NEBLINA [R] + MANGUEIRA [1] OU ARROMBE [2/3]';
+          } else {
+            hint = nearDoor.hydraulicOnly
+              ? '⚙️ SELECIONE DESENCARCERADOR [3] E CLIQUE PARA CORTAR'
+              : '🪓 SELECIONE HALLIGAN [2] E CLIQUE PARA ARROMBAR';
+          }
+        }
+      }
+
+      if (!hint && mission.windows) {
+        const nearWin = mission.windows.find(w => !w.open && Math.hypot(player.x - (w.x + w.w / 2), player.y - (w.y + w.h / 2)) < 90);
+        if (nearWin) hint = `💨 PRESSIONE [V] PARA VENTILAR: ${nearWin.label.toUpperCase()}`;
+      }
+
+      if (!hint && mission.fires.length > 0 && player.selectedTool !== 0) {
+        hint = '🚒 DICA: PRESSIONE [1] PARA SELECIONAR A MANGUEIRA E APAGAR O FOGO';
+      }
+
+      if (hint && hint !== currentContextualHint) {
+        currentContextualHint = hint;
+        txt.textContent = hint;
+        box.classList.remove('hidden');
+      } else if (!hint) {
+        currentContextualHint = '';
+        box.classList.add('hidden');
+      }
+    }
+
+    function updateSquadAI(dt) {
+      const tz = mission.truckZone;
+      squad.forEach((bot, idx) => {
+        let targetX = player.x - Math.cos(player.angle) * 48 + (idx === 0 ? -28 : 28);
+        let targetY = player.y - Math.sin(player.angle) * 48 + (idx === 0 ? -28 : 28);
+
+        if (squadOrder === 'SUPPRESS' && mission.fires.length > 0) {
+          // Buscar foco de incêndio mais próximo
+          let nearestFire = mission.fires[0];
+          let minD = Infinity;
+          for (const f of mission.fires) {
+            const d = Math.hypot(bot.x - f.x, bot.y - f.y);
+            if (d < minD) { minD = d; nearestFire = f; }
+          }
+          const ang = Math.atan2(nearestFire.y - bot.y, nearestFire.x - bot.x);
+          targetX = nearestFire.x - Math.cos(ang) * 125;
+          targetY = nearestFire.y - Math.sin(ang) * 125;
+          bot.angle = ang;
+
+          if (minD < 185 && player.water > 5) {
+            bot.sprayTimer += dt;
+            if (bot.sprayTimer > 0.14) {
+              bot.sprayTimer = 0;
+              player.water = Math.max(0, player.water - 0.18);
+              particles.push({
+                type: 'water_jet',
+                x: bot.x + Math.cos(bot.angle) * 18,
+                y: bot.y + Math.sin(bot.angle) * 18,
+                vx: Math.cos(bot.angle) * 520,
+                vy: Math.sin(bot.angle) * 520,
+                life: 0.42,
+                maxLife: 0.42,
+                size: 5
+              });
+            }
+          }
+        } else if (squadOrder === 'EXTRACT') {
+          if (bot.carrying) {
+            targetX = tz.x + tz.w / 2;
+            targetY = tz.y + tz.h * 0.7;
+            if (Math.hypot(bot.x - targetX, bot.y - targetY) < 45) {
+              bot.carrying.rescued = true;
+              stats.victimsSaved++;
+              sound.playHeartMonitor(true);
+              pushRadio(`✅ ${bot.name} concluiu a evacuação de ${bot.carrying.name} para a ASU-19!`, true);
+              bot.carrying = null;
+              checkMissionCompletion();
+            }
+          } else {
+            // Procurar vítima já estabilizada que não esteja sendo carregada
+            const stabilizedVictim = mission.victims.find(v =>
+              v.stabilized && !v.rescued &&
+              player.carryingVictim !== v &&
+              !squad.some(other => other.carrying === v)
+            );
+            if (stabilizedVictim) {
+              targetX = stabilizedVictim.x;
+              targetY = stabilizedVictim.y;
+              if (Math.hypot(bot.x - stabilizedVictim.x, bot.y - stabilizedVictim.y) < 35) {
+                bot.carrying = stabilizedVictim;
+                pushRadio(`🚑 ${bot.name} assumiu o transporte em prancha de ${stabilizedVictim.name}.`);
+              }
+            }
+          }
+        }
+
+        const dx = targetX - bot.x;
+        const dy = targetY - bot.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist > 14) {
+          const spd = 175;
+          const nx = bot.x + (dx / dist) * spd * dt;
+          const ny = bot.y + (dy / dist) * spd * dt;
+          if (!collidesWithWorld(nx, bot.y, 15)) bot.x = nx;
+          if (!collidesWithWorld(bot.x, ny, 15)) bot.y = ny;
+          if (squadOrder !== 'SUPPRESS') {
+            bot.angle = Math.atan2(dy, dx);
+          }
+        }
+      });
+    }
+
+    function collidesWithWorld(x, y, r) {
+      if (x - r < 10 || x + r > mission.worldWidth - 10 || y - r < 10 || y + r > mission.worldHeight - 10) {
+        return true;
+      }
+      for (const w of mission.walls) {
+        if (circleRectOverlap(x, y, r, w.x, w.y, w.w, w.h)) return true;
+      }
+      for (const d of mission.doors) {
+        if (!d.open && circleRectOverlap(x, y, r, d.x, d.y, d.w, d.h)) return true;
+      }
+      return false;
+    }
+
+    function pointInWall(x, y) {
+      for (const w of mission.walls) {
+        if (x >= w.x && x <= w.x + w.w && y >= w.y && y <= w.y + w.h) return true;
+      }
+      for (const d of mission.doors) {
+        if (!d.open && x >= d.x && x <= d.x + d.w && y >= d.y && y <= d.y + d.h) return true;
+      }
+      return false;
+    }
+
+    function circleRectOverlap(cx, cy, cr, rx, ry, rw, rh) {
+      const closestX = Math.max(rx, Math.min(cx, rx + rw));
+      const closestY = Math.max(ry, Math.min(cy, ry + rh));
+      return Math.hypot(cx - closestX, cy - closestY) < cr;
+    }
+
+    function normalizeAngle(a) {
+      while (a > Math.PI) a -= Math.PI * 2;
+      while (a < -Math.PI) a += Math.PI * 2;
+      return a;
+    }
+
+    function checkMissionCompletion() {
+      const allFiresOut = mission.fires.length === 0;
+      const allVictimsSaved = stats.victimsSaved >= stats.totalVictims;
+
+      if (allFiresOut && allVictimsSaved) {
+        setTimeout(() => {
+          finishMission();
+        }, 800);
+      }
+    }
+
+    function finishMission() {
+      gameState = 'DEBRIEF';
+      sound.updateContinuous(0, false);
+      sound.playSiren();
+
+      const mins = Math.floor(stats.elapsedTime / 60).toString().padStart(2, '0');
+      const secs = Math.floor(stats.elapsedTime % 60).toString().padStart(2, '0');
+
+      let score = 1000;
+      score -= Math.floor(stats.elapsedTime * 1.2);
+      score -= stats.protocolMistakes * 120;
+      score += stats.hazardsNeutralized * 75;
+      score = Math.max(150, score);
+
+      let rank = 'PADRÃO OURO (EXCELÊNCIA)';
+      let rankColor = 'text-emerald-400';
+      if (score < 550) {
+        rank = 'OPERACIONAL REGULAR';
+        rankColor = 'text-amber-400';
+      } else if (score < 820) {
+        rank = 'ALTA EFICIÊNCIA TÁTICA';
+        rankColor = 'text-cyan-400';
+      }
+
+      // Salvar XP na carreira
+      careerXp += score;
+      localStorage.setItem('resgate193_xp', String(careerXp));
+      const newRank = getCurrentRank();
+
+      document.getElementById('debriefScore').textContent = `${score} PTS (+${score} XP)`;
+      const rankEl = document.getElementById('debriefRank');
+      rankEl.textContent = `${rank} • ${newRank.name}`;
+      rankEl.className = `font-tactical text-lg sm:text-xl font-bold ${rankColor}`;
+      document.getElementById('debriefTime').textContent = `${mins}:${secs}`;
+      document.getElementById('debriefVictims').textContent = `${stats.victimsSaved} / ${stats.totalVictims}`;
+      document.getElementById('debriefSafety').textContent = stats.protocolMistakes === 0
+        ? '100% CUMPRIDOS'
+        : `${stats.protocolMistakes} FALHA(S) DE PROTOCOLO`;
+      document.getElementById('debriefResources').textContent = `ÁGUA ${Math.round(player.water)}% • EPR ${Math.round(player.air)} BAR`;
+
+      let notes = 'Operação executada com excelência técnica, controle de cena exemplar e prioridade absoluta à preservação da vida.';
+      if (stats.backdraftsTriggered > 0) {
+        notes = 'Atenção: Ocorreu ignição explosiva (Backdraft) durante a abertura de porta superaquecida. Utilize sempre a Câmera Térmica [4] e resfrie com neblina antes de entrar.';
+      } else if (stats.protocolMistakes > 0) {
+        notes = 'Ocorrência concluída com êxito no resgate, porém houve desvios nos protocolos preventivos (estabilização/corte de energia/ordem APH).';
+      }
+      document.getElementById('debriefNotes').textContent = notes;
+
+      document.getElementById('debriefModal').classList.remove('hidden');
+    }
+
+    // =========================================================================
+    // 9. ATUALIZAÇÃO DO HUD TELEMÉTRICO
+    // =========================================================================
+    function updateHud() {
+      const airBar = Math.round(player.air);
+      document.getElementById('hudAirBar').textContent = `${airBar} BAR`;
+      document.getElementById('hudAirFill').style.width = `${(player.air / player.maxAir) * 100}%`;
+
+      const airStatus = document.getElementById('hudAirStatus');
+      if (airBar < 60) {
+        airStatus.textContent = 'RESERVA CRÍTICA!';
+        airStatus.className = 'text-[9px] font-mono-tech text-red-400 font-bold blink-critical mt-0.5';
+      } else {
+        airStatus.textContent = 'PRESSÃO NOMINAL';
+        airStatus.className = 'text-[9px] font-mono-tech text-emerald-400 mt-0.5';
+      }
+
+      const temp = Math.round(player.ambientTemp);
+      const tempEl = document.getElementById('hudTemp');
+      const heatWarn = document.getElementById('hudHeatWarn');
+      tempEl.textContent = `${temp}°C`;
+      if (temp > 140) {
+        tempEl.className = 'text-base sm:text-lg font-mono-tech font-bold text-red-500 blink-critical';
+        heatWarn.textContent = 'CALOR EXTREMO';
+        heatWarn.className = 'text-[9px] font-mono-tech text-red-400 font-bold';
+      } else if (temp > 65) {
+        tempEl.className = 'text-base sm:text-lg font-mono-tech font-bold text-orange-400';
+        heatWarn.textContent = 'ZONA QUENTE';
+        heatWarn.className = 'text-[9px] font-mono-tech text-orange-400';
+      } else {
+        tempEl.className = 'text-base sm:text-lg font-mono-tech font-bold text-emerald-400';
+        heatWarn.textContent = 'ESTÁVEL';
+        heatWarn.className = 'text-[9px] font-mono-tech text-slate-400';
+      }
+
+      document.getElementById('hudBpm').textContent = Math.round(player.bpm);
+
+      const mins = Math.floor(stats.elapsedTime / 60).toString().padStart(2, '0');
+      const secs = Math.floor(stats.elapsedTime % 60).toString().padStart(2, '0');
+      document.getElementById('hudTimer').textContent = `${mins}:${secs}`;
+      document.getElementById('hudFires').textContent = mission.fires.length;
+      const smokeEl = document.getElementById('hudSmokePct');
+      if (smokeEl) smokeEl.textContent = `${Math.round(smokeLevel * 100)}%`;
+      document.getElementById('hudVictims').textContent = `${stats.victimsSaved}/${stats.totalVictims}`;
+
+      const wPct = Math.round(player.water);
+      document.getElementById('hudWaterFill').style.width = `${wPct}%`;
+      const litersEl = document.getElementById('hudWaterLiters');
+      if (litersEl) litersEl.textContent = `${Math.round((wPct / 100) * 4000)}L`;
+    }
+
+    // =========================================================================
+    // 10. RENDERIZAÇÃO TÁTICA 2.5D, GIROFLEX LED, MANGUEIRA FÍSICA E FLIR
+    // =========================================================================
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (!mission) {
+        ctx.fillStyle = '#070b12';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
+
+      const isThermal = player.selectedTool === 3;
+      const now = performance.now();
+
+      ctx.save();
+      const shakeX = (Math.random() - 0.5) * camera.shake;
+      const shakeY = (Math.random() - 0.5) * camera.shake;
+      ctx.translate(-camera.x + shakeX, -camera.y + shakeY);
+
+      // 1. Piso Tático Texturizado (Asfalto / Concreto / Azulejo)
+      if (isThermal) {
+        ctx.fillStyle = '#090724';
+      } else if (mission.floorType === 'asphalt') {
+        ctx.fillStyle = '#181c24';
+      } else if (mission.floorType === 'concrete') {
+        ctx.fillStyle = '#1b222c';
+      } else {
+        ctx.fillStyle = '#151d29';
+      }
+      ctx.fillRect(0, 0, mission.worldWidth, mission.worldHeight);
+
+      // Faixas de rodovia no cenário veicular
+      if (!isThermal && mission.floorType === 'asphalt') {
+        ctx.strokeStyle = 'rgba(250, 204, 21, 0.35)';
+        ctx.lineWidth = 4;
+        ctx.setLineDash([28, 24]);
+        ctx.beginPath();
+        ctx.moveTo(260, mission.worldHeight / 2);
+        ctx.lineTo(1320, mission.worldHeight / 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      ctx.strokeStyle = isThermal ? 'rgba(56, 189, 248, 0.08)' : 'rgba(148, 163, 184, 0.07)';
+      ctx.lineWidth = 1;
+      const gridSize = 50;
+      for (let gx = 0; gx <= mission.worldWidth; gx += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(gx, 0);
+        ctx.lineTo(gx, mission.worldHeight);
+        ctx.stroke();
+      }
+      for (let gy = 0; gy <= mission.worldHeight; gy += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, gy);
+        ctx.lineTo(mission.worldWidth, gy);
+        ctx.stroke();
+      }
+
+      // Poças de água no chão
+      for (const pud of puddles) {
+        ctx.fillStyle = isThermal ? 'rgba(30, 58, 138, 0.35)' : `rgba(56, 189, 248, ${pud.alpha * 0.35})`;
+        ctx.beginPath();
+        ctx.arc(pud.x, pud.y, pud.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 2. Zona Fria Externa (Viaturas ABTR / ASU) com Giroflex LED Dinâmico
+      const tz = mission.truckZone;
+      ctx.fillStyle = isThermal ? 'rgba(14, 116, 144, 0.25)' : 'rgba(16, 185, 129, 0.12)';
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 6]);
+      ctx.fillRect(tz.x, tz.y, tz.w, tz.h);
+      ctx.strokeRect(tz.x, tz.y, tz.w, tz.h);
+      ctx.setLineDash([]);
+
+      // Reflexo pulsante das sirenes (Vermelho / Azul) no asfalto
+      if (!isThermal) {
+        const sirenPhase = Math.sin(now * 0.012);
+        const sirenGrad = ctx.createRadialGradient(tz.x + 70, tz.y + 80, 10, tz.x + 70, tz.y + 80, 175);
+        sirenGrad.addColorStop(0, sirenPhase > 0 ? 'rgba(239, 68, 68, 0.28)' : 'rgba(59, 130, 246, 0.28)');
+        sirenGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = sirenGrad;
+        ctx.beginPath();
+        ctx.arc(tz.x + 70, tz.y + 80, 175, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Viatura ABTR (Caminhão Vermelho)
+      ctx.fillStyle = '#dc2626';
+      drawRoundRect(ctx, tz.x + 20, tz.y + 22, 95, 112, 8);
+      ctx.fill();
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(tz.x + 28, tz.y + 30, 79, 24); // Para-brisa
+      // Barra de Giroflex ABTR
+      ctx.fillStyle = Math.sin(now * 0.015) > 0 ? '#ff2a2a' : '#7f1d1d';
+      ctx.fillRect(tz.x + 34, tz.y + 58, 30, 6);
+      ctx.fillStyle = Math.sin(now * 0.015) < 0 ? '#38bdf8' : '#1e3a8a';
+      ctx.fillRect(tz.x + 70, tz.y + 58, 30, 6);
+
+      // Ambulância ASU (Branca com Cruz Vermelha)
+      ctx.fillStyle = '#f8fafc';
+      drawRoundRect(ctx, tz.x + 20, tz.y + 155, 95, 102, 8);
+      ctx.fill();
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(tz.x + 28, tz.y + 30, 79, 24); // Para-brisa
+      // Barra de Giroflex ABTR
+      ctx.fillStyle = Math.sin(now * 0.015) > 0 ? '#ff2a2a' : '#7f1d1d';
+      ctx.fillRect(tz.x + 34, tz.y + 58, 30, 6);
+      ctx.fillStyle = Math.sin(now * 0.015) < 0 ? '#38bdf8' : '#1e3a8a';
+      ctx.fillRect(tz.x + 70, tz.y + 58, 30, 6);
+
+      // Ambulância ASU (Branca com Cruz Vermelha)
+      ctx.fillStyle = '#f8fafc';
+      ctx.beginPath();
+      ctx.roundRect(tz.x + 20, tz.y + 155, 95, 102, 8);
+      ctx.fill();
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(tz.x + 58, tz.y + 186, 20, 40);
+      ctx.fillRect(tz.x + 48, tz.y + 196, 40, 20);
+
+      ctx.fillStyle = '#34d399';
+      ctx.font = 'bold 11px "JetBrains Mono"';
+      ctx.textAlign = 'center';
+      ctx.fillText('ZONA FRIA • RECARGA & TRIAGEM', tz.x + tz.w / 2, tz.y - 10);
+
+      // Mangueira física curvada conectando a bomba da viatura ABTR ao bombeiro
+      if (player.selectedTool === 0) {
+        const pumpX = tz.x + 115;
+        const pumpY = tz.y + 95;
+        const midX = (pumpX + player.x) / 2;
+        const midY = Math.max(pumpY, player.y) + 45;
+        ctx.strokeStyle = isThermal ? '#0284c7' : '#facc15';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(pumpX, pumpY);
+        ctx.quadraticCurveTo(midX, midY, player.x, player.y);
+        ctx.stroke();
+      }
+
+      // Mobília / Obstáculos internos
+      if (mission.furniture) {
+        for (const item of mission.furniture) {
+          ctx.fillStyle = isThermal ? '#1e1b4b' : '#292524';
+          ctx.strokeStyle = isThermal ? '#3b82f6' : '#57534e';
+          ctx.lineWidth = 1.5;
+          ctx.fillRect(item.x, item.y, item.w, item.h);
+          ctx.strokeRect(item.x, item.y, item.w, item.h);
+          ctx.fillStyle = '#a8a29e';
+          ctx.font = '9px "JetBrains Mono"';
+          ctx.fillText(item.label, item.x + item.w / 2, item.y + item.h / 2 + 3);
+        }
+      }
+
+      // 3. Paredes, Estruturas e Veículos
+      for (const w of mission.walls) {
+        if (w.isVehicle) {
+          ctx.fillStyle = isThermal ? '#1e3a8a' : w.color;
+          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = 2;
+          drawRoundRect(ctx, w.x, w.y, w.w, w.h, 12);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#e2e8f0';
+          ctx.font = 'bold 10px "JetBrains Mono"';
+          ctx.fillText(w.label, w.x + w.w / 2, w.y + w.h / 2);
+        } else {
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+          ctx.fillRect(w.x + 6, w.y + 8, w.w, w.h);
+
+          ctx.fillStyle = isThermal ? '#1e1b4b' : '#334155';
+          ctx.strokeStyle = isThermal ? '#3b82f6' : '#64748b';
+          ctx.lineWidth = 2;
+          ctx.fillRect(w.x, w.y, w.w, w.h);
+          ctx.strokeRect(w.x, w.y, w.w, w.h);
+        }
+      }
+
+      // 3.5. Janelas de Ventilação Tática [V]
+      if (mission.windows) {
+        for (const win of mission.windows) {
+          ctx.fillStyle = win.open ? 'rgba(56, 189, 248, 0.25)' : '#0284c7';
+          ctx.strokeStyle = '#7dd3fc';
+          ctx.lineWidth = 2;
+          ctx.fillRect(win.x, win.y, win.w, win.h);
+          ctx.strokeRect(win.x, win.y, win.w, win.h);
+
+          const dist = Math.hypot(player.x - (win.x + win.w / 2), player.y - (win.y + win.h / 2));
+          if (!win.open && dist < 115) {
+            ctx.fillStyle = '#7dd3fc';
+            ctx.font = 'bold 10px "JetBrains Mono"';
+            ctx.fillText(`[V] VENTILAR (${win.label})`, win.x + win.w / 2, win.y - 8);
+          }
+        }
+      }
+
+      // 4. Portas & Indicadores Térmicos (Alerta de Backdraft!)
+      for (const d of mission.doors) {
+        if (d.open) {
+          ctx.fillStyle = 'rgba(148, 163, 184, 0.18)';
+          ctx.fillRect(d.x, d.y, d.w, d.h);
+          continue;
+        }
+
+        const isHot = d.temp > 150;
+        ctx.fillStyle = isThermal
+          ? (isHot ? '#ff2a00' : '#0284c7')
+          : (isHot ? '#b91c1c' : '#d97706');
+        ctx.fillRect(d.x, d.y, d.w, d.h);
+
+        ctx.strokeStyle = isHot ? '#fef08a' : '#fde68a';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(d.x, d.y, d.w, d.h);
+
+        // Exibir temperatura se Câmera Térmica estiver ativa ou bombeiro estiver perto
+        const dist = Math.hypot(player.x - (d.x + d.w / 2), player.y - (d.y + d.h / 2));
+        if (isThermal || dist < 130) {
+          ctx.fillStyle = isHot ? '#ef4444' : '#38bdf8';
+          ctx.font = 'bold 11px "JetBrains Mono"';
+          ctx.fillText(`${Math.round(d.temp)}°C ${isHot ? '⚠️ BACKDRAFT' : ''}`, d.x + d.w / 2, d.y - 8);
+        }
+      }
+
+      // 5. Riscos Ambientais (Elétrica / Gás / Estabilização)
+      for (const h of mission.hazards) {
+        if (!h.active) continue;
+        const pulse = 1 + Math.sin(performance.now() * 0.008) * 0.18;
+        ctx.beginPath();
+        ctx.arc(h.x, h.y, 20 * pulse, 0, Math.PI * 2);
+        ctx.fillStyle = h.type === 'gas' ? 'rgba(245, 158, 11, 0.25)' : 'rgba(59, 130, 246, 0.25)';
+        ctx.fill();
+        ctx.strokeStyle = h.type === 'gas' ? '#f59e0b' : '#3b82f6';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(h.type === 'gas' ? '🔥' : '⚡', h.x, h.y);
+
+        if (Math.hypot(player.x - h.x, player.y - h.y) < 120) {
+          ctx.fillStyle = '#fbbf24';
+          ctx.font = 'bold 10px "JetBrains Mono"';
+          ctx.fillText(`[E] ${h.label}`, h.x, h.y - 26);
+        }
+      }
+
+      // 6. Vítimas (Com assinatura térmica brilhante no modo FLIR!)
+      for (const v of mission.victims) {
+        if (v.rescued || player.carryingVictim === v) continue;
+
+        const pulse = 1 + Math.sin(performance.now() * 0.006) * 0.15;
+        // Aura de triagem START
+        ctx.beginPath();
+        ctx.arc(v.x, v.y, 22 * pulse, 0, Math.PI * 2);
+        ctx.fillStyle = isThermal
+          ? 'rgba(255, 255, 255, 0.45)'
+          : (v.triage === 'VERMELHO' ? 'rgba(239, 68, 68, 0.28)' : 'rgba(245, 158, 11, 0.28)');
+        ctx.fill();
+
+        // Corpo da vítima
+        ctx.beginPath();
+        ctx.arc(v.x, v.y, 13, 0, Math.PI * 2);
+        ctx.fillStyle = isThermal ? '#ffffff' : (v.stabilized ? '#10b981' : '#f87171');
+        ctx.fill();
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 10px "JetBrains Mono"';
+        ctx.fillText(v.stabilized ? '[E] EVACUAR VÍTIMA' : `[E] APH (${v.triage})`, v.x, v.y - 24);
+      }
+
+      // 7. Focos de Incêndio (Glow volumétrico)
+      for (const f of mission.fires) {
+        const rad = f.radius * f.intensity;
+        const grad = ctx.createRadialGradient(f.x, f.y, 5, f.x, f.y, rad);
+        if (isThermal) {
+          grad.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+          grad.addColorStop(0.5, 'rgba(255, 220, 0, 0.75)');
+          grad.addColorStop(1, 'rgba(255, 60, 0, 0)');
+        } else {
+          grad.addColorStop(0, 'rgba(255, 240, 150, 0.9)');
+          grad.addColorStop(0.45, 'rgba(255, 95, 0, 0.65)');
+          grad.addColorStop(1, 'rgba(220, 38, 38, 0)');
+        }
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, rad, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 8. Partículas (Fogo, Água, Fumaça, Faíscas)
+      for (const p of particles) {
+        const alpha = Math.max(0, p.life / p.maxLife);
+        if (p.type === 'smoke') {
+          if (isThermal) continue; // Câmera térmica enxerga através da fumaça!
+          ctx.fillStyle = `rgba(30, 41, 59, ${alpha * 0.52})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (p.type === 'fire') {
+          ctx.fillStyle = isThermal
+            ? `rgba(255, 255, 255, ${alpha})`
+            : `rgba(255, ${Math.floor(80 + alpha * 160)}, 20, ${alpha * 0.85})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (p.type === 'water_jet' || p.type === 'water_fog') {
+          ctx.fillStyle = p.type === 'water_jet'
+            ? `rgba(56, 189, 248, ${alpha * 0.85})`
+            : `rgba(186, 230, 253, ${alpha * 0.45})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (p.type === 'steam') {
+          ctx.fillStyle = `rgba(241, 245, 249, ${alpha * 0.4})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * (1.4 - alpha * 0.4), 0, Math.PI * 2);
+          ctx.fill();
+        } else if (p.type === 'spark') {
+          ctx.fillStyle = `rgba(253, 224, 71, ${alpha})`;
+          ctx.fillRect(p.x, p.y, 3, 3);
+        }
+      }
+
+      // 9. Cone de Lanterna Tática / Visor FLIR do Bombeiro + Equipe IA
+      // Renderizar Bombeiros Parceiros (CB Silva & SD Moura)
+      for (const bot of squad) {
+        ctx.save();
+        ctx.translate(bot.x, bot.y);
+        ctx.rotate(bot.angle);
+
+        ctx.fillStyle = '#eab308';
+        ctx.fillRect(-14, -8, 8, 16);
+        ctx.fillStyle = '#c2410c';
+        drawRoundRect(ctx, -9, -14, 18, 28, 5);
+        ctx.fill();
+        ctx.fillStyle = '#f8fafc'; // Capacete branco/amarelo apoio
+        ctx.beginPath();
+        ctx.arc(2, 0, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = 'bold 9px "JetBrains Mono"';
+        ctx.textAlign = 'center';
+        ctx.fillText(bot.carrying ? `${bot.name} (EXTRAINDO)` : bot.name, bot.x, bot.y - 22);
+      }
+
+      ctx.save();
+      ctx.translate(player.x, player.y);
+      ctx.rotate(player.angle);
+
+      const coneGrad = ctx.createRadialGradient(0, 0, 10, 0, 0, 320);
+      if (isThermal) {
+        coneGrad.addColorStop(0, 'rgba(0, 229, 255, 0.25)');
+        coneGrad.addColorStop(1, 'rgba(0, 229, 255, 0)');
+      } else {
+        coneGrad.addColorStop(0, 'rgba(254, 249, 195, 0.22)');
+        coneGrad.addColorStop(1, 'rgba(254, 249, 195, 0)');
+      }
+      ctx.fillStyle = coneGrad;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, 320, -0.45, 0.45);
+      ctx.closePath();
+      ctx.fill();
+
+      // Desenho do Bombeiro (Traje de Aproximação Laranja/Amarelo + Capacete + Cilindro EPR)
+      // Cilindro EPR nas costas
+      ctx.fillStyle = '#eab308';
+      ctx.fillRect(-16, -9, 10, 18);
+
+      // Ombros / Traje
+      ctx.fillStyle = '#ea580c';
+      drawRoundRect(ctx, -10, -16, 20, 32, 6);
+      ctx.fill();
+      // Faixas refletivas neon
+      ctx.fillStyle = '#bef264';
+      ctx.fillRect(-6, -15, 4, 30);
+
+      // Capacete Gallet
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.arc(2, 0, 11, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#713f12';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Ferramenta empunhada
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(10, 4, 16, 4);
+
+      ctx.restore();
+
+      // Se estiver transportando vítima em prancha rígida
+      if (player.carryingVictim) {
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.arc(player.x - Math.cos(player.angle) * 26, player.y - Math.sin(player.angle) * 26, 12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 10px "JetBrains Mono"';
+        ctx.fillText('EVACUANDO VÍTIMA ➔ VIATURA', player.x, player.y - 32);
+      }
+
+      ctx.restore();
+
+      // Overlay de Fumaça Ambiental (Reduz visibilidade fora do modo FLIR)
+      if (!isThermal && smokeLevel > 0.12) {
+        ctx.fillStyle = `rgba(15, 23, 42, ${Math.min(0.45, smokeLevel * 0.48)})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      // Retículo Telemétrico FLIR quando Câmera Térmica [4] está equipada
+      if (isThermal) {
+        ctx.strokeStyle = 'rgba(0, 229, 255, 0.75)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(mouse.x, mouse.y, 26, 0, Math.PI * 2);
+        ctx.moveTo(mouse.x - 36, mouse.y);
+        ctx.lineTo(mouse.x - 16, mouse.y);
+        ctx.moveTo(mouse.x + 16, mouse.y);
+        ctx.lineTo(mouse.x + 36, mouse.y);
+        ctx.moveTo(mouse.x, mouse.y - 36);
+        ctx.lineTo(mouse.x, mouse.y - 16);
+        ctx.moveTo(mouse.x, mouse.y + 16);
+        ctx.lineTo(mouse.x, mouse.y + 36);
+        ctx.stroke();
+
+        // Calcular temperatura pontual sob a mira do mouse
+        let spotTemp = 28;
+        for (const f of mission.fires) {
+          const d = Math.hypot(mouse.worldX - f.x, mouse.worldY - f.y);
+          if (d < 220) spotTemp = Math.max(spotTemp, 28 + (1 - d / 220) * 580 * f.intensity);
+        }
+        for (const dr of mission.doors) {
+          if (!dr.open && Math.hypot(mouse.worldX - (dr.x + dr.w / 2), mouse.worldY - (dr.y + dr.h / 2)) < 55) {
+            spotTemp = Math.max(spotTemp, dr.temp);
+          }
+        }
+        ctx.fillStyle = spotTemp > 150 ? '#ff3b30' : '#00e5ff';
+        ctx.font = 'bold 12px "JetBrains Mono"';
+        ctx.textAlign = 'left';
+        ctx.fillText(`FLIR SPOT: ${Math.round(spotTemp)}°C`, mouse.x + 32, mouse.y - 8);
+      }
+
+      // Bússola / Indicador de Objetivo mais próximo ao redor do jogador
+      renderObjectivePointer(isThermal);
+
+      renderMinimap();
+    }
+
+    function renderObjectivePointer(isThermal) {
+      if (isThermal) return;
+      let target = null;
+      let label = '';
+      let color = '#f97316';
+
+      if (player.carryingVictim) {
+        const tz = mission.truckZone;
+        target = { x: tz.x + tz.w / 2, y: tz.y + tz.h / 2 };
+        label = 'ASU-19';
+        color = '#10b981';
+      } else {
+        const pendingVictim = mission.victims.find(v => !v.rescued);
+        if (pendingVictim) {
+          target = { x: pendingVictim.x, y: pendingVictim.y };
+          label = pendingVictim.stabilized ? 'RESGATAR' : 'VÍTIMA';
+          color = '#ef4444';
+        } else if (mission.fires.length > 0) {
+          target = { x: mission.fires[0].x, y: mission.fires[0].y };
+          label = 'FOCO';
+          color = '#fb923c';
+        }
+      }
+
+      if (!target) return;
+      const dx = target.x - player.x;
+      const dy = target.y - player.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 140) return;
+
+      const ang = Math.atan2(dy, dx);
+      const px = player.x - camera.x + Math.cos(ang) * 68;
+      const py = player.y - camera.y + Math.sin(ang) * 68;
+
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(ang);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(10, 0);
+      ctx.lineTo(-6, -6);
+      ctx.lineTo(-6, 6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      ctx.fillStyle = color;
+      ctx.font = 'bold 9px "JetBrains Mono"';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${label} ${Math.round(dist / 10)}m`, px, py - 11);
+    }
+
+    function renderMinimap() {
+      const mCanvas = document.getElementById('minimapCanvas');
+      if (!mCanvas || !mission) return;
+      const mCtx = mCanvas.getContext('2d');
+      const sx = mCanvas.width / mission.worldWidth;
+      const sy = mCanvas.height / mission.worldHeight;
+
+      mCtx.fillStyle = '#090d14';
+      mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
+
+      // Zona Fria
+      const tz = mission.truckZone;
+      mCtx.fillStyle = 'rgba(16, 185, 129, 0.35)';
+      mCtx.fillRect(tz.x * sx, tz.y * sy, tz.w * sx, tz.h * sy);
+
+      // Paredes
+      mCtx.fillStyle = '#475569';
+      for (const w of mission.walls) {
+        mCtx.fillRect(w.x * sx, w.y * sy, Math.max(2, w.w * sx), Math.max(2, w.h * sy));
+      }
+
+      // Focos de Fogo
+      mCtx.fillStyle = '#f97316';
+      for (const f of mission.fires) {
+        mCtx.beginPath();
+        mCtx.arc(f.x * sx, f.y * sy, 3.5, 0, Math.PI * 2);
+        mCtx.fill();
+      }
+
+      // Vítimas
+      for (const v of mission.victims) {
+        if (v.rescued) continue;
+        mCtx.fillStyle = v.stabilized ? '#10b981' : '#ef4444';
+        mCtx.beginPath();
+        mCtx.arc(v.x * sx, v.y * sy, 3, 0, Math.PI * 2);
+        mCtx.fill();
+      }
+
+      // Equipe & Jogador
+      mCtx.fillStyle = '#38bdf8';
+      for (const bot of squad) {
+        mCtx.fillRect(bot.x * sx - 1.5, bot.y * sy - 1.5, 3, 3);
+      }
+      mCtx.fillStyle = '#facc15';
+      mCtx.beginPath();
+      mCtx.arc(player.x * sx, player.y * sy, 3.5, 0, Math.PI * 2);
+      mCtx.fill();
+    }
+
+    function renderEcgWaveform(dt) {
+      if (gameState !== 'APH_MODAL' || !activeAphVictim) return;
+      const eCanvas = document.getElementById('ecgCanvas');
+      if (!eCanvas) return;
+      const eCtx = eCanvas.getContext('2d');
+      const rate = (activeAphVictim.hr / 60) * 2.2;
+      ecgPhase = (ecgPhase + dt * rate) % 1;
+
+      eCtx.fillStyle = 'rgba(2, 6, 23, 0.32)';
+      eCtx.fillRect(0, 0, eCanvas.width, eCanvas.height);
+
+      eCtx.strokeStyle = activeAphVictim.stabilized ? '#10b981' : '#f43f5e';
+      eCtx.lineWidth = 1.8;
+      eCtx.beginPath();
+      for (let x = 0; x < eCanvas.width; x++) {
+        const t = ((x / eCanvas.width) + ecgPhase) % 1;
+        let y = eCanvas.height * 0.55;
+        if (t > 0.15 && t < 0.22) y -= 4; // Onda P
+        else if (t >= 0.28 && t < 0.31) y += 5; // Q
+        else if (t >= 0.31 && t < 0.35) y -= 15; // Pico R
+        else if (t >= 0.35 && t < 0.39) y += 7; // S
+        else if (t > 0.5 && t < 0.62) y -= 5; // Onda T
+        if (x === 0) eCtx.moveTo(x, y);
+        else eCtx.lineTo(x, y);
+      }
+      eCtx.stroke();
+    }
+
+    // =========================================================================
+    // 11. LOOP PRINCIPAL DE ANIMAÇÃO (60 FPS)
+    // =========================================================================
+    let lastTime = performance.now();
+    function gameLoop(now) {
+      const dt = Math.min(0.05, (now - lastTime) / 1000);
+      lastTime = now;
+
+      updateSimulation(dt);
+      render();
+      renderEcgWaveform(dt);
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    window.onload = function () {
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>

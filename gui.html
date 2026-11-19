@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FF DO GUI</title>
+<style>
+*{box-sizing:border-box} body{margin:0;overflow:hidden;background:#101827;color:#fff;font-family:Arial,sans-serif}
+#hud{position:fixed;inset:0;pointer-events:none;z-index:5;text-shadow:0 2px 4px #000}
+.top{display:flex;justify-content:space-between;align-items:flex-start;padding:14px;gap:10px}
+.panel{background:#101827d9;border:1px solid #ffffff35;border-radius:12px;padding:10px 14px;backdrop-filter:blur(5px)}
+#gameTitle{font-weight:900;font-size:24px;letter-spacing:2px;color:#ffd84a}
+#stats{font-size:14px;line-height:1.7}
+#message{position:absolute;top:18%;left:50%;transform:translateX(-50%);font-size:26px;font-weight:900;text-align:center;color:#ffe36a;white-space:nowrap}
+#bottom{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:end}
+button{pointer-events:auto;border:1px solid #ffffff55;background:#202f49;color:#fff;border-radius:12px;padding:12px 15px;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 4px 0 #0a1220}
+button:active{transform:translateY(2px);box-shadow:0 2px 0 #0a1220}
+button.primary{background:#e64c38}button.gold{background:#bd8b16}button:disabled{opacity:.4;cursor:not-allowed}
+#side{position:absolute;right:14px;bottom:14px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+#help{position:absolute;left:14px;bottom:14px;font-size:12px;line-height:1.5;max-width:260px}
+#overlay{position:fixed;inset:0;background:#07101ddd;z-index:10;display:flex;align-items:center;justify-content:center}
+#card{width:min(540px,92vw);padding:28px;border:1px solid #ffffff44;border-radius:20px;background:linear-gradient(145deg,#233958,#101827);text-align:center;box-shadow:0 20px 70px #000}
+#card h1{margin:0 0 8px;color:#ffd84a;font-size:42px;letter-spacing:3px}
+#card p{line-height:1.5;color:#d8e2f2}
+#card button{margin:6px}
+#crosshair{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font-size:25px;color:#fff;pointer-events:none;z-index:4}
+#mobile{display:none;position:fixed;bottom:90px;left:14px;z-index:8;gap:6px;pointer-events:auto}
+#mobile button{padding:14px}
+@media(max-width:700px){#help{display:none}#side{bottom:8px;right:8px}#bottom{bottom:8px;left:8px;transform:none}#bottom button{padding:10px;font-size:11px}#mobile{display:flex;flex-direction:column}#gameTitle{font-size:18px}}
+</style>
+</head>
+<body>
+<div id="hud">
+ <div class="top">
+  <div class="panel"><div id="gameTitle">FF DO GUI</div><div id="stats">Fase 1/5<br>Vida: 100<br>Arma: Blaster</div></div>
+  <div class="panel" id="objective">Derrote os bonecos!</div>
+ </div>
+ <div id="message"></div><div id="crosshair">+</div>
+ <div id="help" class="panel">WASD: mover · Mouse: virar a câmera<br>Botão esquerdo: atirar · F: correr · T: correr mais rápido<br>Botão PAREDE ou E: construir proteção<br>1/2/3: trocar arma · K: trocar skin · R: reiniciar fase</div>
+ <div id="bottom">
+  <button class="primary" id="shoot">ATIRAR</button>
+  <button class="gold" id="wall">PAREDE</button>
+  <button id="weapon">ARMA: BLASTER</button>
+  <button id="skin">SKIN: AZUL</button>
+ </div>
+ <div id="side"><button id="next" disabled>PRÓXIMA FASE</button></div>
+ <div id="mobile"><button id="forward">▲</button><button id="left">◀</button><button id="back">▼</button><button id="right">▶</button></div>
+</div>
+<div id="overlay"><div id="card">
+ <h1>FF DO GUI</h1><p>Entre na arena, use a parede para se proteger e avance por 5 fases. A última tem um CHEFÃO gigante!</p>
+ <p><b>PC:</b> WASD para andar, mouse para virar a câmera, botão esquerdo do mouse para atirar, F para correr e T para correr mais rápido. Use E ou o botão PAREDE para construir proteção.</p>
+ <button class="primary" id="start">JOGAR</button>
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+(()=>{
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x8ac7e8);scene.fog=new THREE.Fog(0x8ac7e8,30,90);
+const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.1,150);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff,0x526078,2));const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(-10,20,12);sun.castShadow=true;scene.add(sun);
+const mat=(c,rough=.7,metal=0)=>new THREE.MeshStandardMaterial({color:c,roughness:rough,metalness:metal});
+const floorMat=mat(0x647b64), wallMat=mat(0x71859a), dark=mat(0x1c2637), white=mat(0xe8f2ff), glow=mat(0x52e7ff,.25,.2);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(100,100),floorMat);floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+const grid=new THREE.GridHelper(100,50,0x3b5c58,0x668477);grid.position.y=.02;scene.add(grid);
+for(let i=0;i<4;i++){let b=new THREE.Mesh(new THREE.BoxGeometry(100,5,1),wallMat);b.position.set(0,2.5,i<2?-50:50);if(i>=2){b.rotation.y=Math.PI/2;b.position.set(i===2?-50:50,2.5,0)}scene.add(b)}
+// arena props
+for(let i=0;i<12;i++){let p=new THREE.Mesh(new THREE.BoxGeometry(2,1.5,2),mat(i%2?0x9c7956:0x596c80));p.position.set((i%4-1.5)*12,.75,Math.floor(i/4)*12-18);p.castShadow=true;p.receiveShadow=true;scene.add(p)}
+const player={x:0,z:15,yaw:0,pitch:0,hp:100,alive:true};
+const skins=[{name:'AZUL',color:0x238bd4},{name:'VERMELHA',color:0xd94b42},{name:'DOURADA',color:0xe2b52e},{name:'ROXA',color:0x9255d9},{name:'VERDE',color:0x43b86d}];
+let skinIndex=0,weaponIndex=0,stage=1,score=0,ammo=Infinity,wallCooldown=0,shootCooldown=0,gameRunning=false,stageDone=false,boss=null;
+const weapons=[{name:'BLASTER',damage:25,rate:260,color:0x51eaff},{name:'RAJADA',damage:12,rate:110,color:0xffd45a},{name:'CANHÃO',damage:55,rate:650,color:0xff8b4b}];
+let enemies=[],shots=[],enemyShots=[],cover=[],keys={},touchMove={};
+function makeBot(x,z,bossMode=false){const g=new THREE.Group();const scale=bossMode?2.4:1;const bodymat=mat(bossMode?0x812eae:0xd94d45,.45,.15);let torso=new THREE.Mesh(new THREE.BoxGeometry(.9,1.1,.48),bodymat);torso.position.y=1.35;g.add(torso);let head=new THREE.Mesh(new THREE.SphereGeometry(.38,16,12),mat(bossMode?0x45205f:0x28364d,.4,.3));head.position.y=2.15;g.add(head);let visor=new THREE.Mesh(new THREE.BoxGeometry(.48,.12,.08),glow);visor.position.set(0,2.18,.34);g.add(visor);
+for(let s of [-1,1]){let arm=new THREE.Mesh(new THREE.BoxGeometry(.25,.85,.28),bodymat);arm.position.set(s*.62,1.4,0);g.add(arm);let leg=new THREE.Mesh(new THREE.BoxGeometry(.3,.75,.34),dark);leg.position.set(s*.25,.45,0);g.add(leg)}
+g.position.set(x,0,z);g.scale.setScalar(scale);g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});scene.add(g);
+return {g,x,z,hp:bossMode?650:70+stage*12,max:bossMode?650:70+stage*12,boss:bossMode,cd:1+Math.random(),speed:bossMode?1.5:1.8+Math.random()*.5,alive:true};}
+function clearStage(){for(const e of enemies)scene.remove(e.g);enemies=[];for(const s of enemyShots)scene.remove(s.mesh);enemyShots=[];boss=null}
+function spawnStage(){clearStage();stageDone=false;player.hp=Math.min(100,player.hp+25);player.x=0;player.z=15;
+if(stage===5){boss=makeBot(0,-24,true);enemies=[boss];document.getElementById('objective').textContent='CHEFÃO FINAL: derrote o Mega Robô!';}
+else{let count=stage+2;for(let i=0;i<count;i++){let a=i/count*Math.PI*2;enemies.push(makeBot(Math.cos(a)*(10+stage),-12+Math.sin(a)*10));}document.getElementById('objective').textContent='Derrote todos os bonecos!';}
+say('FASE '+stage+'!');updateHud();}
+function say(t){let el=document.getElementById('message');el.textContent=t;setTimeout(()=>{if(el.textContent===t)el.textContent=''},1800)}
+function updateHud(){document.getElementById('stats').innerHTML=`Fase: ${stage}/5<br>Vida: ${Math.max(0,Math.round(player.hp))}<br>Pontos: ${score}<br>Inimigos: ${enemies.filter(e=>e.alive).length}`;document.getElementById('weapon').textContent='ARMA: '+weapons[weaponIndex].name;document.getElementById('skin').textContent='SKIN: '+skins[skinIndex].name;document.getElementById('next').disabled=!stageDone;}
+function makeWall(){if(!gameRunning||wallCooldown>0)return;let x=player.x+Math.sin(player.yaw)*3,z=player.z-Math.cos(player.yaw)*3;let m=new THREE.Mesh(new THREE.BoxGeometry(5,3.3,.55),mat(0x4b9bd1,.35,.25));m.position.set(x,1.65,z);m.rotation.y=player.yaw;m.castShadow=true;m.receiveShadow=true;scene.add(m);cover.push({mesh:m,x,z,life:16});wallCooldown=5;say('PAREDE CONSTRUÍDA!');}
+function shoot(){if(!gameRunning||shootCooldown>0||stageDone)return;let w=weapons[weaponIndex];shootCooldown=w.rate;let dir=new THREE.Vector3(Math.sin(player.yaw)*Math.cos(player.pitch),Math.sin(player.pitch),-Math.cos(player.yaw)*Math.cos(player.pitch));let origin=new THREE.Vector3(player.x,1.6,player.z);let mesh=new THREE.Mesh(new THREE.SphereGeometry(.13,8,8),mat(w.color,.2,.3));mesh.position.copy(origin);scene.add(mesh);shots.push({mesh,dir,life:2,damage:w.damage});}
+function enemyFire(e){let start=new THREE.Vector3(e.x,1.7*(e.boss?2.4:1),e.z),target=new THREE.Vector3(player.x,1.2,player.z);let d=target.sub(start).normalize();let m=new THREE.Mesh(new THREE.SphereGeometry(e.boss ? .25 : .16,10,8),mat(e.boss?0xff55e8:0xffa64d,.25,.2));m.position.copy(start);scene.add(m);enemyShots.push({mesh:m,dir:d,life:4,damage:e.boss?12:7});}
+function damagePlayer(d){player.hp-=d;if(player.hp<=0){player.hp=0;gameRunning=false;document.getElementById('overlay').style.display='flex';document.getElementById('card').innerHTML='<h1>FIM DE JOGO</h1><p>Você chegou até a fase '+stage+'. Tente novamente!</p><button class="primary" id="restart">JOGAR DE NOVO</button>';document.getElementById('restart').onclick=()=>{stage=1;score=0;player.hp=100;document.getElementById('overlay').style.display='none';gameRunning=true;spawnStage()};}updateHud();}
+function winStage(){if(stageDone)return;stageDone=true;score+=stage*100;say(stage===5?'VOCÊ DERROTOU O CHEFÃO!':'FASE CONCLUÍDA!');if(stage===5){gameRunning=false;document.getElementById('overlay').style.display='flex';document.getElementById('card').innerHTML='<h1>VITÓRIA!</h1><p>Você venceu o FF DO GUI! Pontuação: '+score+'</p><button class="primary" id="again">JOGAR NOVAMENTE</button>';document.getElementById('again').onclick=()=>{stage=1;score=0;player.hp=100;document.getElementById('overlay').style.display='none';gameRunning=true;spawnStage()};}updateHud();}
+function update(dt){if(!gameRunning)return;shootCooldown=Math.max(0,shootCooldown-dt*1000);wallCooldown=Math.max(0,wallCooldown-dt);
+let forward=(keys.KeyW||touchMove.forward?1:0)-(keys.KeyS||touchMove.back?1:0),side=(keys.KeyD||touchMove.right?1:0)-(keys.KeyA||touchMove.left?1:0);let moveSpeed=9*(keys.KeyT?2.15:(keys.KeyF?1.55:1));player.x+= (Math.sin(player.yaw)*forward+Math.cos(player.yaw)*side)*dt*moveSpeed;player.z+=(-Math.cos(player.yaw)*forward+Math.sin(player.yaw)*side)*dt*moveSpeed;player.x=THREE.MathUtils.clamp(player.x,-45,45);player.z=THREE.MathUtils.clamp(player.z,-45,45);
+camera.position.set(player.x,2.1,player.z);camera.rotation.order='YXZ';camera.rotation.y=player.yaw;camera.rotation.x=player.pitch;
+for(let e of enemies){if(!e.alive)continue;let dx=player.x-e.x,dz=player.z-e.z,dist=Math.hypot(dx,dz);if(dist>7){e.x+=dx/dist*e.speed*dt;e.z+=dz/dist*e.speed*dt;}e.g.position.set(e.x,0,e.z);e.g.lookAt(player.x,0,player.z);e.cd-=dt;if(e.cd<=0&&dist<38){enemyFire(e);e.cd=e.boss ? .65 : 1.35+Math.random()*.7;}}
+for(let s of shots){s.mesh.position.addScaledVector(s.dir,dt*38);s.life-=dt;for(let e of enemies){if(e.alive&&s.mesh.position.distanceTo(new THREE.Vector3(e.x,1.4,e.z))<(e.boss?2.5:1.1)){e.hp-=s.damage;s.life=0;if(e.hp<=0){e.alive=false;scene.remove(e.g);score+=e.boss?1000:100;}break;}}}
+shots=shots.filter(s=>{if(s.life<=0){scene.remove(s.mesh);return false}return true});
+for(let s of enemyShots){s.mesh.position.addScaledVector(s.dir,dt*15);s.life-=dt;let blocked=cover.some(c=>Math.abs(s.mesh.position.x-c.x)<2.8&&Math.abs(s.mesh.position.z-c.z)<.7);if(!blocked&&s.mesh.position.distanceTo(new THREE.Vector3(player.x,1.2,player.z))<1){damagePlayer(s.damage);s.life=0;}}
+enemyShots=enemyShots.filter(s=>{if(s.life<=0){scene.remove(s.mesh);return false}return true});
+cover=cover.filter(c=>{c.life-=dt;if(c.life<=0){scene.remove(c.mesh);return false}return true});
+if(enemies.every(e=>!e.alive))winStage();updateHud();}
+let last=performance.now();function loop(now){let dt=Math.min((now-last)/1000,.04);last=now;update(dt);renderer.render(scene,camera);requestAnimationFrame(loop)}requestAnimationFrame(loop);
+document.getElementById('start').onclick=()=>{document.getElementById('overlay').style.display='none';gameRunning=true;spawnStage();};
+document.getElementById('shoot').addEventListener('click',e=>{e.preventDefault();shoot();});document.getElementById('wall').addEventListener('click',e=>{e.preventDefault();makeWall();});document.getElementById('weapon').onclick=()=>{weaponIndex=(weaponIndex+1)%weapons.length;updateHud();say('ARMA: '+weapons[weaponIndex].name)};document.getElementById('skin').onclick=()=>{skinIndex=(skinIndex+1)%skins.length;updateHud();say('SKIN: '+skins[skinIndex].name)};
+document.getElementById('next').onclick=()=>{if(stageDone&&stage<5){stage++;spawnStage();}};
+addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyE')makeWall();if(e.code==='Digit1')weaponIndex=0;if(e.code==='Digit2')weaponIndex=1;if(e.code==='Digit3')weaponIndex=2;if(e.code==='KeyK')skinIndex=(skinIndex+1)%skins.length;if(e.code==='KeyR'&&gameRunning)spawnStage();updateHud()});addEventListener('keyup',e=>keys[e.code]=false);
+renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
+renderer.domElement.addEventListener('click',()=>{if(gameRunning&&document.pointerLockElement!==renderer.domElement)renderer.domElement.requestPointerLock?.();});
+renderer.domElement.addEventListener('mousedown',e=>{if(e.button===0&&gameRunning){shoot();if(document.pointerLockElement!==renderer.domElement)renderer.domElement.requestPointerLock?.();}});
+document.addEventListener('mousemove',e=>{
+  if(!gameRunning||document.pointerLockElement!==renderer.domElement)return;
+  player.yaw-=e.movementX*.0035;player.pitch-=e.movementY*.0028;
+  player.pitch=THREE.MathUtils.clamp(player.pitch,-.85,.85);
+});
+function bindHold(id,key){let b=document.getElementById(id);b.addEventListener('pointerdown',e=>{e.preventDefault();touchMove[key]=true});['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>touchMove[key]=false));}
+['forward','back','left','right'].forEach(k=>bindHold(k,k));
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+updateHud();
+})();
+</script>
+</body></html>
