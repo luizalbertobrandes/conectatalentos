@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coelhinhos Socorristas 3D</title>
+<style>
+:root{--pink:#ffe7f2;--lilac:#eee7ff;--purple:#a66bc0;--ink:#513c5b;--mint:#dff8eb}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 5%,#fff 0,#fff5fb 35%,#eeeaff 100%);font-family:system-ui,Arial,sans-serif;color:var(--ink);padding:16px}
+main{max-width:760px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-weight:800;font-size:13px}
+.pill{border-radius:99px;padding:7px 12px;background:#f4e5f4;color:#805b91}
+.hero{position:relative;overflow:hidden;text-align:center;padding:18px 14px 16px;border-radius:26px;background:linear-gradient(145deg,#ffe2ef,#e7e2ff);box-shadow:inset 0 3px 0 #fff9,0 12px 28px #80648a20;margin:14px 0}
+.hero:before,.hero:after{content:"✦";position:absolute;color:#fff;font-size:26px;opacity:.8}.hero:before{left:9%;top:20%}.hero:after{right:10%;bottom:18%}
+h1{font-size:clamp(22px,5vw,31px);margin:5px 0;color:#684b79}.hero p{margin:4px auto;max-width:530px;font-size:14px}
+.stats{display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin:10px 2px}.bar{height:10px;background:#e8dff0;border-radius:20px;overflow:hidden}.bar div{height:100%;width:0;background:linear-gradient(90deg,#d78bb8,#a477d0);transition:width .35s}
+.card{background:#ffffffd9;border:1px solid #fff;border-radius:22px;padding:17px;margin:14px 0;box-shadow:0 10px 28px #795c8c17}
+.scene{min-height:235px;border-radius:20px;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(#c9e7ff 0%,#e8e3ff 72%,#b7e5b9 72%,#9dd79e 100%);box-shadow:inset 0 -7px 0 #0000000a}
+.scene .cloud{position:absolute;font-size:32px;opacity:.8;top:14px;left:12%}.scene .sun{position:absolute;right:12%;top:18px;font-size:35px}
+.rabbit{font-size:91px;filter:drop-shadow(0 12px 5px #65507830);transform-origin:50% 80%;animation:bob 2s ease-in-out infinite}
+.rabbit.fall{animation:fall .85s ease-in forwards}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+@keyframes fall{0%{transform:translateY(-65px) rotate(0) scale(1)}65%{transform:translateY(20px) rotate(75deg) scale(.98)}100%{transform:translateY(24px) rotate(90deg) scale(.96)}}
+.scene .ground{position:absolute;bottom:14px;font-size:26px;letter-spacing:10px}
+.sceneLabel{position:absolute;bottom:48px;background:#ffffffd9;padding:6px 12px;border-radius:99px;font-size:12px;font-weight:800}
+h2{font-size:19px;margin:12px 0 7px}.muted{font-size:13px;color:#766a7b}
+button{font:inherit;cursor:pointer}.primary{width:100%;border:0;border-radius:14px;padding:14px;background:linear-gradient(135deg,#b779c7,#9366ba);color:white;font-weight:900;box-shadow:0 5px 0 #754b91,0 9px 16px #9871a333;margin-top:10px}
+.primary:active{transform:translateY(3px);box-shadow:0 2px 0 #754b91}
+.choice{display:block;width:100%;text-align:left;padding:13px 14px;border-radius:14px;border:2px solid #eee4f2;background:#fff;color:#4f4058;margin:8px 0;font-size:14px;box-shadow:0 3px 0 #e9dfed}
+.choice:disabled{opacity:1}.choice.good{border-color:#62bd8a;background:#edfff4}.choice.bad{border-color:#e29a9a;background:#fff2f2}
+.feedback{padding:12px;border-radius:14px;margin-top:10px;font-size:14px;background:#f3eafa}.hidden{display:none!important}
+.finalScene{background:radial-gradient(circle at 50% 28%,#fff8fd,#f8dff0 52%,#dcd4ff);border-radius:22px;padding:20px;text-align:center;overflow:hidden}
+.finalBunny{font-size:115px;line-height:1.25;filter:drop-shadow(0 13px 7px #644b6b45);animation:bob 2s ease-in-out infinite}
+.finalCaption{font-size:clamp(25px,6vw,38px);font-weight:1000;color:#8a4eaa;text-shadow:0 3px #fff,0 5px 0 #e7c6ef;letter-spacing:.2px}
+footer{text-align:center;font-size:11px;color:#84778a;margin:16px 0}
+</style></head>
+<body><main>
+<div class="top"><span class="pill">🐰 COELHINHOS SOCORRISTAS • 3D</span><span>✨ Aura: <b id="aura">0</b></span></div>
+<header class="hero"><div style="font-size:42px">🏥 🌷 🩺</div><h1>Hospital dos Coelhinhos</h1><p>Uma aventura fofinha de primeiros socorros! Observe a cena, ajude o coelhinho e escolha a resposta correta.</p></header>
+<div class="stats"><span id="stage">Pronto para começar</span><span id="counter">0 / 20</span></div><div class="bar"><div id="progress"></div></div>
+<section class="card" id="game">
+ <div class="scene"><span class="cloud">☁️</span><span class="sun">☀️</span><div class="rabbit">🐰</div><div class="ground">🌼 🌿 🌼</div><div class="sceneLabel">Hospital da Coelhândia</div></div>
+ <h2>Bem-vinda, socorrista!</h2><p class="muted">Em cada rodada, um coelhinho vai tropeçar ou cair durante uma brincadeira. Não haverá ferimentos visíveis. Sua missão é decidir como ajudar com segurança.</p>
+ <button class="primary" id="start">COMEÇAR A AVENTURA 🐾</button>
+</section>
+<footer>Jogo educativo. Em uma emergência real, chame um adulto e ligue 192 para o SAMU quando necessário.</footer>
+</main>
+<script>
+const questions=[
+{n:'Pipoca',e:'🐰',scene:'Pipoca tropeçou enquanto corria no jardim e caiu sentado na grama.',q:'O que você deve fazer primeiro?',a:['Verificar se está tudo bem e chamar um adulto para ajudar.','Mandar Pipoca levantar e continuar correndo.'],c:0,x:'Primeiro, confira a situação sem pressa e peça ajuda a um adulto.'},
+{n:'Floquinho',e:'🐇',scene:'Floquinho escorregou durante uma brincadeira e está assustado.',q:'Como você deve se aproximar?',a:['Gritar com ele para levantar logo.','Conversar com calma, tranquilizar e verificar se precisa de ajuda.'],c:1,x:'Falar com calma ajuda a pessoa a se sentir segura.'},
+{n:'Mimi',e:'🐰',scene:'Mimi caiu perto do balanço e diz que está com dor no braço.',q:'Qual é a melhor atitude?',a:['Pedir ajuda a um adulto e evitar forçar ou movimentar o braço dolorido.','Puxar o braço para ver se voltou ao normal.'],c:0,x:'Não force uma parte do corpo que está dolorida. Um adulto deve buscar orientação.'},
+{n:'Tobias',e:'🐇',scene:'Tobias tropeçou no caminho e ficou com um pequeno arranhão.',q:'O que fazer?',a:['Esfregar o local com força.','Pedir ajuda a um adulto e lavar suavemente com água limpa.'],c:1,x:'Água corrente limpa e cuidado delicado são adequados para um arranhão pequeno.'},
+{n:'Nuvem',e:'🐰',scene:'Nuvem caiu durante um jogo e está chorando, mas conversa normalmente.',q:'Como ajudar?',a:['Acolher, perguntar onde dói e chamar um adulto.','Fingir que nada aconteceu e sair.'],c:0,x:'Acolha o coelhinho e peça ajuda de um adulto responsável.'},
+{n:'Amora',e:'🐇',scene:'Amora tropeçou perto de uma mesa e bateu a cabeça.',q:'Qual atitude é mais segura?',a:['Deixar Amora sozinha para descansar.','Avisar um adulto imediatamente e observar como ela está.'],c:1,x:'Batidas na cabeça devem ser comunicadas a um adulto. Sinais preocupantes precisam de avaliação médica.'},
+{n:'Cookie',e:'🐰',scene:'Cookie caiu enquanto brincava e está com uma dor muito forte no pescoço.',q:'O que você deve fazer?',a:['Não movimentar Cookie e chamar um adulto e a emergência.','Ajudar Cookie a girar o pescoço.'],c:0,x:'Dor no pescoço após uma queda pode indicar lesão. Não movimente a pessoa.'},
+{n:'Jujuba',e:'🐇',scene:'Jujuba escorregou e percebeu que está sangrando bastante por um corte.',q:'Como agir?',a:['Colocar terra ou pó no local.','Chamar um adulto e a emergência; fazer pressão com pano ou gaze limpa.'],c:1,x:'Sangramento intenso precisa de ajuda urgente. Pressão direta com material limpo pode ajudar.'},
+{n:'Mel',e:'🐰',scene:'Mel encostou sem querer em uma caneca quente e se assustou.',q:'O que fazer se houve uma queimadura?',a:['Avisar um adulto e resfriar com água corrente fresca.','Passar manteiga ou gelo diretamente.'],c:0,x:'Água corrente fresca ajuda a resfriar. Não use gelo, manteiga ou receitas caseiras.'},
+{n:'Biscoito',e:'🐇',scene:'Biscoito caiu e está muito tonto, sem conseguir ficar em pé.',q:'Qual é a melhor escolha?',a:['Mandar caminhar para passar a tontura.','Ajudar a manter-se em segurança, chamar um adulto e buscar avaliação.'],c:1,x:'Tontura após uma queda precisa ser comunicada a um adulto e avaliada.'},
+{n:'Lola',e:'🐰',scene:'Lola tropeçou e está com dificuldade importante para respirar.',q:'O que fazer imediatamente?',a:['Chamar um adulto e ligar para o SAMU (192).','Esperar para ver se passa.'],c:0,x:'Dificuldade importante para respirar é emergência. Acione o 192 com ajuda de um adulto.'},
+{n:'Paçoca',e:'🐇',scene:'Paçoca caiu e não responde quando você chama.',q:'Qual é a atitude correta?',a:['Oferecer água para acordar.','Chamar um adulto e ligar imediatamente para o SAMU (192).'],c:1,x:'Uma pessoa inconsciente precisa de ajuda urgente. Não dê nada pela boca.'},
+{n:'Cacau',e:'🐰',scene:'Cacau tropeçou e está com um pequeno arranhão na mão.',q:'Antes de ajudar a limpar, o que é importante?',a:['Higienizar as mãos e pedir ajuda a um adulto.','Tocar no ferimento com as mãos sujas.'],c:0,x:'Higienizar as mãos ajuda a reduzir o risco de contaminação.'},
+{n:'Pompom',e:'🐇',scene:'Pompom caiu durante uma corrida e está muito assustado.',q:'O que você deve dizer?',a:['“Pare de chorar, isso não é nada!”','“Estou aqui para ajudar. Vamos chamar um adulto.”'],c:1,x:'Acolhimento e calma também fazem parte de ajudar alguém.'},
+{n:'Estrela',e:'🐰',scene:'Estrela caiu de um brinquedo alto e está com muita dor nas costas.',q:'Como agir?',a:['Evitar movimentá-la e chamar um adulto e a emergência.','Tentar colocá-la de pé rapidamente.'],c:0,x:'Suspeita de lesão nas costas exige que a pessoa não seja movimentada.'},
+{n:'Churros',e:'🐇',scene:'Churros tropeçou e está com um sangramento pequeno no joelho.',q:'Qual cuidado é mais adequado?',a:['Colocar areia para secar.','Pedir ajuda a um adulto, limpar com água e proteger com curativo adequado.'],c:1,x:'Pequenos ferimentos podem ser limpos com água e protegidos com curativo, com ajuda adulta.'},
+{n:'Lिली',e:'🐰',scene:'Lili caiu e diz que está com muita dor e não quer se mexer.',q:'Qual é a melhor atitude?',a:['Respeitar, não forçar movimentos e chamar um adulto.','Puxar pela mão para levantar.'],c:0,x:'Não force movimentos quando existe dor importante após uma queda.'},
+{n:'Nino',e:'🐇',scene:'Nino escorregou e bateu o joelho. Está consciente e conversa.',q:'O que fazer primeiro?',a:['Mandar voltar à brincadeira imediatamente.','Ajudar a ficar em segurança, perguntar como está e chamar um adulto.'],c:1,x:'Interrompa a brincadeira e peça que um adulto avalie a situação.'},
+{n:'Fubá',e:'🐰',scene:'Fubá caiu e está com uma bolha depois de encostar em algo quente.',q:'O que NÃO devemos fazer?',a:['Estourar a bolha ou passar receitas caseiras.','Chamar um adulto e procurar orientação de saúde.'],c:0,x:'Não estoure bolhas. Queimaduras devem ser avaliadas por um adulto e, se necessário, por profissionais.'},
+{n:'Algodão',e:'🐇',scene:'Algodão tropeçou durante a última brincadeira e ficou deitado, muito quietinho.',q:'Qual é a atitude mais segura?',a:['Ir embora porque a brincadeira acabou.','Verificar se responde, chamar um adulto e pedir ajuda urgente se houver sinais graves.'],c:1,x:'Nunca ignore alguém que parece estar passando mal após uma queda. Peça ajuda.'}
+];
+let index=0,correctCount=0,locked=false;
+const $=id=>document.getElementById(id);
+function update(){ $('counter').textContent=index+' / 20';$('progress').style.width=(index/20*100)+'%';$('aura').textContent='0';}
+function scene(){
+ const p=questions[index];
+ $('stage').textContent='Cena '+(index+1)+' de 20';
+ $('game').innerHTML=`<div class="scene"><span class="cloud">☁️</span><span class="sun">☀️</span><div class="rabbit fall" id="fallRabbit">${p.e}</div><div class="ground">🌼 🌿 🌼</div><div class="sceneLabel">${p.n} estava brincando...</div></div><h2>Ops! ${p.n} caiu!</h2><p class="muted">${p.scene}</p><p><b>Não se preocupe: não há ferimentos visíveis. Vamos descobrir como ajudar!</b></p><button class="primary" id="ask">AJUDAR ${p.n} 💗</button>`;
+ $('ask').onclick=ask;
+}
+function ask(){
+ const p=questions[index];locked=false;
+ $('game').innerHTML=`<span class="pill">🩺 PERGUNTA ${index+1} DE 20</span><h2>${p.n} precisa da sua ajuda!</h2><p>${p.q}</p><div id="choices"></div><div id="feedback" class="feedback hidden"></div><button class="primary hidden" id="retry">TENTAR NOVAMENTE</button>`;
+ p.a.forEach((v,i)=>{let b=document.createElement('button');b.className='choice';b.textContent=(i===0?'A) ':'B) ')+v;b.onclick=()=>answer(i);$('choices').appendChild(b)});
+}
+function answer(i){
+ if(locked)return;let p=questions[index],ok=i===p.c;
+ if(!ok){
+   [...$('choices').children].forEach(b=>b.disabled=true);
+   $('feedback').classList.remove('hidden');$('feedback').style.background='#fff0f0';
+   $('feedback').textContent='Quase! 💗 '+p.x+' Leia com atenção e tente novamente.';
+   $('retry').classList.remove('hidden');$('retry').onclick=ask;return;
+ }
+ locked=true;correctCount++;
+ [...$('choices').children].forEach((b,j)=>{b.disabled=true;if(j===p.c)b.classList.add('good')});
+ $('feedback').classList.remove('hidden');$('feedback').style.background='#e9f9ef';
+ $('feedback').textContent='Resposta correta! 🌟 '+p.x;
+ const next=document.createElement('button');next.className='primary';next.textContent=index===19?'VER SURPRESA FINAL ✨':'PRÓXIMO COELHINHO →';
+ $('feedback').after(next);next.onclick=()=>{index++;update();if(index<20)scene();else finale()};
+}
+function finale(){
+ $('stage').textContent='Missão completa!';$('counter').textContent='20 / 20';$('progress').style.width='100%';
+ $('game').innerHTML=`<div class="finalScene"><div style="font-size:25px">🎉 🏆 🎉</div><div class="finalBunny">🐰</div><div style="font-size:12px;font-weight:900;letter-spacing:2px;color:#71518b">LOOK MANDRAKE • BRASIL 🇧🇷</div><div class="finalCaption">1000 auras pra vc</div><p style="font-weight:800">Você acertou as 20 perguntas! ✨</p><p class="muted">O coelhinho mandou essa beleza especialmente pra você!</p></div><button class="primary" id="again">JOGAR NOVAMENTE 🔄</button>`;
+ $('aura').textContent='1000';$('again').onclick=()=>{index=0;correctCount=0;update();scene()};
+}
+$('start').onclick=()=>{index=0;correctCount=0;update();scene()};
+</script></body></html>
