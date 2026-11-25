@@ -3,30 +3,1474 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página em Branco</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #ffffff;
-            color: #333333;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+    <title>ERP & Office Sim - Assistente Administrativo</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fonte Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
         }
-        .blank-content {
-            text-align: center;
-            color: #888888;
-            font-size: 1.1rem;
-        }
-    </style>
+    </script>
 </head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased h-screen flex flex-col overflow-hidden">
 
-<body>
-   <div align="center">
-  <img src="eu.png" width="400" alt="Descrição da imagem">
-  </div> 
+    <!-- Notificação Toast Customizada (Substitui alert) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Modal de Visualização / Impressão -->
+    <div id="preview-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                <h3 id="modal-title" class="font-bold text-lg text-slate-800">Visualização de Arquivo</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div id="modal-body" class="p-6 overflow-y-auto flex-1 bg-slate-50/50">
+                <!-- Conteúdo dinâmico -->
+            </div>
+            <div class="px-6 py-4 bg-white border-t border-slate-200 flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium transition">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cabeçalho Superior -->
+    <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm z-20">
+        <div class="flex items-center gap-3">
+            <button id="mobile-menu-btn" onclick="toggleSidebar()" class="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+            <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-md shadow-brand-500/30">
+                <i class="fa-solid fa-briefcase text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-slate-800 text-base sm:text-lg leading-tight">Simulador Administrativo</h1>
+                <p class="text-xs text-slate-500 hidden sm:block">Ambiente Integrado de Rotinas de Escritório</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <!-- Status de Arquivos Salvos na Nuvem Interna -->
+            <div class="hidden sm:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-600">
+                <i class="fa-solid fa-folder-open text-brand-600"></i>
+                <span>Arquivos Gerados: <strong id="saved-files-count" class="text-slate-900">0</strong></span>
+            </div>
+            <!-- Perfil Simulado -->
+            <div class="flex items-center gap-2">
+                <div class="text-right hidden md:block">
+                    <p class="text-xs font-semibold text-slate-800">Assistente Adm. Jr</p>
+                    <p class="text-[11px] text-emerald-600 font-medium"><i class="fa-solid fa-circle text-[8px] mr-1"></i>Online</p>
+                </div>
+                <div class="w-9 h-9 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-sm">
+                    AA
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Corpo Principal (Sidebar + Área de Trabalho) -->
+    <div class="flex flex-1 overflow-hidden relative">
+        
+        <!-- Sidebar de Navegação -->
+        <aside id="sidebar" class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transition-transform duration-300 absolute md:static inset-y-0 left-0 z-30 -translate-x-full md:translate-x-0 shadow-xl md:shadow-none">
+            <div class="p-4 space-y-1.5 overflow-y-auto">
+                <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 mt-2">Módulos do Sistema</p>
+                
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition bg-brand-600 text-white shadow-md">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>Visão Geral & Tarefas</span>
+                </button>
+
+                <button onclick="switchTab('docs')" id="nav-docs" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-file-word w-5 text-center text-blue-400"></i>
+                    <span>Redação Oficial</span>
+                </button>
+
+                <button onclick="switchTab('sheet')" id="nav-sheet" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-file-excel w-5 text-center text-emerald-400"></i>
+                    <span>Planilha Eletrônica</span>
+                </button>
+
+                <button onclick="switchTab('compras')" id="nav-compras" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-cart-shopping w-5 text-center text-amber-400"></i>
+                    <span>Pedidos de Compras</span>
+                </button>
+
+                <button onclick="switchTab('financeiro')" id="nav-financeiro" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-cash-register w-5 text-center text-purple-400"></i>
+                    <span>Caixa & Recibos</span>
+                </button>
+
+                <div class="pt-2 mt-2 border-t border-slate-800">
+                    <button onclick="switchTab('email')" id="nav-email" class="nav-btn w-full flex items-center justify-between px-3 py-3 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-envelope w-5 text-center text-rose-400"></i>
+                            <span>Webmail Corporativo</span>
+                        </div>
+                        <span id="unread-badge" class="bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">2</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dica Rápida no Rodapé da Sidebar -->
+            <div class="p-4 m-3 bg-slate-800/80 rounded-xl border border-slate-700/50">
+                <div class="flex items-center gap-2 text-amber-400 text-xs font-bold mb-1">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span>Fluxo Integrado</span>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Salve seus documentos e planilhas para anexá-los diretamente no módulo de E-mail.
+                </p>
+            </div>
+        </aside>
+
+        <!-- Área de Conteúdo Principal -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-100" id="main-content">
+
+            <!-- ========================================== -->
+            <!-- 1. DASHBOARD & TAREFAS DO DIA              -->
+            <!-- ========================================== -->
+            <section id="tab-dashboard" class="tab-content space-y-6 max-w-6xl mx-auto">
+                <div class="bg-gradient-to-r from-brand-700 to-brand-900 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <span class="bg-white/20 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Expediente Iniciado</span>
+                        <h2 class="text-2xl font-bold mt-2">Bem-vindo(a) à Estação Administrativa</h2>
+                        <p class="text-brand-100 text-sm mt-1 max-w-2xl">Execute as rotinas diárias abaixo para praticar processos reais de escritório: redação empresarial, controle em planilhas, compras, fluxo de caixa e comunicação formal via e-mail.</p>
+                    </div>
+                    <button onclick="switchTab('email')" class="bg-white text-brand-900 hover:bg-brand-50 font-semibold px-5 py-3 rounded-xl shadow transition flex items-center gap-2 shrink-0">
+                        <i class="fa-solid fa-inbox"></i> Ver Caixa de Entrada
+                    </button>
+                </div>
+
+                <!-- Cards de Resumo -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-file-lines"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500">Docs Redigidos</p>
+                            <p id="stat-docs" class="text-2xl font-bold text-slate-800">0</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-table"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500">Planilhas Salvas</p>
+                            <p id="stat-sheets" class="text-2xl font-bold text-slate-800">0</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500">Pedidos de Compra</p>
+                            <p id="stat-orders" class="text-2xl font-bold text-slate-800">1</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500">Saldo em Caixa</p>
+                            <p id="stat-cash" class="text-2xl font-bold text-emerald-600">R$ 1.500,00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checklist de Rotinas Sugeridas + Arquivos Gerados -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Checklist Interativo -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6">
+                        <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-brand-600"></i> Checklist de Rotinas Sugeridas
+                        </h3>
+                        <div class="space-y-3">
+                            <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 cursor-pointer transition border border-slate-200/60">
+                                <input type="checkbox" class="mt-1 w-4 h-4 text-brand-600 rounded focus:ring-brand-500">
+                                <div class="text-sm">
+                                    <p class="font-semibold text-slate-800">1. Redigir um Memorando ou Ofício</p>
+                                    <p class="text-slate-500 text-xs">Acesse "Redação Oficial", escolha um modelo, preencha e salve na pasta de arquivos.</p>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 cursor-pointer transition border border-slate-200/60">
+                                <input type="checkbox" class="mt-1 w-4 h-4 text-brand-600 rounded focus:ring-brand-500">
+                                <div class="text-sm">
+                                    <p class="font-semibold text-slate-800">2. Atualizar Planilha de Controle</p>
+                                    <p class="text-slate-500 text-xs">Insira itens, quantidades e valores na Planilha Eletrônica e salve o relatório.</p>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 cursor-pointer transition border border-slate-200/60">
+                                <input type="checkbox" class="mt-1 w-4 h-4 text-brand-600 rounded focus:ring-brand-500">
+                                <div class="text-sm">
+                                    <p class="font-semibold text-slate-800">3. Lançar Pedido de Compra & Recibo</p>
+                                    <p class="text-slate-500 text-xs">Registre uma aquisição de suprimentos e emita um recibo no módulo Caixa & Recibos.</p>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 cursor-pointer transition border border-slate-200/60">
+                                <input type="checkbox" class="mt-1 w-4 h-4 text-brand-600 rounded focus:ring-brand-500">
+                                <div class="text-sm">
+                                    <p class="font-semibold text-slate-800">4. Enviar E-mail com Anexos</p>
+                                    <p class="text-slate-500 text-xs">No Webmail, envie os documentos criados para a diretoria e acompanhe a caixa de entrada.</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Repositório Central de Arquivos Gerados -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                <i class="fa-solid fa-cloud-arrow-up text-brand-600"></i> Arquivos Disponíveis para Anexo
+                            </h3>
+                        </div>
+                        <div id="dashboard-files-list" class="flex-1 overflow-y-auto space-y-2 max-h-72">
+                            <div class="text-center py-8 text-slate-400 text-sm">
+                                <i class="fa-regular fa-folder-open text-3xl mb-2 block"></i>
+                                Nenhum documento ou planilha salvo ainda.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 2. REDAÇÃO OFICIAL (OFÍCIO, CARTA, MEMO...) -->
+            <!-- ========================================== -->
+            <section id="tab-docs" class="tab-content hidden space-y-6 max-w-6xl mx-auto">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Redação de Documentos Oficiais</h2>
+                        <p class="text-sm text-slate-500">Selecione o tipo de documento para carregar a estrutura padrão e edite conforme necessário.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="loadDocTemplate('oficio')" class="px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:border-brand-500 hover:text-brand-600 text-sm font-medium shadow-sm transition">Ofício</button>
+                        <button onclick="loadDocTemplate('memorando')" class="px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:border-brand-500 hover:text-brand-600 text-sm font-medium shadow-sm transition">Memorando</button>
+                        <button onclick="loadDocTemplate('carta')" class="px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:border-brand-500 hover:text-brand-600 text-sm font-medium shadow-sm transition">Carta Comercial</button>
+                        <button onclick="loadDocTemplate('comunicado')" class="px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:border-brand-500 hover:text-brand-600 text-sm font-medium shadow-sm transition">Comunicado</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Metadados e Controles -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4 h-fit">
+                        <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-3">Propriedades do Arquivo</h3>
+                        
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tipo de Documento</label>
+                            <select id="doc-type" onchange="loadDocTemplate(this.value)" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50">
+                                <option value="oficio">Ofício</option>
+                                <option value="memorando">Memorando Interno</option>
+                                <option value="carta">Carta Comercial</option>
+                                <option value="comunicado">Comunicado Geral</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nome do Arquivo (para salvar)</label>
+                            <input type="text" id="doc-filename" value="Oficio_042_2026.doc" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Assunto / Referência</label>
+                            <input type="text" id="doc-subject" placeholder="Digite o assunto do documento..." class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+
+                        <div class="pt-2 space-y-2">
+                            <button onclick="saveDocument()" class="w-full py-3 px-4 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl shadow-md shadow-brand-500/20 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i> Salvar Documento
+                            </button>
+                            <button onclick="previewCurrentDoc()" class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-eye"></i> Pré-visualizar Folha A4
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Editor Estilo Folha A4 -->
+                    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                        <!-- Barra de Formatação Simulada -->
+                        <div class="bg-slate-50 border-b border-slate-200 px-4 py-2.5 flex items-center gap-2 flex-wrap">
+                            <button type="button" onclick="formatText('bold')" class="p-2 rounded-lg hover:bg-slate-200 text-slate-700" title="Negrito"><i class="fa-solid fa-bold"></i></button>
+                            <button type="button" onclick="formatText('italic')" class="p-2 rounded-lg hover:bg-slate-200 text-slate-700" title="Itálico"><i class="fa-solid fa-italic"></i></button>
+                            <button type="button" onclick="formatText('underline')" class="p-2 rounded-lg hover:bg-slate-200 text-slate-700" title="Sublinhado"><i class="fa-solid fa-underline"></i></button>
+                            <div class="h-5 w-px bg-slate-300 mx-1"></div>
+                            <button type="button" onclick="formatText('justifyLeft')" class="p-2 rounded-lg hover:bg-slate-200 text-slate-700" title="Alinhar à Esquerda"><i class="fa-solid fa-align-left"></i></button>
+                            <button type="button" onclick="formatText('justifyCenter')" class="p-2 rounded-lg hover:bg-slate-200 text-slate-700" title="Centralizar"><i class="fa-solid fa-align-center"></i></button>
+                            <button type="button" onclick="formatText('justifyFull')" class="p-2 rounded-lg hover:bg-slate-200 text-slate-700" title="Justificar"><i class="fa-solid fa-align-justify"></i></button>
+                        </div>
+
+                        <!-- Área Editável -->
+                        <div class="p-6 sm:p-10 bg-slate-200/50 flex-1 overflow-y-auto">
+                            <div id="doc-editor" contenteditable="true" class="bg-white shadow-md mx-auto max-w-2xl min-h-[480px] p-8 sm:p-12 rounded-sm border border-slate-200 focus:outline-none text-slate-800 text-sm leading-relaxed font-serif">
+                                <!-- Template carregado via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 3. PLANILHA ELETRÔNICA                     -->
+            <!-- ========================================== -->
+            <section id="tab-sheet" class="tab-content hidden space-y-6 max-w-6xl mx-auto">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Planilha Eletrônica Administrativa</h2>
+                        <p class="text-sm text-slate-500">Controle de materiais, orçamentos ou inventário com cálculo automático de subtotais e total geral.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="addSheetRow()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Nova Linha
+                        </button>
+                        <button onclick="saveSpreadsheet()" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold shadow-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> Salvar Planilha
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <!-- Barra Superior da Planilha -->
+                    <div class="p-4 bg-emerald-50/70 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-2 flex-1">
+                            <i class="fa-solid fa-file-excel text-emerald-600 text-xl"></i>
+                            <input type="text" id="sheet-filename" value="Controle_Materiais_Escritorio.xlsx" class="bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-sm font-medium text-slate-800 w-full sm:w-80 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div class="text-sm text-slate-600">
+                            Total Calculado: <strong id="sheet-grand-total" class="text-lg text-emerald-700 ml-1">R$ 0,00</strong>
+                        </div>
+                    </div>
+
+                    <!-- Tabela Editável -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase">
+                                    <th class="py-3 px-4 w-12 text-center border-r border-slate-200">#</th>
+                                    <th class="py-3 px-4 border-r border-slate-200 min-w-[200px]">Descrição do Item / Serviço</th>
+                                    <th class="py-3 px-4 border-r border-slate-200 w-36">Categoria</th>
+                                    <th class="py-3 px-4 border-r border-slate-200 w-28 text-right">Qtd.</th>
+                                    <th class="py-3 px-4 border-r border-slate-200 w-36 text-right">Valor Unit. (R$)</th>
+                                    <th class="py-3 px-4 border-r border-slate-200 w-36 text-right">Subtotal (R$)</th>
+                                    <th class="py-3 px-4 w-16 text-center">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sheet-body" class="divide-y divide-slate-200 text-sm">
+                                <!-- Linhas geradas dinamicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 4. LANÇAMENTO DE PEDIDOS DE COMPRAS        -->
+            <!-- ========================================== -->
+            <section id="tab-compras" class="tab-content hidden space-y-6 max-w-6xl mx-auto">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Gestão de Pedidos de Compras</h2>
+                    <p class="text-sm text-slate-500">Registre solicitações de compras para fornecedores e acompanhe o status de aprovação.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Formulário de Novo Pedido -->
+                    <form onsubmit="createPurchaseOrder(event)" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4 h-fit">
+                        <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-cart-plus text-amber-500"></i> Novo Pedido de Compra
+                        </h3>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Fornecedor</label>
+                            <input type="text" id="po-supplier" required placeholder="Ex: Kalunga Suprimentos Ltda" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Departamento Solicitante</label>
+                            <select id="po-dept" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                                <option value="Administrativo">Administrativo</option>
+                                <option value="Recursos Humanos">Recursos Humanos</option>
+                                <option value="Financeiro">Financeiro</option>
+                                <option value="TI / Suporte">TI / Suporte</option>
+                                <option value="Comercial">Comercial</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Descrição dos Itens</label>
+                            <input type="text" id="po-items" required placeholder="Ex: 10 Resmas Papel A4, 2 Toners" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Valor Total (R$)</label>
+                                <input type="number" step="0.01" min="0.01" id="po-amount" required placeholder="0,00" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Previsão Entrega</label>
+                                <input type="date" id="po-date" required class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-3 px-4 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl shadow-md shadow-amber-500/20 transition">
+                            Emitir Pedido de Compra
+                        </button>
+                    </form>
+
+                    <!-- Lista de Pedidos -->
+                    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                        <div class="p-5 border-b border-slate-200 flex justify-between items-center">
+                            <h3 class="font-bold text-slate-800">Pedidos Emitidos</h3>
+                            <span class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-medium">Clique no status para alterar</span>
+                        </div>
+                        <div class="overflow-x-auto flex-1">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase">
+                                        <th class="py-3 px-4">Nº Pedido</th>
+                                        <th class="py-3 px-4">Fornecedor / Itens</th>
+                                        <th class="py-3 px-4">Depto.</th>
+                                        <th class="py-3 px-4 text-right">Valor</th>
+                                        <th class="py-3 px-4 text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="po-list" class="divide-y divide-slate-200 text-sm">
+                                    <!-- Pedidos inseridos via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 5. FLUXO DE CAIXA E EMISSÃO DE RECIBOS     -->
+            <!-- ========================================== -->
+            <section id="tab-financeiro" class="tab-content hidden space-y-6 max-w-6xl mx-auto">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Controle de Caixa & Emissão de Recibos</h2>
+                    <p class="text-sm text-slate-500">Registre entradas e saídas do fundo fixo de caixa e gere recibos comprobatórios.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Coluna 1: Lançamento de Caixa -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                            <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> Movimentação de Caixa
+                            </h3>
+                            <div class="text-right">
+                                <span class="text-xs text-slate-500 block">Saldo Atual</span>
+                                <span id="cash-balance-display" class="font-bold text-lg text-emerald-600">R$ 1.500,00</span>
+                            </div>
+                        </div>
+
+                        <form onsubmit="addCashEntry(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tipo</label>
+                                <select id="cash-type" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white">
+                                    <option value="entrada">Entrada (+)</option>
+                                    <option value="saida">Saída (-)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Valor (R$)</label>
+                                <input type="number" step="0.01" min="0.01" id="cash-val" required placeholder="0,00" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Histórico / Descrição</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="cash-desc" required placeholder="Ex: Pagamento Motoboy / Reposição Caixa" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition shrink-0">Lançar</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Extrato de Caixa -->
+                        <div class="pt-2">
+                            <h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Últimos Lançamentos</h4>
+                            <div id="cash-history" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+                                <!-- Itens via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Coluna 2: Gerador de Recibos -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                        <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-receipt text-purple-600"></i> Emissor de Recibo
+                        </h3>
+
+                        <form onsubmit="generateReceipt(event)" class="space-y-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Pagador / Recebedor</label>
+                                    <input type="text" id="rec-person" required placeholder="Nome completo ou Empresa" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">CPF / CNPJ</label>
+                                    <input type="text" id="rec-doc" required placeholder="000.000.000-00" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Valor do Recibo (R$)</label>
+                                    <input type="number" step="0.01" min="0.01" id="rec-amount" required placeholder="150,00" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Data de Emissão</label>
+                                    <input type="date" id="rec-date" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Referente a (Serviço ou Produto)</label>
+                                <input type="text" id="rec-ref" required placeholder="Ex: Serviços de entrega expressa de documentos" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                            </div>
+
+                            <div class="flex gap-2 pt-1">
+                                <button type="submit" class="flex-1 py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl text-sm shadow-sm transition">
+                                    Gerar & Visualizar Recibo
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 6. SIMULADOR DE E-MAIL CORPORATIVO         -->
+            <!-- ========================================== -->
+            <section id="tab-email" class="tab-content hidden space-y-4 max-w-6xl mx-auto h-full flex flex-col">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Webmail Corporativo</h2>
+                        <p class="text-sm text-slate-500">Envie e-mails com documentos e planilhas anexados e gerencie sua caixa de mensagens.</p>
+                    </div>
+                    <button onclick="openComposeEmail()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl shadow-md shadow-brand-500/20 transition flex items-center gap-2 w-fit">
+                        <i class="fa-solid fa-pen-to-square"></i> Escrever E-mail
+                    </button>
+                </div>
+
+                <!-- Interface do Cliente de Email -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[520px]">
+                    
+                    <!-- Pastas do Email (Esquerda) -->
+                    <div class="md:col-span-3 bg-slate-50 border-b md:border-b-0 md:border-r border-slate-200 p-4 space-y-1">
+                        <button onclick="filterEmails('all')" id="mail-filter-all" class="mail-filter-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold bg-brand-100 text-brand-700 transition">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-inbox"></i> Caixa de Entrada</span>
+                            <span id="count-all" class="text-xs bg-white px-2 py-0.5 rounded-full shadow-sm">2</span>
+                        </button>
+                        <button onclick="filterEmails('unread')" id="mail-filter-unread" class="mail-filter-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-200/70 transition">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-envelope"></i> Não Lidas</span>
+                            <span id="count-unread" class="text-xs bg-rose-500 text-white px-2 py-0.5 rounded-full">2</span>
+                        </button>
+                        <button onclick="filterEmails('read')" id="mail-filter-read" class="mail-filter-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-200/70 transition">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-envelope-open"></i> Lidas</span>
+                            <span id="count-read" class="text-xs bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full">0</span>
+                        </button>
+                    </div>
+
+                    <!-- Lista de Mensagens (Centro) -->
+                    <div class="md:col-span-4 border-b md:border-b-0 md:border-r border-slate-200 flex flex-col max-h-[550px]">
+                        <div class="p-3 border-b border-slate-200 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            Mensagens
+                        </div>
+                        <div id="email-list" class="divide-y divide-slate-100 overflow-y-auto flex-1">
+                            <!-- Emails inseridos via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Painel de Leitura OU Composição (Direita) -->
+                    <div class="md:col-span-5 p-6 flex flex-col bg-white overflow-y-auto max-h-[550px]" id="email-right-pane">
+                        
+                        <!-- Estado Inicial Vazio -->
+                        <div id="email-empty-state" class="m-auto text-center text-slate-400 py-12">
+                            <i class="fa-regular fa-envelope-open text-4xl mb-3 block"></i>
+                            <p class="text-sm font-medium">Selecione uma mensagem para ler ou clique em "Escrever E-mail".</p>
+                        </div>
+
+                        <!-- Leitor de E-mail -->
+                        <div id="email-reader" class="hidden space-y-4">
+                            <div class="border-b border-slate-200 pb-4">
+                                <div class="flex justify-between items-start gap-2">
+                                    <h3 id="read-subject" class="font-bold text-lg text-slate-800">Assunto do Email</h3>
+                                    <button onclick="toggleReadStatus()" id="btn-toggle-read" class="text-xs px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-600 shrink-0">
+                                        Marcar como não lida
+                                    </button>
+                                </div>
+                                <div class="mt-2 text-xs text-slate-500 space-y-1">
+                                    <p><strong>De:</strong> <span id="read-sender" class="text-slate-700"></span></p>
+                                    <p><strong>Para:</strong> <span id="read-recipient" class="text-slate-700"></span></p>
+                                    <p><strong>Data:</strong> <span id="read-date"></span></p>
+                                </div>
+                            </div>
+
+                            <div id="read-body" class="text-sm text-slate-700 whitespace-pre-line leading-relaxed min-h-[140px]"></div>
+
+                            <!-- Área de Anexos da Mensagem Lida -->
+                            <div id="read-attachments-box" class="hidden pt-4 border-t border-slate-200">
+                                <p class="text-xs font-bold text-slate-500 uppercase mb-2"><i class="fa-solid fa-paperclip mr-1"></i> Anexos Recebidos</p>
+                                <div id="read-attachments-list" class="space-y-2"></div>
+                            </div>
+                        </div>
+
+                        <!-- Compositor de Novo E-mail -->
+                        <form id="email-composer" onsubmit="sendEmail(event)" class="hidden space-y-3">
+                            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                                <h3 class="font-bold text-slate-800 text-base">Nova Mensagem</h3>
+                                <button type="button" onclick="cancelCompose()" class="text-xs text-slate-400 hover:text-slate-600">Cancelar</button>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">Remetente (De)</label>
+                                <input type="email" id="comp-sender" value="assistente.adm@empresa.com.br" required class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">Destinatário (Para)</label>
+                                <input type="email" id="comp-recipient" placeholder="diretoria@empresa.com.br" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">Assunto</label>
+                                <input type="text" id="comp-subject" placeholder="Ex: Encaminhamento de Ofício e Planilha" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+
+                            <!-- Seletor de Anexos do Sistema -->
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <label class="block text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1">
+                                    <i class="fa-solid fa-paperclip text-brand-600"></i> Anexar Arquivos Gerados (Docs / Planilhas)
+                                </label>
+                                <div class="flex gap-2">
+                                    <select id="comp-attachment-select" class="flex-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white focus:outline-none">
+                                        <option value="">-- Selecione um arquivo salvo --</option>
+                                    </select>
+                                    <button type="button" onclick="attachSelectedFile()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-lg transition">
+                                        Anexar
+                                    </button>
+                                </div>
+                                <!-- Lista de anexos adicionados -->
+                                <div id="comp-attached-list" class="flex flex-wrap gap-1.5 mt-2"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">Mensagem</label>
+                                <textarea id="comp-body" rows="4" required placeholder="Prezados(as), segue em anexo..." class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                            </div>
+
+                            <button type="submit" class="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i> Enviar E-mail Agora
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- JavaScript da Aplicação -->
+    <script>
+        // ==========================================
+        // ESTADO GLOBAL DO SIMULADOR
+        // ==========================================
+        const state = {
+            savedFiles: [], // { id, name, type: 'doc'|'sheet'|'receipt', contentHTML, date }
+            sheetRows: [
+                { id: 1, desc: 'Papel Sulfite A4 75g (Caixa 10 resmas)', cat: 'Papelaria', qty: 3, price: 245.00 },
+                { id: 2, desc: 'Cartucho Toner Preto LaserJet', cat: 'Informática', qty: 2, price: 189.90 },
+                { id: 3, desc: 'Caneta Esferográfica Azul (Cx 50 un)', cat: 'Papelaria', qty: 2, price: 42.50 }
+            ],
+            purchaseOrders: [
+                { id: 'PC-2026-001', supplier: 'Distribuidora Alfa Ltda', dept: 'Administrativo', items: 'Café, Açúcar e Copos Descartáveis', amount: 320.50, date: '2026-11-28', status: 'Aprovado' }
+            ],
+            cashBalance: 1500.00,
+            cashHistory: [
+                { id: 1, type: 'entrada', desc: 'Saldo Inicial Fundo Fixo de Caixa', amount: 1500.00, date: 'Hoje, 08:00' }
+            ],
+            emails: [
+                {
+                    id: 101,
+                    sender: 'gerencia.adm@empresa.com.br',
+                    recipient: 'assistente.adm@empresa.com.br',
+                    subject: 'Demandas do Dia - Boas-vindas',
+                    body: 'Olá!\n\nPor favor, prepare hoje um Ofício solicitando manutenção do ar-condicionado e atualize nossa planilha de materiais de escritório.\n\nAssim que concluir, salve ambos os arquivos e me envie por aqui em anexo.\n\nAtenciosamente,\nGerência Administrativa',
+                    date: 'Hoje, 08:15',
+                    read: false,
+                    attachments: []
+                },
+                {
+                    id: 102,
+                    sender: 'financeiro@empresa.com.br',
+                    recipient: 'assistente.adm@empresa.com.br',
+                    subject: 'Conferência de Fundo Fixo de Caixa',
+                    body: 'Prezado(a) Assistente,\n\nLembramos que o saldo inicial de R$ 1.500,00 já está disponível no sistema. Qualquer pagamento em espécie deve ter seu respectivo recibo emitido.\n\nAtt,\nSetor Financeiro',
+                    date: 'Hoje, 09:00',
+                    read: false,
+                    attachments: []
+                }
+            ],
+            currentEmailFilter: 'all',
+            selectedEmailId: null,
+            tempAttachments: [] // IDs dos arquivos anexados no compositor
+        };
+
+        // ==========================================
+        // UTILITÁRIOS DE INTERFACE (TOAST & MODAL)
+        // ==========================================
+        window.showToast = function(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = type === 'success' ? 'bg-slate-900 text-white border-emerald-500' : 'bg-rose-600 text-white border-rose-800';
+            const icon = type === 'success' ? '<i class="fa-solid fa-circle-check text-emerald-400"></i>' : '<i class="fa-solid fa-circle-exclamation"></i>';
+            
+            toast.className = `${colors} border-l-4 px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 text-sm font-medium transform transition-all duration-300 translate-y-2 opacity-0 pointer-events-auto`;
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        };
+
+        window.openModal = function(title, htmlContent) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = htmlContent;
+            document.getElementById('preview-modal').classList.remove('hidden');
+        };
+
+        window.closeModal = function() {
+            document.getElementById('preview-modal').classList.add('hidden');
+        };
+
+        function formatCurrency(val) {
+            return Number(val).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // ==========================================
+        // NAVEGAÇÃO ENTRE MÓDULOS
+        // ==========================================
+        window.switchTab = function(tabId) {
+            // Esconde todas as seções
+            document.querySelectorAll('.tab-content').forEach(sec => sec.classList.add('hidden'));
+            // Mostra a selecionada
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+            }
+
+            // Atualiza botões da sidebar
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white', 'shadow-md');
+                btn.classList.add('hover:bg-slate-800', 'hover:text-white');
+            });
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-brand-600', 'text-white', 'shadow-md');
+                activeBtn.classList.remove('hover:bg-slate-800', 'hover:text-white');
+            }
+
+            // Fecha menu mobile se estiver aberto
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && !sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
+                sidebar.classList.add('-translate-x-full');
+            }
+
+            if (tabId === 'email') {
+                updateAttachmentSelector();
+                renderEmails();
+            }
+        };
+
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('-translate-x-full');
+            }
+        };
+
+        // ==========================================
+        // 2. REDAÇÃO OFICIAL (TEMPLATES E SALVAMENTO)
+        // ==========================================
+        const docTemplates = {
+            oficio: {
+                filename: 'Oficio_042_2026.doc',
+                subject: '',
+                html: ''
+            },
+            memorando: {
+                filename: 'Memorando_Interno_15.doc',
+                subject: '',
+                html: ''
+            },
+            carta: {
+                filename: 'Carta_Comercial.doc',
+                subject: '',
+                html: ''
+            },
+            comunicado: {
+                filename: 'Comunicado_Geral.doc',
+                subject: '',
+                html: ''
+            }
+        };
+
+        window.loadDocTemplate = function(type) {
+            const tpl = docTemplates[type];
+            if (!tpl) return;
+            document.getElementById('doc-type').value = type;
+            document.getElementById('doc-filename').value = tpl.filename;
+            document.getElementById('doc-subject').value = tpl.subject;
+            document.getElementById('doc-editor').innerHTML = tpl.html;
+        };
+
+        window.formatText = function(command) {
+            document.execCommand(command, false, null);
+            document.getElementById('doc-editor').focus();
+        };
+
+        window.saveDocument = function() {
+            const filename = document.getElementById('doc-filename').value.trim() || 'Documento_Sem_Nome.doc';
+            const content = document.getElementById('doc-editor').innerHTML;
+
+            const fileObj = {
+                id: 'file-' + Date.now(),
+                name: filename,
+                type: 'doc',
+                contentHTML: `<div style="font-family: Georgia, serif; line-height: 1.6; color: #1e293b; background: white; padding: 32px; border: 1px solid #cbd5e1; border-radius: 8px;">${content}</div>`,
+                date: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            state.savedFiles.push(fileObj);
+            updateDashboardFiles();
+            showToast(`Documento "${filename}" salvo e pronto para anexo!`);
+        };
+
+        window.previewCurrentDoc = function() {
+            const filename = document.getElementById('doc-filename').value;
+            const content = document.getElementById('doc-editor').innerHTML;
+            openModal(`Pré-visualização: ${filename}`, `<div class="bg-white p-8 shadow rounded border border-slate-200 font-serif text-sm leading-relaxed">${content}</div>`);
+        };
+
+        // ==========================================
+        // 3. PLANILHA ELETRÔNICA
+        // ==========================================
+        function renderSheet() {
+            const tbody = document.getElementById('sheet-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            let grandTotal = 0;
+
+            state.sheetRows.forEach((row, index) => {
+                const subtotal = row.qty * row.price;
+                grandTotal += subtotal;
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition';
+                tr.innerHTML = `
+                    <td class="py-2.5 px-4 text-center text-slate-400 font-mono text-xs border-r border-slate-200">${index + 1}</td>
+                    <td class="py-2 px-3 border-r border-slate-200">
+                        <input type="text" value="${row.desc}" onchange="updateSheetCell(${row.id}, 'desc', this.value)" class="w-full bg-transparent focus:bg-white focus:ring-1 focus:ring-emerald-500 rounded px-2 py-1 outline-none">
+                    </td>
+                    <td class="py-2 px-3 border-r border-slate-200">
+                        <input type="text" value="${row.cat}" onchange="updateSheetCell(${row.id}, 'cat', this.value)" class="w-full bg-transparent focus:bg-white focus:ring-1 focus:ring-emerald-500 rounded px-2 py-1 outline-none">
+                    </td>
+                    <td class="py-2 px-3 border-r border-slate-200">
+                        <input type="number" min="0" value="${row.qty}" onchange="updateSheetCell(${row.id}, 'qty', parseFloat(this.value) || 0)" class="w-full text-right bg-transparent focus:bg-white focus:ring-1 focus:ring-emerald-500 rounded px-2 py-1 outline-none">
+                    </td>
+                    <td class="py-2 px-3 border-r border-slate-200">
+                        <input type="number" step="0.01" min="0" value="${row.price.toFixed(2)}" onchange="updateSheetCell(${row.id}, 'price', parseFloat(this.value) || 0)" class="w-full text-right bg-transparent focus:bg-white focus:ring-1 focus:ring-emerald-500 rounded px-2 py-1 outline-none">
+                    </td>
+                    <td class="py-2.5 px-4 text-right font-semibold text-slate-700 border-r border-slate-200 bg-slate-50/50">
+                        ${formatCurrency(subtotal)}
+                    </td>
+                    <td class="py-2.5 px-4 text-center">
+                        <button onclick="removeSheetRow(${row.id})" class="text-slate-400 hover:text-rose-500 transition p-1" title="Excluir Linha">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('sheet-grand-total').textContent = formatCurrency(grandTotal);
+        }
+
+        window.updateSheetCell = function(id, field, value) {
+            const row = state.sheetRows.find(r => r.id === id);
+            if (row) {
+                row[field] = value;
+                renderSheet();
+            }
+        };
+
+        window.addSheetRow = function() {
+            state.sheetRows.push({
+                id: Date.now(),
+                desc: 'Novo Item Administrativo',
+                cat: 'Geral',
+                qty: 1,
+                price: 0.00
+            });
+            renderSheet();
+        };
+
+        window.removeSheetRow = function(id) {
+            if (state.sheetRows.length <= 1) {
+                showToast('A planilha precisa ter pelo menos uma linha.', 'error');
+                return;
+            }
+            state.sheetRows = state.sheetRows.filter(r => r.id !== id);
+            renderSheet();
+        };
+
+        window.saveSpreadsheet = function() {
+            const filename = document.getElementById('sheet-filename').value.trim() || 'Planilha_Controle.xlsx';
+            let grandTotal = 0;
+
+            let rowsHTML = state.sheetRows.map((r, i) => {
+                const sub = r.qty * r.price;
+                grandTotal += sub;
+                return `
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 8px; text-align: center;">${i + 1}</td>
+                        <td style="padding: 8px;">${r.desc}</td>
+                        <td style="padding: 8px;">${r.cat}</td>
+                        <td style="padding: 8px; text-align: right;">${r.qty}</td>
+                        <td style="padding: 8px; text-align: right;">${formatCurrency(r.price)}</td>
+                        <td style="padding: 8px; text-align: right; font-weight: bold;">${formatCurrency(sub)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            const tableHTML = `
+                <div style="font-family: sans-serif; background: white; padding: 20px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                    <h3 style="margin-top:0; color: #065f46;">Relatório de Planilha: ${filename}</h3>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                        <thead>
+                            <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+                                <th style="padding: 8px;">#</th>
+                                <th style="padding: 8px; text-align: left;">Descrição</th>
+                                <th style="padding: 8px; text-align: left;">Categoria</th>
+                                <th style="padding: 8px; text-align: right;">Qtd</th>
+                                <th style="padding: 8px; text-align: right;">Unitário</th>
+                                <th style="padding: 8px; text-align: right;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHTML}</tbody>
+                    </table>
+                    <div style="text-align: right; margin-top: 16px; font-size: 16px; font-weight: bold; color: #047857;">
+                        Total Geral: ${formatCurrency(grandTotal)}
+                    </div>
+                </div>
+            `;
+
+            state.savedFiles.push({
+                id: 'file-' + Date.now(),
+                name: filename,
+                type: 'sheet',
+                contentHTML: tableHTML,
+                date: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+            });
+
+            updateDashboardFiles();
+            showToast(`Planilha "${filename}" salva com sucesso!`);
+        };
+
+        // ==========================================
+        // 4. PEDIDOS DE COMPRAS
+        // ==========================================
+        function renderPurchaseOrders() {
+            const tbody = document.getElementById('po-list');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            state.purchaseOrders.forEach(po => {
+                let badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+                if (po.status === 'Aprovado') badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                if (po.status === 'Entregue') badgeClass = 'bg-blue-100 text-blue-800 border-blue-200';
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition';
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4 font-mono text-xs font-bold text-slate-700">${po.id}</td>
+                    <td class="py-3.5 px-4">
+                        <p class="font-semibold text-slate-800">${po.supplier}</p>
+                        <p class="text-xs text-slate-500">${po.items}</p>
+                    </td>
+                    <td class="py-3.5 px-4 text-xs text-slate-600">${po.dept}</td>
+                    <td class="py-3.5 px-4 text-right font-semibold text-slate-800">${formatCurrency(po.amount)}</td>
+                    <td class="py-3.5 px-4 text-center">
+                        <button onclick="cyclePOStatus('${po.id}')" class="px-3 py-1 rounded-full text-xs font-semibold border ${badgeClass} cursor-pointer hover:opacity-80 transition">
+                            ${po.status}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('stat-orders').textContent = state.purchaseOrders.length;
+        }
+
+        window.createPurchaseOrder = function(e) {
+            e.preventDefault();
+            const supplier = document.getElementById('po-supplier').value;
+            const dept = document.getElementById('po-dept').value;
+            const items = document.getElementById('po-items').value;
+            const amount = parseFloat(document.getElementById('po-amount').value);
+            const date = document.getElementById('po-date').value;
+
+            const nextNum = String(state.purchaseOrders.length + 1).padStart(3, '0');
+            state.purchaseOrders.unshift({
+                id: `PC-2026-${nextNum}`,
+                supplier,
+                dept,
+                items,
+                amount,
+                date,
+                status: 'Pendente'
+            });
+
+            e.target.reset();
+            renderPurchaseOrders();
+            showToast(`Pedido PC-2026-${nextNum} registrado!`);
+        };
+
+        window.cyclePOStatus = function(id) {
+            const po = state.purchaseOrders.find(p => p.id === id);
+            if (!po) return;
+            const order = ['Pendente', 'Aprovado', 'Entregue'];
+            const nextIdx = (order.indexOf(po.status) + 1) % order.length;
+            po.status = order[nextIdx];
+            renderPurchaseOrders();
+            showToast(`Status do pedido ${id} alterado para ${po.status}.`);
+        };
+
+        // ==========================================
+        // 5. CAIXA & RECIBOS
+        // ==========================================
+        function renderCash() {
+            const balanceText = formatCurrency(state.cashBalance);
+            document.getElementById('cash-balance-display').textContent = balanceText;
+            document.getElementById('stat-cash').textContent = balanceText;
+
+            const container = document.getElementById('cash-history');
+            if (!container) return;
+            container.innerHTML = '';
+
+            state.cashHistory.forEach(item => {
+                const isEntry = item.type === 'entrada';
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-sm';
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center ${isEntry ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}">
+                            <i class="fa-solid ${isEntry ? 'fa-arrow-down' : 'fa-arrow-up'}"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-slate-800">${item.desc}</p>
+                            <p class="text-[11px] text-slate-400">${item.date}</p>
+                        </div>
+                    </div>
+                    <span class="font-bold ${isEntry ? 'text-emerald-600' : 'text-rose-600'}">
+                        ${isEntry ? '+' : '-'} ${formatCurrency(item.amount)}
+                    </span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.addCashEntry = function(e) {
+            e.preventDefault();
+            const type = document.getElementById('cash-type').value;
+            const amount = parseFloat(document.getElementById('cash-val').value);
+            const desc = document.getElementById('cash-desc').value;
+
+            if (type === 'saida' && amount > state.cashBalance) {
+                showToast('Saldo insuficiente em caixa para esta saída!', 'error');
+                return;
+            }
+
+            if (type === 'entrada') state.cashBalance += amount;
+            else state.cashBalance -= amount;
+
+            state.cashHistory.unshift({
+                id: Date.now(),
+                type,
+                desc,
+                amount,
+                date: 'Hoje, ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+            });
+
+            e.target.reset();
+            renderCash();
+            showToast('Lançamento financeiro registrado no caixa!');
+        };
+
+        window.generateReceipt = function(e) {
+            e.preventDefault();
+            const person = document.getElementById('rec-person').value;
+            const doc = document.getElementById('rec-doc').value;
+            const amount = parseFloat(document.getElementById('rec-amount').value);
+            const date = document.getElementById('rec-date').value;
+            const ref = document.getElementById('rec-ref').value;
+            const recNum = Math.floor(1000 + Math.random() * 9000);
+
+            const receiptHTML = `
+                <div style="border: 2px solid #334155; padding: 28px; border-radius: 12px; background: #fff; font-family: 'Inter', sans-serif; color: #1e293b;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 16px; margin-bottom: 20px;">
+                        <div>
+                            <h2 style="margin:0; font-size: 20px; font-weight: 800; letter-spacing: 1px;">RECIBO DE PAGAMENTO</h2>
+                            <p style="margin:4px 0 0; font-size: 12px; color: #64748b;">Nº ${recNum} / 2026</p>
+                        </div>
+                        <div style="background: #f1f5f9; padding: 10px 18px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 18px; font-weight: 800;">
+                            ${formatCurrency(amount)}
+                        </div>
+                    </div>
+                    <p style="line-height: 1.8; font-size: 14px; text-align: justify;">
+                        Recebemos de / Pagamos a <strong>${person}</strong>, inscrito(a) no CPF/CNPJ sob o nº <strong>${doc}</strong>, a importância supra de <strong>${formatCurrency(amount)}</strong>, referente a <em>${ref}</em>.
+                    </p>
+                    <p style="line-height: 1.8; font-size: 14px; margin-top: 12px;">
+                        Para maior clareza, firmamos o presente recibo dando plena e geral quitação.
+                    </p>
+                    <div style="margin-top: 32px; display: flex; justify-content: space-between; align-items: flex-end; font-size: 13px;">
+                        <div>Data: <strong>${date.split('-').reverse().join('/')}</strong></div>
+                        <div style="text-align: center; border-top: 1px solid #334155; padding-top: 6px; width: 220px;">
+                            Assinatura do Responsável
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Salva automaticamente como arquivo anexável
+            const filename = `Recibo_${recNum}_${person.split(' ')[0]}.pdf`;
+            state.savedFiles.push({
+                id: 'file-' + Date.now(),
+                name: filename,
+                type: 'receipt',
+                contentHTML: receiptHTML,
+                date: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+            });
+
+            updateDashboardFiles();
+            openModal(`Recibo Gerado (${filename})`, receiptHTML);
+            showToast(`Recibo salvo como "${filename}"!`);
+            e.target.reset();
+        };
+
+        // ==========================================
+        // ARQUIVOS COMPARTILHADOS (DASHBOARD & EMAIL)
+        // ==========================================
+        function updateDashboardFiles() {
+            const count = state.savedFiles.length;
+            document.getElementById('saved-files-count').textContent = count;
+            document.getElementById('stat-docs').textContent = state.savedFiles.filter(f => f.type === 'doc').length;
+            document.getElementById('stat-sheets').textContent = state.savedFiles.filter(f => f.type === 'sheet').length;
+
+            const list = document.getElementById('dashboard-files-list');
+            if (!list) return;
+            if (count === 0) return;
+
+            list.innerHTML = '';
+            state.savedFiles.forEach(file => {
+                let icon = '<i class="fa-solid fa-file-word text-blue-500"></i>';
+                if (file.type === 'sheet') icon = '<i class="fa-solid fa-file-excel text-emerald-500"></i>';
+                if (file.type === 'receipt') icon = '<i class="fa-solid fa-receipt text-purple-500"></i>';
+
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 text-sm';
+                div.innerHTML = `
+                    <div class="flex items-center gap-2.5 truncate">
+                        ${icon}
+                        <span class="font-medium text-slate-700 truncate">${file.name}</span>
+                        <span class="text-[11px] text-slate-400">(${file.date})</span>
+                    </div>
+                    <button onclick="viewSavedFile('${file.id}')" class="text-xs text-brand-600 hover:underline font-semibold shrink-0 ml-2">
+                        Abrir
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        window.viewSavedFile = function(fileId) {
+            const file = state.savedFiles.find(f => f.id === fileId);
+            if (file) {
+                openModal(file.name, file.contentHTML);
+            }
+        };
+
+        // ==========================================
+        // 6. SIMULADOR DE E-MAIL CORPORATIVO
+        // ==========================================
+        function updateEmailCounters() {
+            const total = state.emails.length;
+            const unread = state.emails.filter(e => !e.read).length;
+            const read = state.emails.filter(e => e.read).length;
+
+            document.getElementById('count-all').textContent = total;
+            document.getElementById('count-unread').textContent = unread;
+            document.getElementById('count-read').textContent = read;
+
+            const badge = document.getElementById('unread-badge');
+            badge.textContent = unread;
+            badge.classList.toggle('hidden', unread === 0);
+        }
+
+        window.filterEmails = function(filter) {
+            state.currentEmailFilter = filter;
+            document.querySelectorAll('.mail-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-100', 'text-brand-700', 'font-semibold');
+                btn.classList.add('text-slate-600', 'hover:bg-slate-200/70', 'font-medium');
+            });
+            const active = document.getElementById(`mail-filter-${filter}`);
+            if (active) {
+                active.classList.add('bg-brand-100', 'text-brand-700', 'font-semibold');
+                active.classList.remove('text-slate-600', 'hover:bg-slate-200/70', 'font-medium');
+            }
+            renderEmails();
+        };
+
+        function renderEmails() {
+            updateEmailCounters();
+            const list = document.getElementById('email-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            let filtered = state.emails;
+            if (state.currentEmailFilter === 'unread') filtered = state.emails.filter(e => !e.read);
+            if (state.currentEmailFilter === 'read') filtered = state.emails.filter(e => e.read);
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="p-8 text-center text-xs text-slate-400">Nenhuma mensagem nesta pasta.</div>`;
+                return;
+            }
+
+            filtered.forEach(mail => {
+                const isSelected = mail.id === state.selectedEmailId;
+                const div = document.createElement('div');
+                div.onclick = () => openEmail(mail.id);
+                div.className = `p-4 cursor-pointer transition hover:bg-slate-50 ${isSelected ? 'bg-brand-50/70 border-l-4 border-brand-600' : ''} ${!mail.read ? 'bg-white' : 'bg-slate-50/40'}`;
+                
+                div.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs truncate max-w-[170px] ${!mail.read ? 'font-bold text-slate-900' : 'font-medium text-slate-600'}">
+                            ${!mail.read ? '<span class="inline-block w-2 h-2 rounded-full bg-brand-600 mr-1.5"></span>' : ''}
+                            ${mail.sender}
+                        </span>
+                        <span class="text-[11px] text-slate-400 shrink-0">${mail.date}</span>
+                    </div>
+                    <p class="text-sm truncate ${!mail.read ? 'font-bold text-slate-800' : 'text-slate-600'}">${mail.subject}</p>
+                    <div class="flex items-center justify-between mt-1">
+                        <p class="text-xs text-slate-400 truncate max-w-[200px]">${mail.body}</p>
+                        ${mail.attachments.length > 0 ? `<span class="text-xs text-slate-500"><i class="fa-solid fa-paperclip"></i> ${mail.attachments.length}</span>` : ''}
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        window.openEmail = function(id) {
+            const mail = state.emails.find(e => e.id === id);
+            if (!mail) return;
+
+            state.selectedEmailId = id;
+            mail.read = true; // Marca como lida ao abrir
+            renderEmails();
+
+            document.getElementById('email-empty-state').classList.add('hidden');
+            document.getElementById('email-composer').classList.add('hidden');
+            document.getElementById('email-reader').classList.remove('hidden');
+
+            document.getElementById('read-subject').textContent = mail.subject;
+            document.getElementById('read-sender').textContent = mail.sender;
+            document.getElementById('read-recipient').textContent = mail.recipient;
+            document.getElementById('read-date').textContent = mail.date;
+            document.getElementById('read-body').textContent = mail.body;
+
+            // Anexos
+            const attBox = document.getElementById('read-attachments-box');
+            const attList = document.getElementById('read-attachments-list');
+            attList.innerHTML = '';
+
+            if (mail.attachments && mail.attachments.length > 0) {
+                attBox.classList.remove('hidden');
+                mail.attachments.forEach(file => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.onclick = () => openModal(`Anexo: ${file.name}`, file.contentHTML);
+                    btn.className = 'w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-100 hover:bg-brand-50 border border-slate-200 text-xs font-medium text-slate-700 transition';
+                    btn.innerHTML = `
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-file-lines text-brand-600"></i> ${file.name}</span>
+                        <span class="text-brand-600 font-semibold">Visualizar</span>
+                    `;
+                    attList.appendChild(btn);
+                });
+            } else {
+                attBox.classList.add('hidden');
+            }
+        };
+
+        window.toggleReadStatus = function() {
+            const mail = state.emails.find(e => e.id === state.selectedEmailId);
+            if (!mail) return;
+            mail.read = !mail.read;
+            renderEmails();
+            showToast(mail.read ? 'Mensagem marcada como lida.' : 'Mensagem marcada como não lida.');
+        };
+
+        window.openComposeEmail = function() {
+            state.selectedEmailId = null;
+            state.tempAttachments = [];
+            renderAttachedChips();
+            updateAttachmentSelector();
+            renderEmails();
+
+            document.getElementById('email-empty-state').classList.add('hidden');
+            document.getElementById('email-reader').classList.add('hidden');
+            document.getElementById('email-composer').classList.remove('hidden');
+        };
+
+        window.cancelCompose = function() {
+            document.getElementById('email-composer').classList.add('hidden');
+            document.getElementById('email-empty-state').classList.remove('hidden');
+        };
+
+        function updateAttachmentSelector() {
+            const select = document.getElementById('comp-attachment-select');
+            if (!select) return;
+            select.innerHTML = '<option value="">-- Selecione um arquivo salvo --</option>';
+            state.savedFiles.forEach(file => {
+                const opt = document.createElement('option');
+                opt.value = file.id;
+                opt.textContent = `${file.name} (${file.date})`;
+                select.appendChild(opt);
+            });
+        }
+
+        window.attachSelectedFile = function() {
+            const select = document.getElementById('comp-attachment-select');
+            const fileId = select.value;
+            if (!fileId) {
+                showToast('Selecione um arquivo na lista antes de anexar.', 'error');
+                return;
+            }
+            if (state.tempAttachments.includes(fileId)) {
+                showToast('Este arquivo já foi anexado.', 'error');
+                return;
+            }
+            state.tempAttachments.push(fileId);
+            select.value = '';
+            renderAttachedChips();
+        };
+
+        window.removeTempAttachment = function(fileId) {
+            state.tempAttachments = state.tempAttachments.filter(id => id !== fileId);
+            renderAttachedChips();
+        };
+
+        function renderAttachedChips() {
+            const container = document.getElementById('comp-attached-list');
+            if (!container) return;
+            container.innerHTML = '';
+            state.tempAttachments.forEach(id => {
+                const file = state.savedFiles.find(f => f.id === id);
+                if (!file) return;
+                const chip = document.createElement('span');
+                chip.className = 'inline-flex items-center gap-1.5 bg-brand-100 text-brand-800 text-xs font-medium px-2.5 py-1 rounded-lg';
+                chip.innerHTML = `
+                    <i class="fa-solid fa-paperclip"></i> ${file.name}
+                    <button type="button" onclick="removeTempAttachment('${id}')" class="hover:text-rose-600 ml-1">&times;</button>
+                `;
+                container.appendChild(chip);
+            });
+        }
+
+        window.sendEmail = function(e) {
+            e.preventDefault();
+            const sender = document.getElementById('comp-sender').value;
+            const recipient = document.getElementById('comp-recipient').value;
+            const subject = document.getElementById('comp-subject').value;
+            const body = document.getElementById('comp-body').value;
+
+            const attachedObjects = state.tempAttachments
+                .map(id => state.savedFiles.find(f => f.id === id))
+                .filter(Boolean);
+
+            const newMail = {
+                id: Date.now(),
+                sender: sender,
+                recipient: recipient,
+                subject: subject,
+                body: body,
+                date: 'Agora, ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                read: false, // Aparece como Não Lida na caixa de mensagens simulada
+                attachments: attachedObjects
+            };
+
+            state.emails.unshift(newMail);
+            e.target.reset();
+            document.getElementById('comp-sender').value = 'assistente.adm@empresa.com.br';
+            state.tempAttachments = [];
+            renderAttachedChips();
+
+            cancelCompose();
+            filterEmails('all');
+            showToast('E-mail enviado! A mensagem já aparece na Caixa de Entrada (Não Lidas).');
+        };
+
+        // ==========================================
+        // INICIALIZAÇÃO DO SISTEMA
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDocTemplate('oficio');
+            renderSheet();
+            renderPurchaseOrders();
+            renderCash();
+            renderEmails();
+
+            // Define data padrão nos inputs de data
+            const today = new Date().toISOString().split('T')[0];
+            const poDate = document.getElementById('po-date');
+            const recDate = document.getElementById('rec-date');
+            if (poDate) poDate.value = today;
+            if (recDate) recDate.value = today;
+        });
+    </script>
 </body>
 </html>
