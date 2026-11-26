@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navegadores do Futuro | SENAC Canoinhas - Metodologia STEAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        senac: {
+                            blue: '#004A8D',
+                            orange: '#F7941D',
+                            light: '#F0F4F8',
+                            dark: '#002D56'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-senac-orange selection:text-white">
+
+    <!-- Cabeçalho Institucional e Guia de Siglas -->
+    <header class="bg-senac-blue text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-senac-orange flex items-center justify-center font-extrabold text-white text-xl shadow">
+                    NF
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg md:text-xl leading-tight">Navegadores do Futuro: Mapeando Talentos e Valores</h1>
+                    <p class="text-xs text-blue-200">Oficina Prática • Jovens Talentos (12 a 14 anos) • SENAC Canoinhas</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="toggleModal('modal-siglas')" class="bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5 border border-white/20">
+                    <span>📖</span> Glossário de Siglas e Funções
+                </button>
+                <button onclick="exportarDossie()" class="bg-senac-orange hover:bg-orange-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition shadow flex items-center gap-1.5">
+                    <span>📄</span> Gerar Dossiê Final
+                </button>
+            </div>
+        </div>
+
+        <!-- Barra de Navegação das Estações STEAM -->
+        <nav class="bg-senac-dark border-t border-white/10 overflow-x-auto">
+            <div class="max-w-6xl mx-auto px-4 flex space-x-1 py-2 min-w-max">
+                <button onclick="mudarEtapa(0)" id="nav-0" class="nav-btn px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-senac-orange text-white">
+                    <span class="px-1.5 py-0.5 rounded bg-black/20 font-bold">A</span> 1. Abertura & Persona (20m)
+                </button>
+                <button onclick="mudarEtapa(1)" id="nav-1" class="nav-btn px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 text-blue-200 hover:bg-white/10">
+                    <span class="px-1.5 py-0.5 rounded bg-white/10 font-bold">S+T</span> 2. Estação 1: Talentos (30m)
+                </button>
+                <button onclick="mudarEtapa(2)" id="nav-2" class="nav-btn px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 text-blue-200 hover:bg-white/10">
+                    <span class="px-1.5 py-0.5 rounded bg-white/10 font-bold">E</span> 3. Estação 2: Bússola Ética (30m)
+                </button>
+                <button onclick="mudarEtapa(3)" id="nav-3" class="nav-btn px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 text-blue-200 hover:bg-white/10">
+                    <span class="px-1.5 py-0.5 rounded bg-white/10 font-bold">M</span> 4. Estação 3: Roda & Metas (25m)
+                </button>
+                <button onclick="mudarEtapa(4)" id="nav-4" class="nav-btn px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 text-blue-200 hover:bg-white/10">
+                    <span class="px-1.5 py-0.5 rounded bg-white/10 font-bold">STEAM</span> 5. Carta de Compromisso (15m)
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+
+        <!-- Banner Informativo STEAM & Objetivo -->
+        <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
+                <div>
+                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-senac-blue mb-1">
+                        Abordagem Integrada STEAM • Duração Total: 2h (ou 2 encontros de 60 min)
+                    </span>
+                    <h2 class="text-lg font-bold text-slate-900">Objetivo da Jornada</h2>
+                    <p class="text-sm text-slate-600 mt-1">
+                        Desenvolver a autoconsciência dos jovens, ajudando-os a identificar seus pontos fortes, mapear seus valores pessoais essenciais e transformar descobertas em metas de aprendizado e convivência.
+                    </p>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 max-w-xs shrink-0">
+                    <p class="font-bold flex items-center gap-1">🧭 Autoria Total do Navegador</p>
+                    <p class="mt-1">Este ambiente não fornece respostas prontas. Construa sua persona e registre suas descobertas originais.</p>
+                </div>
+            </div>
+
+            <!-- Pilares STEAM Explicados -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <span class="font-extrabold text-senac-blue text-sm">S</span> <span class="font-bold">Science (Ciência)</span>
+                    <p class="text-slate-500 mt-0.5">Investigação de padrões cognitivos, interesses e comportamento humano.</p>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <span class="font-extrabold text-senac-blue text-sm">T</span> <span class="font-bold">Technology (Tecnologia)</span>
+                    <p class="text-slate-500 mt-0.5">Sistematização digital de dados pessoais, inventários e portfólio.</p>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <span class="font-extrabold text-senac-blue text-sm">E</span> <span class="font-bold">Engineering (Engenharia)</span>
+                    <p class="text-slate-500 mt-0.5">Arquitetura de tomada de decisão ética e estruturação de planos de ação.</p>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <span class="font-extrabold text-senac-blue text-sm">A</span> <span class="font-bold">Arts (Artes)</span>
+                    <p class="text-slate-500 mt-0.5">Expressão criativa da identidade, construção da persona e narrativa.</p>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 col-span-2 sm:col-span-1">
+                    <span class="font-extrabold text-senac-blue text-sm">M</span> <span class="font-bold">Mathematics (Matemática)</span>
+                    <p class="text-slate-500 mt-0.5">Métricas quantitativas, hierarquização e geometria da Roda do Equilíbrio.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ETAPA 0: ABERTURA E AQUECIMENTO + CRIAÇÃO AUTORAL DA PERSONA (ARTS) -->
+        <section id="etapa-0" class="etapa-panel space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-senac-orange">Etapa 1 • Pilar STEAM: A (Artes & Expressão de Identidade)</span>
+                        <h3 class="text-xl font-bold text-slate-900">1. Abertura e Aquecimento: Despertando a Autoconsciência (20 min)</h3>
+                    </div>
+                    <span class="text-xs font-semibold bg-slate-100 px-3 py-1 rounded-full text-slate-600">Função: Autopercepção</span>
+                </div>
+
+                <!-- Massa Crítica / Conexão -->
+                <div class="bg-blue-50/70 border-l-4 border-senac-blue p-4 rounded-r-xl">
+                    <h4 class="font-bold text-sm text-senac-blue">💡 Massa Crítica / Conexão</h4>
+                    <p class="text-sm text-slate-700 mt-1">
+                        O autoconhecimento não é algo abstrato ou distante: é a capacidade prática de enxergar com clareza seus <strong>pensamentos, sentimentos, motivações e necessidades</strong> no dia a dia para fazer escolhas conscientes.
+                    </p>
+                </div>
+
+                <!-- Desafio da Persona Autoral (Sem sugestões de respostas) -->
+                <div class="border border-slate-200 rounded-xl p-5 bg-slate-50/50 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <h4 class="font-bold text-base text-slate-900">🎨 Desafio de Criação: Construção da Sua Persona de Navegador</h4>
+                            <p class="text-xs text-slate-600 mt-0.5">
+                                Crie livremente sua identidade nesta jornada. Escolha seu emblema visual, defina seu codinome de navegador e sintetize sua essência sem modelos pré-prontos.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Avatar / Estúdio Visual Livre -->
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col items-center justify-center space-y-3">
+                            <span class="text-xs font-semibold text-slate-500">Estúdio de Emblema (Clique para alternar forma/cor)</span>
+                            <div id="avatar-preview" onclick="ciclarCorAvatar()" class="w-24 h-24 rounded-2xl bg-senac-blue text-white flex items-center justify-center text-3xl font-extrabold shadow-md cursor-pointer select-none transition transform hover:scale-105" title="Clique para mudar a cor">
+                                ?
+                            </div>
+                            <div class="flex gap-2 w-full">
+                                <input type="text" id="persona-sigla" maxlength="3" oninput="atualizarAvatar()" placeholder="Iniciais / Símbolo" class="w-full text-center text-sm border border-slate-300 rounded-lg px-2 py-1.5 focus:outline-none focus:border-senac-blue">
+                            </div>
+                            <p class="text-[11px] text-slate-400 text-center">Toque no quadrado acima para alterar a paleta cromática da sua persona.</p>
+                        </div>
+
+                        <!-- Campos Abertos da Persona -->
+                        <div class="md:col-span-2 bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nome / Codinome do Navegador & Idade</label>
+                                <input type="text" id="persona-nome" oninput="salvarEstado()" placeholder="Escreva aqui como você se identifica..." class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-senac-blue">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Descreva o perfil da sua Persona diante do desafio de mapear seu futuro:</label>
+                                <textarea id="persona-descricao" rows="3" oninput="salvarEstado()" placeholder="Redija com suas próprias palavras como você enxerga sua jornada atual no SENAC Canoinhas e na vida..." class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-senac-blue"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dinâmica Mural do Orgulho e da Identidade -->
+                <div class="border border-slate-200 rounded-xl p-5 space-y-4">
+                    <div>
+                        <h4 class="font-bold text-base text-slate-900">📌 Dinâmica: "Mural do Orgulho e da Identidade"</h4>
+                        <p class="text-xs text-slate-600 mt-0.5">
+                            Registre em seus post-its digitais uma conquista ou momento da vida do qual você se orgulha e exatamente <strong>3 palavras</strong> que definem quem você é hoje.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-yellow-100/90 border border-yellow-300 rounded-xl p-4 shadow-sm space-y-2">
+                            <label class="block text-xs font-extrabold text-yellow-900 uppercase tracking-wide">Post-it 1: Conquista ou Momento de Orgulho</label>
+                            <textarea id="mural-conquista" rows="3" oninput="salvarEstado()" placeholder="Escreva sua conquista ou momento marcante..." class="w-full bg-white/80 text-sm text-slate-800 border border-yellow-300 rounded-lg p-2.5 focus:outline-none focus:border-yellow-600"></textarea>
+                        </div>
+
+                        <div class="bg-orange-100/90 border border-orange-300 rounded-xl p-4 shadow-sm space-y-2">
+                            <label class="block text-xs font-extrabold text-orange-900 uppercase tracking-wide">Post-it 2: 3 Palavras que Definem Quem Você É Hoje</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                                <input type="text" id="palavra-1" oninput="salvarEstado()" placeholder="1ª palavra" class="bg-white/90 text-sm border border-orange-300 rounded-lg px-2.5 py-2 focus:outline-none focus:border-orange-600">
+                                <input type="text" id="palavra-2" oninput="salvarEstado()" placeholder="2ª palavra" class="bg-white/90 text-sm border border-orange-300 rounded-lg px-2.5 py-2 focus:outline-none focus:border-orange-600">
+                                <input type="text" id="palavra-3" oninput="salvarEstado()" placeholder="3ª palavra" class="bg-white/90 text-sm border border-orange-300 rounded-lg px-2.5 py-2 focus:outline-none focus:border-orange-600">
+                            </div>
+                            <p class="text-[11px] text-orange-800 pt-1">Após preencher, compartilhe no painel coletivo da sala conforme orientação do facilitador.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button onclick="mudarEtapa(1)" class="bg-senac-blue hover:bg-senac-dark text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition shadow">
+                        Avançar para Estação 1 (Talentos) →
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ETAPA 1: ESTAÇÃO 1 - O MAPA DE INTERESSES E PONTOS FORTES (SCIENCE & TECHNOLOGY) -->
+        <section id="etapa-1" class="etapa-panel hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-senac-orange">Etapa 2 • Pilares STEAM: S (Ciência Investigativa) + T (Tecnologia de Organização)</span>
+                        <h3 class="text-xl font-bold text-slate-900">2. Estação 1: O Mapa de Interesses e Pontos Fortes (30 min)</h3>
+                    </div>
+                    <span class="text-xs font-semibold bg-slate-100 px-3 py-1 rounded-full text-slate-600">Função: Mapeamento Cognitivo</span>
+                </div>
+
+                <!-- Subatividade 1: Mapeamento de Interesses (10 a 15 assuntos) -->
+                <div class="border border-slate-200 rounded-xl p-5 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <h4 class="font-bold text-base text-slate-900">🔍 Atividade A: Inventário de Interesses (10 a 15 itens)</h4>
+                            <p class="text-xs text-slate-600 mt-0.5">
+                                Liste de 10 a 15 assuntos ou atividades que despertam sua curiosidade genuína e agrupe-os por um tema criado por você.
+                            </p>
+                        </div>
+                        <span id="contador-interesses" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700">
+                            0 / 10 a 15 registrados
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <input type="text" id="input-interesse" placeholder="Assunto ou atividade de curiosidade..." class="sm:col-span-6 text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-senac-blue">
+                        <input type="text" id="input-tema" placeholder="Grupo / Tema criado por você..." class="sm:col-span-4 text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-senac-blue">
+                        <button onclick="adicionarInteresse()" class="sm:col-span-2 bg-senac-blue hover:bg-senac-dark text-white text-sm font-semibold px-3 py-2 rounded-lg transition">
+                            + Adicionar
+                        </button>
+                    </div>
+
+                    <div id="lista-interesses" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pt-2">
+                        <!-- Itens inseridos pelo aluno -->
+                    </div>
+                </div>
+
+                <!-- Subatividade 2: Habilidades Técnicas vs Comportamentais + Pontos Fortes vs Lacunas -->
+                <div class="border border-slate-200 rounded-xl p-5 space-y-4">
+                    <div>
+                        <h4 class="font-bold text-base text-slate-900">⚙️ Atividade B: Matriz de Habilidades e Forças</h4>
+                        <p class="text-xs text-slate-600 mt-0.5">
+                            Cadastre suas habilidades classificando-as quanto à natureza (<strong>Técnica</strong> ou <strong>Comportamental</strong>) e ao nível atual (<strong>Ponto Forte</strong>: o que já faz bem | <strong>Lacuna</strong>: o que deseja desenvolver).
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <input type="text" id="input-habilidade" placeholder="Descreva uma habilidade sua..." class="sm:col-span-5 text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-senac-blue">
+                        <select id="select-tipo-hab" class="sm:col-span-3 text-sm border border-slate-300 rounded-lg px-2.5 py-2 bg-white focus:outline-none focus:border-senac-blue">
+                            <option value="Técnica">Habilidade Técnica</option>
+                            <option value="Comportamental">Habilidade Comportamental</option>
+                        </select>
+                        <select id="select-status-hab" class="sm:col-span-2 text-sm border border-slate-300 rounded-lg px-2.5 py-2 bg-white focus:outline-none focus:border-senac-blue">
+                            <option value="Ponto Forte">Ponto Forte</option>
+                            <option value="Lacuna">Lacuna a Desenvolver</option>
+                        </select>
+                        <button onclick="adicionarHabilidade()" class="sm:col-span-2 bg-senac-orange hover:bg-orange-500 text-white text-sm font-semibold px-3 py-2 rounded-lg transition">
+                            + Registrar
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        <div class="bg-emerald-50/60 border border-emerald-200 rounded-xl p-3">
+                            <h5 class="text-xs font-extrabold text-emerald-900 uppercase mb-2">✅ Pontos Fortes (O que já faço bem)</h5>
+                            <div id="lista-pontos-fortes" class="space-y-1.5 text-sm"></div>
+                        </div>
+                        <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-3">
+                            <h5 class="text-xs font-extrabold text-amber-900 uppercase mb-2">🎯 Lacunas (O que desejo desenvolver)</h5>
+                            <div id="lista-lacunas" class="space-y-1.5 text-sm"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dinâmica em Duplas: O Espelho Positivo -->
+                <div class="border border-slate-200 rounded-xl p-5 bg-slate-50/70 space-y-3">
+                    <h4 class="font-bold text-base text-slate-900">🪞 Dinâmica em Duplas: "O Espelho Positivo"</h4>
+                    <p class="text-xs text-slate-600">
+                        Compartilhe um ponto forte com sua dupla. Registre abaixo o nome do colega e o exemplo prático que ele observou de como você manifesta esse talento no dia a dia.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <input type="text" id="espelho-colega" oninput="salvarEstado()" placeholder="Nome do colega da dupla..." class="text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-senac-blue">
+                        <input type="text" id="espelho-talento" oninput="salvarEstado()" placeholder="Ponto forte validado..." class="text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-senac-blue">
+                        <input type="text" id="espelho-evidencia" oninput="salvarEstado()" placeholder="Exemplo prático observado no dia a dia..." class="text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-senac-blue">
+                    </div>
+                </div>
+
+                <div class="flex justify-between">
+                    <button onclick="mudarEtapa(0)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold px-4 py-2.5 rounded-xl transition">
+                        ← Voltar
+                    </button>
+                    <button onclick="mudarEtapa(2)" class="bg-senac-blue hover:bg-senac-dark text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition shadow">
+                        Avançar para Estação 2 (Bússola Ética) →
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ETAPA 2: ESTAÇÃO 2 - A BÚSSOLA DOS VALORES PESSOAIS (ENGINEERING) -->
+        <section id="etapa-2" class="etapa-panel hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-senac-orange">Etapa 3 • Pilar STEAM: E (Engenharia de Decisão & Sistemas Éticos)</span>
+                        <h3 class="text-xl font-bold text-slate-900">3. Estação 2: A Bússola dos Valores Pessoais (30 min)</h3>
+                    </div>
+                    <span class="text-xs font-semibold bg-slate-100 px-3 py-1 rounded-full text-slate-600">Função: Critério Ético</span>
+                </div>
+
+                <!-- Conceito Prático -->
+                <div class="bg-blue-50/70 border-l-4 border-senac-blue p-4 rounded-r-xl">
+                    <h4 class="font-bold text-sm text-senac-blue">🧭 Conceito Prático: Valores vs. Preferências</h4>
+                    <p class="text-sm text-slate-700 mt-1">
+                        <strong>Valores pessoais</strong> são critérios internos que orientam atitudes, decisões éticas e o senso do que é justo e coerente. Diferente de uma simples preferência, um valor central é mantido <strong>mesmo quando há um custo ou desafio</strong>.
+                    </p>
+                </div>
+
+                <!-- Cartela Visual e Seleção dos 5 Valores Centrais -->
+                <div class="border border-slate-200 rounded-xl p-5 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <h4 class="font-bold text-base text-slate-900">💠 Exercício dos 5 Valores Centrais (Seleção e Hierarquização)</h4>
+                            <p class="text-xs text-slate-600 mt-0.5">
+                                Selecione exatamente <strong>5 valores</strong> na cartela abaixo (ou adicione um valor próprio) e ordene-os do 1º ao 5º lugar por grau de importância.
+                            </p>
+                        </div>
+                        <span id="contador-valores" class="text-xs font-bold px-3 py-1 rounded-full bg-blue-100 text-senac-blue">
+                            0 / 5 selecionados
+                        </span>
+                    </div>
+
+                    <!-- Cartela de Valores -->
+                    <div id="cartela-valores" class="flex flex-wrap gap-2">
+                        <!-- Renderizado via JS -->
+                    </div>
+
+                    <!-- Adicionar Valor Customizado -->
+                    <div class="flex gap-2 max-w-md pt-1">
+                        <input type="text" id="novo-valor-custom" placeholder="Outro valor pessoal seu..." class="flex-1 text-sm border border-slate-300 rounded-lg px-3 py-1.5 focus:outline-none focus:border-senac-blue">
+                        <button onclick="adicionarValorCustom()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                            + Incluir na Cartela
+                        </button>
+                    </div>
+
+                    <!-- Ranking Hierarquizado -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
+                        <h5 class="text-xs font-extrabold text-slate-700 uppercase">🏆 Sua Hierarquia dos 5 Valores Centrais (Use as setas para ordenar)</h5>
+                        <div id="ranking-valores" class="space-y-2">
+                            <p class="text-xs text-slate-400 italic">Nenhum valor selecionado ainda.</p>
+                        </div>
+                    </div>
+
+                    <!-- Reflexão: Valor vs Preferência (Custo ou Desafio) -->
+                    <div class="pt-2">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">
+                            Diferenciando Valores de Preferências: Em qual situação real um dos seus valores acima exige esforço ou coragem para ser mantido?
+                        </label>
+                        <textarea id="valor-custo-reflexao" rows="2" oninput="salvarEstado()" placeholder="Descreva com suas palavras..." class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-senac-blue"></textarea>
+                    </div>
+                </div>
+
+                <!-- Mini-Dilema Ético em Grupo -->
+                <div class="border border-slate-200 rounded-xl p-5 bg-amber-50/40 space-y-3">
+                    <h4 class="font-bold text-base text-slate-900">⚖️ Mini-Dilema Ético em Grupo</h4>
+                    <p class="text-xs text-slate-700">
+                        <strong>Cenário de Debate:</strong> Um dilema da rotina escolar ou de convivência (ex.: lealdade a um amigo versus dizer a verdade; omissão diante de uma injustiça). Registre a situação debatida pelo seu grupo e como os seus valores orientam uma decisão consciente:
+                    </p>
+                    <textarea id="dilema-etico-registro" rows="3" oninput="salvarEstado()" placeholder="Registre aqui o dilema analisado pelo grupo e o critério ético que você adotaria..." class="w-full text-sm bg-white border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-senac-blue"></textarea>
+                </div>
+
+                <div class="flex justify-between">
+                    <button onclick="mudarEtapa(1)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold px-4 py-2.5 rounded-xl transition">
+                        ← Voltar
+                    </button>
+                    <button onclick="mudarEtapa(3)" class="bg-senac-blue hover:bg-senac-dark text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition shadow">
+                        Avançar para Estação 3 (Roda & Metas) →
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ETAPA 3: ESTAÇÃO 3 - A RODA DO EQUILÍBRIO E METAS PARA O FUTURO (MATHEMATICS) -->
+        <section id="etapa-3" class="etapa-panel hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-senac-orange">Etapa 4 • Pilar STEAM: M (Matemática Aplicada, Escalas & Geometria do Equilíbrio)</span>
+                        <h3 class="text-xl font-bold text-slate-900">4. Estação 3: A Roda do Equilíbrio e Metas para o Futuro (25 min)</h3>
+                    </div>
+                    <span class="text-xs font-semibold bg-slate-100 px-3 py-1 rounded-full text-slate-600">Função: Métrica & Planejamento</span>
+                </div>
+
+                <!-- Roda do Autoconhecimento Jovem -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center border border-slate-200 rounded-xl p-5">
+                    <div class="lg:col-span-6 space-y-4">
+                        <div>
+                            <h4 class="font-bold text-base text-slate-900">📊 Roda do Autoconhecimento Jovem (Escala de 1 a 10)</h4>
+                            <p class="text-xs text-slate-600 mt-0.5">
+                                Atribua notas de <strong>1 a 10</strong> para o seu nível atual de satisfação em cada um dos 4 pilares fundamentais:
+                            </p>
+                        </div>
+
+                        <!-- Pilar 1 -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div class="flex justify-between text-xs font-bold text-slate-800 mb-1">
+                                <span>1. Estudos e Aprendizado (SENAC e escola)</span>
+                                <span id="val-pilar-1" class="text-senac-blue text-sm">5 / 10</span>
+                            </div>
+                            <input type="range" id="pilar-1" min="1" max="10" value="5" oninput="atualizarRoda()" class="w-full accent-senac-blue cursor-pointer">
+                        </div>
+
+                        <!-- Pilar 2 -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div class="flex justify-between text-xs font-bold text-slate-800 mb-1">
+                                <span>2. Saúde e Energia (sono, esportes, disposição)</span>
+                                <span id="val-pilar-2" class="text-senac-blue text-sm">5 / 10</span>
+                            </div>
+                            <input type="range" id="pilar-2" min="1" max="10" value="5" oninput="atualizarRoda()" class="w-full accent-senac-blue cursor-pointer">
+                        </div>
+
+                        <!-- Pilar 3 -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div class="flex justify-between text-xs font-bold text-slate-800 mb-1">
+                                <span>3. Relacionamentos (família e amigos)</span>
+                                <span id="val-pilar-3" class="text-senac-blue text-sm">5 / 10</span>
+                            </div>
+                            <input type="range" id="pilar-3" min="1" max="10" value="5" oninput="atualizarRoda()" class="w-full accent-senac-blue cursor-pointer">
+                        </div>
+
+                        <!-- Pilar 4 -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div class="flex justify-between text-xs font-bold text-slate-800 mb-1">
+                                <span>4. Lazer e Criatividade (hobbies e tempo livre)</span>
+                                <span id="val-pilar-4" class="text-senac-blue text-sm">5 / 10</span>
+                            </div>
+                            <input type="range" id="pilar-4" min="1" max="10" value="5" oninput="atualizarRoda()" class="w-full accent-senac-blue cursor-pointer">
+                        </div>
+
+                        <div class="flex items-center justify-between bg-blue-50 px-4 py-2.5 rounded-xl border border-blue-100 text-xs">
+                            <span class="font-semibold text-slate-700">Índice Médio de Equilíbrio Atual:</span>
+                            <span id="indice-equilibrio" class="font-extrabold text-senac-blue text-sm">5.0 / 10</span>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico Circular Interativo (Canvas Responsivo) -->
+                    <div class="lg:col-span-6 flex flex-col items-center justify-center bg-slate-50/70 rounded-xl p-4 border border-slate-200">
+                        <div class="w-full max-w-[340px] aspect-square relative">
+                            <canvas id="canvas-roda" class="w-full h-full block"></canvas>
+                        </div>
+                        <p class="text-[11px] text-slate-500 text-center mt-2">
+                            Representação geométrica proporcional aos 4 quadrantes avaliados (Escala radial 1–10).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Plano de Ação Pessoal (1 a 2 Metas Concretas) -->
+                <div class="border border-slate-200 rounded-xl p-5 space-y-4">
+                    <div>
+                        <h4 class="font-bold text-base text-slate-900">🚀 Plano de Ação Pessoal (1 a 2 Metas Concretas)</h4>
+                        <p class="text-xs text-slate-600 mt-0.5">
+                            Com base na sua Roda e no seu Inventário, formule de <strong>1 a 2 metas concretas</strong> cruzando obrigatoriamente: <strong>[1 Interesse] + [1 Habilidade/Lacuna a desenvolver] + [1 Valor Pessoal]</strong>.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Meta 1 -->
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2.5">
+                            <span class="text-xs font-extrabold text-senac-blue uppercase">Meta Concreta #1 (Obrigatória)</span>
+                            <div class="grid grid-cols-3 gap-1.5">
+                                <input type="text" id="meta1-interesse" oninput="salvarEstado()" placeholder="Interesse" class="text-xs border border-slate-300 rounded-lg px-2 py-1.5 bg-white">
+                                <input type="text" id="meta1-habilidade" oninput="salvarEstado()" placeholder="Habilidade" class="text-xs border border-slate-300 rounded-lg px-2 py-1.5 bg-white">
+                                <input type="text" id="meta1-valor" oninput="salvarEstado()" placeholder="Valor" class="text-xs border border-slate-300 rounded-lg px-2 py-1.5 bg-white">
+                            </div>
+                            <textarea id="meta1-texto" rows="3" oninput="salvarEstado()" placeholder="Escreva sua meta completa integrando os três elementos acima e definindo uma ação prática..." class="w-full text-sm border border-slate-300 rounded-lg p-2.5 bg-white focus:outline-none focus:border-senac-blue"></textarea>
+                        </div>
+
+                        <!-- Meta 2 -->
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2.5">
+                            <span class="text-xs font-extrabold text-slate-600 uppercase">Meta Concreta #2 (Opcional)</span>
+                            <div class="grid grid-cols-3 gap-1.5">
+                                <input type="text" id="meta2-interesse" oninput="salvarEstado()" placeholder="Interesse" class="text-xs border border-slate-300 rounded-lg px-2 py-1.5 bg-white">
+                                <input type="text" id="meta2-habilidade" oninput="salvarEstado()" placeholder="Habilidade" class="text-xs border border-slate-300 rounded-lg px-2 py-1.5 bg-white">
+                                <input type="text" id="meta2-valor" oninput="salvarEstado()" placeholder="Valor" class="text-xs border border-slate-300 rounded-lg px-2 py-1.5 bg-white">
+                            </div>
+                            <textarea id="meta2-texto" rows="3" oninput="salvarEstado()" placeholder="Escreva sua segunda meta concreta integrando interesse, habilidade e valor..." class="w-full text-sm border border-slate-300 rounded-lg p-2.5 bg-white focus:outline-none focus:border-senac-blue"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between">
+                    <button onclick="mudarEtapa(2)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold px-4 py-2.5 rounded-xl transition">
+                        ← Voltar
+                    </button>
+                    <button onclick="mudarEtapa(4)" class="bg-senac-blue hover:bg-senac-dark text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition shadow">
+                        Avançar para Encerramento (Carta) →
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ETAPA 4: ENCERRAMENTO - A CARTA DE COMPROMISSO (SÍNTESE STEAM) -->
+        <section id="etapa-4" class="etapa-panel hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-senac-orange">Etapa 5 • Síntese Integrada STEAM</span>
+                        <h3 class="text-xl font-bold text-slate-900">5. Encerramento: A "Carta de Compromisso" (15 min)</h3>
+                    </div>
+                    <span class="text-xs font-semibold bg-slate-100 px-3 py-1 rounded-full text-slate-600">Função: Síntese & Compromisso</span>
+                </div>
+
+                <!-- Ação Final: Carta de Valor para o Meu Eu do Futuro -->
+                <div class="bg-gradient-to-br from-blue-50 to-orange-50/40 border border-slate-200 rounded-2xl p-6 space-y-4">
+                    <div>
+                        <h4 class="font-bold text-lg text-senac-blue">✉️ Carta de Valor para o Meu Eu do Futuro</h4>
+                        <p class="text-xs text-slate-600 mt-0.5">
+                            Redija sua carta sintetizando: <strong>quem você é hoje</strong>, seus <strong>principais pontos fortes</strong> e o seu <strong>compromisso ético de convivência e aprendizado</strong> para este ano letivo no SENAC Canoinhas e na escola.
+                        </p>
+                    </div>
+
+                    <textarea id="carta-futuro" rows="7" oninput="salvarEstado()" placeholder="Querido(a) Eu do Futuro..." class="w-full text-sm leading-relaxed bg-white border border-slate-300 rounded-xl p-4 shadow-inner focus:outline-none focus:border-senac-blue"></textarea>
+
+                    <!-- Partilha Voluntária -->
+                    <div class="bg-white border border-orange-200 rounded-xl p-4 space-y-2">
+                        <label class="block text-xs font-extrabold text-senac-orange uppercase">
+                            🎤 Frase-Síntese para Partilha Voluntária com a Turma
+                        </label>
+                        <p class="text-xs text-slate-500">
+                            Destaque uma única frase do seu Mapa de Autoconhecimento caso deseje compartilhar com os colegas na roda de encerramento:
+                        </p>
+                        <input type="text" id="frase-partilha" oninput="salvarEstado()" placeholder="Sua frase-síntese para a turma..." class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-senac-orange">
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-between gap-3 pt-2">
+                    <button onclick="mudarEtapa(3)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold px-4 py-2.5 rounded-xl transition">
+                        ← Voltar
+                    </button>
+                    <button onclick="exportarDossie()" class="bg-senac-orange hover:bg-orange-500 text-white text-sm font-bold px-6 py-3 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                        <span>🏆</span> Visualizar e Copiar Mapa Completo de Autoconhecimento
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL 1: GLOSSÁRIO DE SIGLAS E FUNÇÕES DO APLICATIVO -->
+    <div id="modal-siglas" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-lg font-bold text-senac-blue">📖 Especificação de Siglas e Funções do Sistema</h3>
+                <button onclick="toggleModal('modal-siglas')" class="text-slate-400 hover:text-slate-700 font-bold text-xl px-2">&times;</button>
+            </div>
+
+            <div class="space-y-4 text-sm">
+                <div>
+                    <h4 class="font-bold text-slate-900 mb-2">1. Siglas Institucionais e Metodológicas</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="font-extrabold text-senac-blue">SENAC:</span> Serviço Nacional de Aprendizagem Comercial (Unidade Canoinhas/SC — Programa Jovens Talentos).
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="font-extrabold text-senac-blue">STEAM:</span> Acrônimo em inglês para <em>Science, Technology, Engineering, Arts and Mathematics</em> (Ciência, Tecnologia, Engenharia, Artes e Matemática).
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="font-extrabold text-senac-blue">S (Science):</span> Investigação sistemática de padrões pessoais, interesses genuínos e autoconsciência emocional.
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="font-extrabold text-senac-blue">T (Technology):</span> Ferramenta digital interativa para registro, categorização e exportação do inventário pessoal.
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="font-extrabold text-senac-blue">E (Engineering):</span> Estruturação lógica de critérios éticos (Bússola de Valores) e arquitetura de metas.
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="font-extrabold text-senac-blue">A (Arts):</span> Criação autoral da Persona, identidade visual e expressão escrita na Carta de Compromisso.
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 sm:col-span-2">
+                            <span class="font-extrabold text-senac-blue">M (Mathematics):</span> Escalas quantitativas (1 a 10), ordenação hierárquica (1º ao 5º valor) e visualização geométrica radial (Roda do Autoconhecimento).
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-900 mb-2">2. Módulos Funcionais do Aplicativo</h4>
+                    <ul class="space-y-2 text-xs text-slate-700">
+                        <li class="p-2.5 bg-blue-50/50 rounded-lg border border-blue-100">
+                            <strong>Estúdio de Persona & Mural Digital (Etapa 1):</strong> Permite ao estudante criar sua identidade visual e textual sem sugestões pré-prontas, registrando sua conquista de orgulho e 3 palavras-chave.
+                        </li>
+                        <li class="p-2.5 bg-blue-50/50 rounded-lg border border-blue-100">
+                            <strong>Classificador de Talentos e Espelho Positivo (Etapa 2):</strong> Organiza de 10 a 15 interesses por temas, separa habilidades técnicas/comportamentais em pontos fortes ou lacunas e registra a validação da dupla.
+                        </li>
+                        <li class="p-2.5 bg-blue-50/50 rounded-lg border border-blue-100">
+                            <strong>Bússola e Hierarquizador de Valores (Etapa 3):</strong> Seleciona e ordena os 5 valores centrais, diferencia valores de preferências e documenta o debate do mini-dilema ético.
+                        </li>
+                        <li class="p-2.5 bg-blue-50/50 rounded-lg border border-blue-100">
+                            <strong>Simulador Radial & Construtor de Metas (Etapa 4):</strong> Calcula em tempo real o gráfico circular dos 4 pilares e cruza Interesse + Habilidade + Valor para gerar metas concretas.
+                        </li>
+                        <li class="p-2.5 bg-blue-50/50 rounded-lg border border-blue-100">
+                            <strong>Gerador de Dossiê e Carta de Compromisso (Etapa 5):</strong> Consolida toda a jornada em um documento único pronto para cópia ou impressão.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button onclick="toggleModal('modal-siglas')" class="bg-senac-blue text-white text-xs font-bold px-4 py-2 rounded-lg">Entendi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: DOSSIÊ FINAL EXPORTÁVEL -->
+    <div id="modal-dossie" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-lg font-bold text-senac-blue">📄 Mapa Completo de Autoconhecimento — SENAC Canoinhas</h3>
+                <button onclick="toggleModal('modal-dossie')" class="text-slate-400 hover:text-slate-700 font-bold text-xl px-2">&times;</button>
+            </div>
+            <pre id="conteudo-dossie" class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs text-slate-800 whitespace-pre-wrap font-sans leading-relaxed max-h-[55vh] overflow-y-auto"></pre>
+            <div class="flex flex-wrap justify-between items-center gap-2 pt-2">
+                <span id="msg-copiado" class="text-xs font-bold text-emerald-600 hidden">✅ Mapa copiado para a área de transferência!</span>
+                <div class="flex gap-2 ml-auto">
+                    <button onclick="copiarDossie()" class="bg-senac-orange hover:bg-orange-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition">
+                        📋 Copiar Texto Completo
+                    </button>
+                    <button onclick="toggleModal('modal-dossie')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold px-4 py-2.5 rounded-xl transition">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de Notificação -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    </div>
+
+    <script>
+        // Estado central da aplicação
+        const estado = {
+            etapaAtual: 0,
+            corAvatarIdx: 0,
+            coresAvatar: ['bg-senac-blue', 'bg-senac-orange', 'bg-emerald-600', 'bg-purple-600', 'bg-rose-600', 'bg-slate-800'],
+            interesses: [],
+            habilidades: [],
+            valoresDisponiveis: [
+                'Respeito', 'Criatividade', 'Amizade', 'Responsabilidade',
+                'Coragem', 'Honestidade', 'Empatia', 'Cooperação',
+                'Justiça', 'Autonomia', 'Curiosidade', 'Perseverança'
+            ],
+            valoresSelecionados: []
+        };
+
+        // Inicialização ao carregar janela
+        window.onload = function () {
+            renderizarCartelaValores();
+            atualizarRoda();
+            window.addEventListener('resize', atualizarRoda);
+        };
+
+        // Notificação não-intrusiva (substitui alert)
+        function mostrarToast(mensagem) {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensagem;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Alternar modais
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // Navegação entre as 5 etapas
+        function mudarEtapa(indice) {
+            estado.etapaAtual = indice;
+            document.querySelectorAll('.etapa-panel').forEach((el, idx) => {
+                el.classList.toggle('hidden', idx !== indice);
+            });
+            document.querySelectorAll('.nav-btn').forEach((btn, idx) => {
+                if (idx === indice) {
+                    btn.classList.add('bg-senac-orange', 'text-white');
+                    btn.classList.remove('text-blue-200', 'hover:bg-white/10');
+                } else {
+                    btn.classList.remove('bg-senac-orange', 'text-white');
+                    btn.classList.add('text-blue-200', 'hover:bg-white/10');
+                }
+            });
+            if (indice === 3) {
+                setTimeout(atualizarRoda, 50);
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Estúdio da Persona (Artes)
+        function ciclarCorAvatar() {
+            const avatar = document.getElementById('avatar-preview');
+            avatar.classList.remove(estado.coresAvatar[estado.corAvatarIdx]);
+            estado.corAvatarIdx = (estado.corAvatarIdx + 1) % estado.coresAvatar.length;
+            avatar.classList.add(estado.coresAvatar[estado.corAvatarIdx]);
+        }
+
+        function atualizarAvatar() {
+            const val = document.getElementById('persona-sigla').value.trim();
+            document.getElementById('avatar-preview').textContent = val || '?';
+        }
+
+        function salvarEstado() {
+            // Função de sincronização contínua dos campos de texto
+        }
+
+        // Estação 1: Inventário de Interesses (10 a 15 itens)
+        function adicionarInteresse() {
+            const inputInt = document.getElementById('input-interesse');
+            const inputTema = document.getElementById('input-tema');
+            const assunto = inputInt.value.trim();
+            const tema = inputTema.value.trim() || 'Geral';
+
+            if (!assunto) {
+                mostrarToast('Digite um assunto ou atividade antes de adicionar.');
+                return;
+            }
+            if (estado.interesses.length >= 15) {
+                mostrarToast('Limite máximo de 15 interesses atingido.');
+                return;
+            }
+
+            estado.interesses.push({ assunto, tema });
+            inputInt.value = '';
+            renderizarInteresses();
+        }
+
+        function removerInteresse(idx) {
+            estado.interesses.splice(idx, 1);
+            renderizarInteresses();
+        }
+
+        function renderizarInteresses() {
+            const container = document.getElementById('lista-interesses');
+            const contador = document.getElementById('contador-interesses');
+            const qtd = estado.interesses.length;
+
+            contador.textContent = `${qtd} / 10 a 15 registrados`;
+            contador.className = qtd >= 10
+                ? 'text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800'
+                : 'text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700';
+
+            container.innerHTML = estado.interesses.map((item, idx) => `
+                <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs">
+                    <div>
+                        <span class="font-bold text-slate-800">${idx + 1}. ${escapeHtml(item.assunto)}</span>
+                        <span class="block text-[11px] text-senac-blue font-medium">Tema: ${escapeHtml(item.tema)}</span>
+                    </div>
+                    <button onclick="removerInteresse(${idx})" class="text-slate-400 hover:text-rose-600 font-bold px-1.5" title="Remover">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        // Estação 1: Matriz de Habilidades
+        function adicionarHabilidade() {
+            const inputHab = document.getElementById('input-habilidade');
+            const tipo = document.getElementById('select-tipo-hab').value;
+            const status = document.getElementById('select-status-hab').value;
+            const nome = inputHab.value.trim();
+
+            if (!nome) {
+                mostrarToast('Descreva a habilidade antes de registrar.');
+                return;
+            }
+
+            estado.habilidades.push({ nome, tipo, status });
+            inputHab.value = '';
+            renderizarHabilidades();
+        }
+
+        function removerHabilidade(idx) {
+            estado.habilidades.splice(idx, 1);
+            renderizarHabilidades();
+        }
+
+        function renderizarHabilidades() {
+            const fortesEl = document.getElementById('lista-pontos-fortes');
+            const lacunasEl = document.getElementById('lista-lacunas');
+            fortesEl.innerHTML = '';
+            lacunasEl.innerHTML = '';
+
+            estado.habilidades.forEach((hab, idx) => {
+                const badgeClass = hab.tipo === 'Técnica'
+                    ? 'bg-blue-100 text-senac-blue'
+                    : 'bg-purple-100 text-purple-800';
+
+                const card = `
+                    <div class="flex items-center justify-between bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs shadow-2xs">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-semibold text-slate-800">${escapeHtml(hab.nome)}</span>
+                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${hab.tipo}</span>
+                        </div>
+                        <button onclick="removerHabilidade(${idx})" class="text-slate-400 hover:text-rose-600 font-bold px-1">&times;</button>
+                    </div>
+                `;
+
+                if (hab.status === 'Ponto Forte') {
+                    fortesEl.innerHTML += card;
+                } else {
+                    lacunasEl.innerHTML += card;
+                }
+            });
+        }
+
+        // Estação 2: Bússola dos 5 Valores Centrais
+        function renderizarCartelaValores() {
+            const container = document.getElementById('cartela-valores');
+            container.innerHTML = estado.valoresDisponiveis.map(valor => {
+                const selecionado = estado.valoresSelecionados.includes(valor);
+                const classes = selecionado
+                    ? 'bg-senac-blue text-white border-senac-blue shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-300 hover:border-senac-blue';
+                return `
+                    <button onclick="alternarValor('${valor.replace(/'/g, "\\'")}')" class="px-3 py-1.5 rounded-full text-xs font-semibold border transition ${classes}">
+                        ${selecionado ? '✓ ' : '+ '}${escapeHtml(valor)}
+                    </button>
+                `;
+            }).join('');
+            renderizarRankingValores();
+        }
+
+        function adicionarValorCustom() {
+            const input = document.getElementById('novo-valor-custom');
+            const val = input.value.trim();
+            if (!val) return;
+            if (!estado.valoresDisponiveis.includes(val)) {
+                estado.valoresDisponiveis.push(val);
+            }
+            input.value = '';
+            alternarValor(val);
+        }
+
+        function alternarValor(valor) {
+            const idx = estado.valoresSelecionados.indexOf(valor);
+            if (idx > -1) {
+                estado.valoresSelecionados.splice(idx, 1);
+            } else {
+                if (estado.valoresSelecionados.length >= 5) {
+                    mostrarToast('Você já selecionou 5 valores centrais. Remova um para trocar.');
+                    return;
+                }
+                estado.valoresSelecionados.push(valor);
+            }
+            renderizarCartelaValores();
+        }
+
+        function moverValor(idx, direcao) {
+            const novoIdx = idx + direcao;
+            if (novoIdx < 0 || novoIdx >= estado.valoresSelecionados.length) return;
+            const temp = estado.valoresSelecionados[idx];
+            estado.valoresSelecionados[idx] = estado.valoresSelecionados[novoIdx];
+            estado.valoresSelecionados[novoIdx] = temp;
+            renderizarRankingValores();
+        }
+
+        function renderizarRankingValores() {
+            const contador = document.getElementById('contador-valores');
+            const ranking = document.getElementById('ranking-valores');
+            contador.textContent = `${estado.valoresSelecionados.length} / 5 selecionados`;
+
+            if (estado.valoresSelecionados.length === 0) {
+                ranking.innerHTML = '<p class="text-xs text-slate-400 italic">Nenhum valor selecionado ainda.</p>';
+                return;
+            }
+
+            ranking.innerHTML = estado.valoresSelecionados.map((val, idx) => `
+                <div class="flex items-center justify-between bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-6 h-6 rounded-full bg-senac-orange text-white font-extrabold flex items-center justify-center">${idx + 1}º</span>
+                        <span class="font-bold text-slate-800 text-sm">${escapeHtml(val)}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="moverValor(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-30 font-bold" title="Subir prioridade">↑</button>
+                        <button onclick="moverValor(${idx}, 1)" ${idx === estado.valoresSelecionados.length - 1 ? 'disabled' : ''} class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-30 font-bold" title="Descer prioridade">↓</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Estação 3: Roda do Autoconhecimento Jovem (Canvas Matemático)
+        function atualizarRoda() {
+            const notas = [1, 2, 3, 4].map(i => {
+                const val = parseInt(document.getElementById(`pilar-${i}`).value, 10);
+                document.getElementById(`val-pilar-${i}`).textContent = `${val} / 10`;
+                return val;
+            });
+
+            const media = (notas.reduce((a, b) => a + b, 0) / 4).toFixed(1);
+            document.getElementById('indice-equilibrio').textContent = `${media} / 10`;
+
+            const canvas = document.getElementById('canvas-roda');
+            if (!canvas) return;
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width === 0) return;
+
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+
+            const w = rect.width;
+            const h = rect.height;
+            const cx = w / 2;
+            const cy = h / 2;
+            const maxR = Math.min(w, h) * 0.37;
+
+            ctx.clearRect(0, 0, w, h);
+
+            const cores = [
+                'rgba(0, 74, 141, 0.78)',   // Estudos (Azul SENAC)
+                'rgba(16, 185, 129, 0.78)', // Saúde (Verde)
+                'rgba(247, 148, 29, 0.78)', // Relacionamentos (Laranja SENAC)
+                'rgba(139, 92, 246, 0.78)'  // Lazer (Roxo)
+            ];
+            const rotulos = ['Estudos', 'Saúde', 'Relações', 'Lazer'];
+
+            // Desenhar fatias preenchidas proporcionais às notas (1 a 10)
+            for (let i = 0; i < 4; i++) {
+                const startAngle = (i * Math.PI) / 2 - Math.PI / 2;
+                const endAngle = ((i + 1) * Math.PI) / 2 - Math.PI / 2;
+                const r = (notas[i] / 10) * maxR;
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = cores[i];
+                ctx.fill();
+            }
+
+            // Desenhar anéis concêntricos de 1 a 10
+            for (let step = 1; step <= 10; step++) {
+                ctx.beginPath();
+                ctx.arc(cx, cy, (step / 10) * maxR, 0, Math.PI * 2);
+                ctx.strokeStyle = step === 10 ? '#64748B' : 'rgba(148, 163, 184, 0.35)';
+                ctx.lineWidth = step === 10 ? 1.5 : 1;
+                ctx.stroke();
+            }
+
+            // Eixos ortogonais
+            ctx.beginPath();
+            ctx.moveTo(cx - maxR, cy);
+            ctx.lineTo(cx + maxR, cy);
+            ctx.moveTo(cx, cy - maxR);
+            ctx.lineTo(cx, cy + maxR);
+            ctx.strokeStyle = '#64748B';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            // Rótulos externos dos quadrantes
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillStyle = '#1E293B';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const posicoes = [
+                { x: cx + maxR * 0.68, y: cy - maxR * 0.85, texto: `${rotulos[0]} (${notas[0]})` },
+                { x: cx + maxR * 0.68, y: cy + maxR * 0.85, texto: `${rotulos[1]} (${notas[1]})` },
+                { x: cx - maxR * 0.68, y: cy + maxR * 0.85, texto: `${rotulos[2]} (${notas[2]})` },
+                { x: cx - maxR * 0.68, y: cy - maxR * 0.85, texto: `${rotulos[3]} (${notas[3]})` }
+            ];
+
+            posicoes.forEach(p => {
+                ctx.fillText(p.texto, p.x, p.y);
+            });
+        }
+
+        // Exportar Dossiê Completo
+        function exportarDossie() {
+            const nome = document.getElementById('persona-nome').value.trim() || 'Não informado';
+            const descPersona = document.getElementById('persona-descricao').value.trim() || 'Não informado';
+            const conquista = document.getElementById('mural-conquista').value.trim() || 'Não informado';
+            const palavras = [
+                document.getElementById('palavra-1').value.trim(),
+                document.getElementById('palavra-2').value.trim(),
+                document.getElementById('palavra-3').value.trim()
+            ].filter(Boolean).join(', ') || 'Não informado';
+
+            const listaInt = estado.interesses.length
+                ? estado.interesses.map((i, idx) => `  ${idx + 1}. ${i.assunto} [Tema: ${i.tema}]`).join('\n')
+                : '  Nenhum interesse registrado.';
+
+            const fortes = estado.habilidades.filter(h => h.status === 'Ponto Forte');
+            const lacunas = estado.habilidades.filter(h => h.status === 'Lacuna');
+
+            const listaFortes = fortes.length
+                ? fortes.map(h => `  - ${h.nome} (${h.tipo})`).join('\n')
+                : '  Nenhum ponto forte registrado.';
+
+            const listaLacunas = lacunas.length
+                ? lacunas.map(h => `  - ${h.nome} (${h.tipo})`).join('\n')
+                : '  Nenhuma lacuna registrada.';
+
+            const colega = document.getElementById('espelho-colega').value.trim() || 'Não informado';
+            const talentoVal = document.getElementById('espelho-talento').value.trim() || 'Não informado';
+            const evidencia = document.getElementById('espelho-evidencia').value.trim() || 'Não informado';
+
+            const rankingVal = estado.valoresSelecionados.length
+                ? estado.valoresSelecionados.map((v, idx) => `  ${idx + 1}º Lugar: ${v}`).join('\n')
+                : '  Nenhum valor hierarquizado.';
+
+            const custoValor = document.getElementById('valor-custo-reflexao').value.trim() || 'Não informado';
+            const dilema = document.getElementById('dilema-etico-registro').value.trim() || 'Não informado';
+
+            const p1 = document.getElementById('pilar-1').value;
+            const p2 = document.getElementById('pilar-2').value;
+            const p3 = document.getElementById('pilar-3').value;
+            const p4 = document.getElementById('pilar-4').value;
+
+            const m1 = document.getElementById('meta1-texto').value.trim() || 'Não informada';
+            const m1Tags = `[Interesse: ${document.getElementById('meta1-interesse').value || '-'} | Habilidade: ${document.getElementById('meta1-habilidade').value || '-'} | Valor: ${document.getElementById('meta1-valor').value || '-'}]`;
+
+            const m2 = document.getElementById('meta2-texto').value.trim() || 'Não informada';
+            const m2Tags = `[Interesse: ${document.getElementById('meta2-interesse').value || '-'} | Habilidade: ${document.getElementById('meta2-habilidade').value || '-'} | Valor: ${document.getElementById('meta2-valor').value || '-'}]`;
+
+            const carta = document.getElementById('carta-futuro').value.trim() || 'Não redigida.';
+            const frase = document.getElementById('frase-partilha').value.trim() || 'Não informada.';
+
+            const textoFinal = `====================================================================
+OFICINA PRÁTICA: NAVEGADORES DO FUTURO - MAPEANDO TALENTOS E VALORES
+Jovens Talentos • SENAC Canoinhas • Metodologia STEAM
+====================================================================
+
+1. IDENTIDADE & PERSONA (PILAR STEAM: ARTES)
+- Navegador(a): ${nome}
+- Perfil da Persona: ${descPersona}
+- Conquista / Momento de Orgulho: ${conquista}
+- 3 Palavras que me definem hoje: ${palavras}
+
+2. MAPA DE INTERESSES E PONTOS FORTES (PILARES STEAM: CIÊNCIA & TECNOLOGIA)
+- Inventário de Interesses:
+${listaInt}
+
+- Pontos Fortes (O que já faço bem):
+${listaFortes}
+
+- Lacunas (O que desejo desenvolver):
+${listaLacunas}
+
+- Espelho Positivo (Validação em Dupla):
+  Colega: ${colega} | Talento: ${talentoVal} | Evidência Prática: ${evidencia}
+
+3. BÚSSOLA DOS VALORES PESSOAIS (PILAR STEAM: ENGENHARIA ÉTICA)
+- Hierarquia dos 5 Valores Centrais:
+${rankingVal}
+- Valor em Situação de Desafio/Custo: ${custoValor}
+- Síntese do Mini-Dilema Ético em Grupo: ${dilema}
+
+4. RODA DO EQUILÍBRIO E METAS (PILAR STEAM: MATEMÁTICA)
+- Estudos e Aprendizado: ${p1}/10
+- Saúde e Energia: ${p2}/10
+- Relacionamentos: ${p3}/10
+- Lazer e Criatividade: ${p4}/10
+
+- Meta Concreta #1 ${m1Tags}:
+  ${m1}
+
+- Meta Concreta #2 ${m2Tags}:
+  ${m2}
+
+5. CARTA DE VALOR PARA O MEU EU DO FUTURO (SÍNTESE STEAM)
+${carta}
+
+- Frase-Síntese para Partilha Voluntária: "${frase}"
+====================================================================`;
+
+            document.getElementById('conteudo-dossie').textContent = textoFinal;
+            document.getElementById('msg-copiado').classList.add('hidden');
+            toggleModal('modal-dossie');
+        }
+
+        function copiarDossie() {
+            const texto = document.getElementById('conteudo-dossie').textContent;
+            const textarea = document.createElement('textarea');
+            textarea.value = texto;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                document.getElementById('msg-copiado').classList.remove('hidden');
+                mostrarToast('Dossiê copiado com sucesso!');
+            } catch (err) {
+                mostrarToast('Não foi possível copiar automaticamente.');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, function (m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+            });
+        }
+    </script>
+</body>
+</html>
